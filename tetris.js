@@ -826,7 +826,3 @@ function init(gt) {
 //        binds[key] = parseInt(localStorage[key]);
 //    }
 //}
-
-// TODO Do this better.
-// maybe have a onload function
-//loadLocalData();
