@@ -767,7 +767,7 @@ function init(gt) {
 
     // Stats
     if (gametype === 0) {
-        lineLimit = 10; //TODO select 10, 20, or 40
+        lineLimit = 40; //TODO select 10, 20, or 40
     } else {
         lineLimit = 150;
         score = 0;
