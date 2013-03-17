@@ -554,6 +554,7 @@ var FallingPiece = function() {
         this.pos = 0;
         this.tetro = [];
         this.active = false;
+        this.held = false;
     }
     this.hold = function() {
         if (!this.held) {
@@ -752,6 +753,8 @@ function init(gt) {
     stack = newGrid(10, 22);
     clear(stackCtx);
     clear(activeCtx);
+    clear(holdCtx);
+    holdPiece = undefined;
     gametype = gt;
     gravity = gravityUnit * 4;
     startTime = new Date().getTime();
