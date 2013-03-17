@@ -1,6 +1,6 @@
 /*
 Author: Simon Laroche
-Site: http://simon.lc/tetrjs/
+Site: http://simon.lc/
 
 Note: Before looking at this code, it would be wise to do a bit of reading about
 the game so you know why some things are done a certain way.
