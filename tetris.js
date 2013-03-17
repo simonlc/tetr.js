@@ -144,8 +144,14 @@ var firstRun;
 
 var inc;
 var gLoop;
-var gameOver;
-var paused = false;
+
+/**
+ * 0 = Normal
+ * 1 = win
+ * 9 = loss
+ */
+var gameState;
+//var paused = false;
 var lineLimit;
 var gametype;
 var gametypes = ['Sprint', 'Marathon'];
@@ -287,7 +293,7 @@ function addPiece(tetro) {
 
     // Lock out
     if (!valid) {
-        gameOver = 9;
+        gameState = 9;
         msg.innerHTML = 'KO!';
         return;
     }
@@ -362,19 +368,24 @@ function statistics() {
                  '</table>';
 }
 
-function gameOverUpdate() {
+/**
+ * Fade to grey animation played when player loses.
+ */
+function gameOverAnimation() {
     // FIXME Stopped working.
-    // Fade to grey animation played when player loses.
     if (toGreyRow >= 2) {
         for (var x = 0; x < stack.length; x++) {
             if (stack[x][toGreyRow]) {
-                stack[x][toGreyRow] = gameOver - 1;
+                stack[x][toGreyRow] = gameState - 1;
             }
         }
         toGreyRow--;
     }
 }
 
+/**
+ * Main update function that runs every frame.
+ */
 function update() {
     if (!fallingPiece.active) {
         fallingPiece.tetro = pieces[grabBag[inc]].tetro;
@@ -393,7 +404,7 @@ function update() {
         }
 
         if (!moveValid(0, 0, fallingPiece.tetro)) {
-            gameOver = 9;
+            gameState = 9;
             msg.innerHTML = 'KO!';
         } else {
             drawPreview();
@@ -449,7 +460,7 @@ function update() {
 
     // Win
     if (lines >= lineLimit) {
-        gameOver = 1;
+        gameState = 1;
     }
 
     statistics();
@@ -468,6 +479,8 @@ var FallingPiece = function() {
     this.held = false;
 
     this.rotate = function(direction) {
+
+        // Rotates the tetromino's matrix.
         var rotated = [];
         switch (direction) {
         case -1:
@@ -487,6 +500,8 @@ var FallingPiece = function() {
             }
             break;
         }
+
+        // Goes thorugh kick data until it finds a valid move.
         for (var x = 0; x < this.kickData[0].length; x++) {
             if (moveValid(
             this.kickData[this.pos.mod(4)][x][0] -
@@ -519,7 +534,6 @@ var FallingPiece = function() {
             case 'down':
                 if (moveValid(0, 1, this.tetro)) {
                     this.y += 1;
-                    score++;
                 }
                 break;
         }
@@ -537,7 +551,6 @@ var FallingPiece = function() {
         }
     }
     this.reset = function() {
-        // this function is dumb.
         this.pos = 0;
         this.tetro = [];
         this.active = false;
@@ -556,7 +569,6 @@ var FallingPiece = function() {
                 holdPiece = this.index;
                 this.reset();
             }
-            //this.reset();
             this.held = true;
             clear(holdCtx);
             draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
@@ -564,6 +576,7 @@ var FallingPiece = function() {
         }
     }
     this.update = function() {
+        // Apply gravity.
         if (moveValid(0, 1, this.tetro)) {
             this.y += gravity;
         } else {
@@ -584,6 +597,9 @@ var fallingPiece = new FallingPiece();
 
 // ========================== View ===========================================
 
+/**
+ * Draws a mino.
+ */
 function drawCell(x, y, color, ctx) {
     x = ~~x * (cellSize + borderSize) + borderSize;
     y = (~~y * (cellSize + borderSize) + borderSize) - 2 * (cellSize + borderSize);
@@ -602,14 +618,17 @@ function drawCell(x, y, color, ctx) {
     ctx.fill();
 }
 
+/**
+ * Clear canvas.
+ */
 function clear(ctx) {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 }
 
-//TODO Get new name
+/**
+ * Takes an array of minos and tells drawCell where to draw it.
+ */
 function draw(tetro, cx, cy, ctx, color) {
-    // TODO Add calling clear from here.
-    // POWER FUNCTION OHHHHHH YEAH
     for (var x = 0, len = tetro.length; x < len; x++) {
         for (var y = 0, wid = tetro[x].length; y < wid; y++) {
             if (tetro[x][y]) {
@@ -622,12 +641,29 @@ function draw(tetro, cx, cy, ctx, color) {
         }
     }
 }
+
+/**
+ * Draws the grabbag for the piece preview.
+ */
 function drawPreview() {
     clear(previewCtx);
     for (var i = 0; i < 6; i++) {
     draw(pieces[grabBag[inc + i]].tetro, pieces[grabBag[inc + i]].x - 3,
               pieces[grabBag[inc + i]].y + 2 + i * 3, previewCtx);
     }
+}
+
+//TODO display none if not sprint or use for levels or soemthing.
+function progressUpdate() {
+    if (lines <= 10) {
+        progressCtx.fillStyle = green[1];
+    } else if (lines > 30) {
+        progressCtx.fillStyle = red[1];
+    } else {
+        progressCtx.fillStyle = yellow[1];
+    }
+    progressCtx.fillRect(0, 0, progress.width, progress.height);
+    progressCtx.clearRect(0, 0, progress.width, progress.height * lines / lineLimit);
 }
 
 // ========================== Controller ======================================
@@ -667,37 +703,22 @@ addEventListener('keyup', function(e) {
 
 // ========================== Loop ===========================================
 
-//display none if not sprint or use for levels or soemthing.
-function progressUpdate() {
-    if (lines <= 10) {
-        progressCtx.fillStyle = green[1];
-    } else if (lines > 30) {
-        progressCtx.fillStyle = red[1];
-    } else {
-        progressCtx.fillStyle = yellow[1];
-    }
-    progressCtx.fillRect(0, 0, progress.width, progress.height);
-    progressCtx.clearRect(0, 0, progress.width, progress.height * lines / lineLimit);
-}
-
 
 function refresh() {
-    // Model
-    // TODO Use gamestates
-    if (!gameOver) {
+    if (!gameState) {
         update();
     } else {
-        gameOverUpdate();
+        gameOverAnimation();
     }
 
-    // View
     clear(activeCtx);
-    draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
-    //drawGhost();
+    draw(fallingPiece.tetro, fallingPiece.x,
+         fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
     draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
 }
 
 function gameLoop() {
+    // TODO upgrade to request animation frame.
     refresh();
     gLoop = setTimeout(gameLoop, 1000 / 60);
 }
@@ -706,7 +727,6 @@ function countDownLoop() {
     end = startTime + 1999;
     var thisFrame = Date.now();
     time = end - thisFrame;
-    //seconds = ~~((time / 1000) % 60) + 1;
     if (time > 1000) {
         //TODO find better allcaps font
         msg.innerHTML = 'READY';
@@ -718,19 +738,12 @@ function countDownLoop() {
     } else {
         clearTimeout(cDown);
         msg.innerHTML = '';
-        startGame();
+        gameState = 0;
+        gameLoop();
+        startTime = new Date().getTime();
     }
 }
-function startGame() {
-    //reset();
-    gameOver = 0;
-    gameLoop();
-    startTime = new Date().getTime();
-}
 
-/**
- * Menu Buttons
- */
 function init(gt) {
     toGreyRow = 22; // this just =='s 22 I think.
     clearTimeout(gLoop);
@@ -771,44 +784,48 @@ function init(gt) {
 
     countDownLoop();
 }
-function controls() {
-    toggleMenu(controlsMenu);
-    // edit table with controls keycodes
-    for (i in localBinds.key()) {
-        //add a row to table
-    }
-}
-function toggleMenu(menuName) {
-    if (menuName.style.display == 'none' && menu.style.display == 'none') {
-        //open the menu
-        menu.style.display = 'table';
-        menuName.style.display = 'inline-block';
-    } else if (menuName.style.display == 'none' && menu.style.display != 'none') {
-        //switch menus
-        for (i = 0; i < menus.length; i++) {
-            menus[i].style.display = 'none';
-        }
-        menuName.style.display = 'inline-block';
-    } else {
-        //close the menu
-        menu.style.display = 'none';
-        menuName.style.display = 'none';
-    }
-}
+
+/**
+ * Menu Buttons
+ */
+//function controls() {
+//    toggleMenu(controlsMenu);
+//    // edit table with controls keycodes
+//    for (i in localBinds.key()) {
+//        //add a row to table
+//    }
+//}
+//function toggleMenu(menuName) {
+//    if (menuName.style.display == 'none' && menu.style.display == 'none') {
+//        //open the menu
+//        menu.style.display = 'table';
+//        menuName.style.display = 'inline-block';
+//    } else if (menuName.style.display == 'none' && menu.style.display != 'none') {
+//        //switch menus
+//        for (i = 0; i < menus.length; i++) {
+//            menus[i].style.display = 'none';
+//        }
+//        menuName.style.display = 'inline-block';
+//    } else {
+//        //close the menu
+//        menu.style.display = 'none';
+//        menuName.style.display = 'none';
+//    }
+//}
 
 /**
  * Local Storage
  */
-function saveLocalData() {
-    for (var key in binds) {
-        localStorage[key] = binds[key];
-    }
-}
-function loadLocalData() {
-    for (var key in localStorage) {
-        binds[key] = parseInt(localStorage[key]);
-    }
-}
+//function saveLocalData() {
+//    for (var key in binds) {
+//        localStorage[key] = binds[key];
+//    }
+//}
+//function loadLocalData() {
+//    for (var key in localStorage) {
+//        binds[key] = parseInt(localStorage[key]);
+//    }
+//}
 
 // TODO Do this better.
 // maybe have a onload function
