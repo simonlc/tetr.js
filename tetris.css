@@ -1,0 +1,243 @@
+@font-face {
+  font-family: 'Share Tech Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Share Tech Mono'), local('ShareTechMono-Regular'), url(http://themes.googleusercontent.com/static/fonts/sharetechmono/v1/RQxK-3RA0Lnf3gnnnNrAsUYuTAAIFFn5GTWtryCmBQ4.woff) format('woff');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url(http://themes.googleusercontent.com/static/fonts/lato/v6/9k-RPmcnxYEPm8CNFsH2gg.woff) format('woff');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Lato Bold'), local('Lato-Bold'), url(http://themes.googleusercontent.com/static/fonts/lato/v6/wkfQbvfT_02e2IWO3yYueQ.woff) format('woff');
+}
+::-moz-selection {
+  background: none;
+}
+::selection {
+  background: none;
+}
+html, body {
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+}
+a {
+  text-decoration: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+th {
+  font-weight: normal;
+}
+
+body {
+  color: #222;
+  background: #ddd;
+  font: 1em 'Lato';
+}
+header {
+  background: #333;
+  text-align: center;
+  position: relative;
+  width: 6rem;
+  height: 100%;
+  float: left;
+  box-shadow: inset -3px 0 6px rgba(0,0,0,0.5);
+  margin: 0 1rem 0 0;
+}
+header>img {
+  background: #555;
+  padding: 14px 22px;
+}
+header a {
+  color: #aaa;
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+  margin: 1rem 0 0;
+  display: block;
+}
+#snav {
+  background: #eee;
+  height: 4rem;
+  margin: 0 0 1rem 0;
+  vertical-align: middle;
+}
+#snav>a {
+  font-size: 1.25rem;
+  margin: 0 0 0 1rem;
+  color: #f8f8f8;
+  background: #4da6ee;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 0.3rem 0.6rem 0.4rem;
+  position: relative;
+  top: -0.4rem;
+}
+h1 {
+  font-size: 2rem;
+  margin: 0;
+  line-height: 4rem;
+  display: inline;
+}
+#content {
+}
+
+canvas {
+  background: #f8f8f8 url('c.png');
+  border: 2px solid #999;
+  vertical-align: top;
+  float: left;
+}
+#hold {
+  margin: 0 0.5rem 0 0;
+}
+#c {
+  /* TODO adjust in js */
+  width: 326px;
+  height: 646px;
+  position: relative;
+  overflow: hidden;
+  float: left;
+}
+  #stack {
+    z-index: 1;
+    position: absolute;
+  }
+  #active {
+    position: absolute;
+    background: none;
+    z-index: 2;
+  }
+  #msg {
+    font-size: 4rem;
+    color: #000;
+    text-shadow:
+     -1px -1px 0 #fff,  
+      1px -1px 0 #fff,
+     -1px  1px 0 #fff,
+      1px  1px 0 #fff;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    line-height: 642px;
+    margin: 0;
+    z-index: 3;
+  }
+#progress {
+  background: none;
+  border-left: none;
+}
+#preview {
+  margin: 0 0 0 0.5rem;
+}
+
+/* Menus */
+#menu {
+  background: #ddd;
+  padding: 1rem;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 4rem;
+  left: 6rem;
+  z-index: 99;
+}
+#mainMenu,
+#gameOverMenu,
+#pauseMenu,
+#controlsMenu,
+#settingsMenu {
+}
+/*#endStats {
+  font-size: 1.5em;
+  display: table-cell;
+  vertical-align: middle;
+}
+#endStats tr {
+  display: block;
+}
+#endStats th {
+  color: #999;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
+               0 1px 0 rgba(255,255,255,0.5);
+}
+#endStats td {
+  font-size: 1.85em;
+  color: #102836;
+  font-family:'Share Tech Mono', monospace;
+  display: block;
+  position: relative;
+}*/
+
+h2 {
+  margin: 0 0 1rem;
+}
+#stats {
+  font-size: 1.5em;
+  margin: 0 1em;
+  float: left;
+}
+#stats tr {
+  display: block;
+}
+#stats th {
+  color: #999;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
+               0 1px 0 rgba(255,255,255,0.5);
+}
+#stats td {
+  font-size: 1.85em;
+  color: #102836;
+  font-family:'Share Tech Mono', monospace;
+  display: block;
+  position: relative;
+}
+
+#controlsMenu tr {
+  font-size: 1.125rem;
+  background: white;
+  border-top: 2px solid #ffc719;
+  cursor: pointer;
+}
+#controlsMenu tr:hover {
+  background: #eee;
+}
+#controlsMenu th {
+  font-weight: normal;
+  text-align: left;
+  padding: 0.5rem 1rem;
+}
+#controlsMenu td {
+  text-align: right;
+  padding: 0.5rem 1rem;
+}
+
+/*.button {
+  text-decoration: none;
+  display: block;
+  width: 10em;
+  color: #f8f8f8;
+  background: #4da6ee;
+  padding: 0.5em;
+  margin: 1em auto;
+  border-bottom: 3px solid #268bd2;
+  box-shadow: 0 6px 0 -3px rgba(0,0,0,0.5);
+  position: relative;
+  cursor: pointer;
+}
+.button:hover {
+  top: -1px;
+  box-shadow: 0 7px 0 -3px rgba(0,0,0,0.5);
+}
+.button:active {
+  top: 1px;
+  box-shadow: 0 5px 0 -3px rgba(0,0,0,0.5);
+}*/
