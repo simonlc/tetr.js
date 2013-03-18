@@ -150,6 +150,7 @@ var firstRun;
 
 var inc;
 var gLoop;
+var cDown;
 
 /**
  * 0 = Normal
@@ -740,7 +741,7 @@ function countDownLoop() {
         msg.innerHTML = 'GO!';
     }
     if (time >= 0) {
-        var cDown = setTimeout(countDownLoop, 1000 / 10);
+        cDown = setTimeout(countDownLoop, 1000 / 10);
     } else {
         clearTimeout(cDown);
         msg.innerHTML = '';
