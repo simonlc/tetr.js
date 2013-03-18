@@ -790,6 +790,7 @@ function init(gt) {
     drawPreview();
     progressUpdate();
 
+    clearTimeout(cDown);
     countDownLoop();
 }
 
