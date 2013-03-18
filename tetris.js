@@ -46,6 +46,12 @@ var kickData = [
     [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
     [[0, 0], [-1, 0], [-1, 1], [0, -2], [-1, -2]]
 ];
+//var kickData = [
+//    [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
+//    [[0, 0], [1, 0], [1, -1], [0, 2], [1, 2]],
+//    [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
+//    [[0, 0], [-1, 0], [-1, -1], [0, 2], [-1, 2]]
+//];
 var kickDataI = [
     [[0, 0], [-1, 0], [2, 0], [-1, 0], [2, 0]],
     [[-1, 0], [0, 0], [0, 0], [0, -1], [0, 2]],
@@ -300,7 +306,7 @@ function addPiece(tetro) {
 
     // Check modified lines for full lines.
     lineRange = lineRange.sort();
-    for (var row = lineRange[lineRange.length - 1]; row >= lineRange[0]; row--) {
+    for (var row = lineRange[0], len = row + lineRange.length; row < len; row++) {
         var count = 0;
         for (var x = 0; x < 10; x++) { // 10 is the stack width
             if (stack[x][row]) {
@@ -315,7 +321,6 @@ function addPiece(tetro) {
                 for (var x = 0; x < 10; x++) {
                     stack[x][y] = stack[x][y - 1];
                 }
-                row++;
             }
             progressUpdate();
         }
