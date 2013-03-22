@@ -31,9 +31,16 @@
 
   <!-- Menus -->
   <div id=menu style=display:none>
-    <div id=controlsMenu style=display:none>
+    <div id=settingsMenu style=display:none>
+      <h2>Settings</h2>
+      <ul>
+        <li>DAS Speed
+        <li>DAS Delay
+        <li>Gravity
+        <li>Reset High Scores
+      </ul>
       <h2>Controls</h2>
-      <table>
+      <table id=controls>
         <tr> <th>Move Left    <td>Left Arrow
         <tr> <th>Move Right   <td>Right Arrow
         <tr> <th>Move Down    <td>Down Arrow
@@ -46,16 +53,6 @@
       </table>
       <a class=button onclick=toggleMenu()>Done</a>
     </div>
-    <div id=settingsMenu style=display:none>
-      <h2>Settings</h2>
-      <ul>
-        <li>DAS Speed
-        <li>DAS Delay
-        <li>Gravity
-        <li>Reset High Scores
-      </ul>
-      <a class=button onclick=toggleMenu()>Done</a>
-    </div>
   </div>
 
   <!-- Stats -->
@@ -63,4 +60,4 @@
 
 </div>
 <script src=tetris.js></script>
-<script>var _gaq=[['_setAccount','UA-30472693-1'],['_trackPageview']];(function(d,t){var g=d.createElement(t),s=d.getElementsByTagName(t)[0];g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)}(document,'script'))</script>
+<script>_gaq=[['_setAccount','UA-30472693-1'],['_trackPageview']];(function(d){var g=d.createElement('script'),s=d.scripts[0];g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)})(document)</script>
