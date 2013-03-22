@@ -527,21 +527,18 @@ var FallingPiece = function() {
     }
     this.shift = function(key) {
         switch(key) {
-            case 'left':
-                if (moveValid(-1, 0, this.tetro)) {
-                    this.x -= 1;
-                }
-                break;
-            case 'right':
-                if (moveValid(1, 0, this.tetro)) {
-                    this.x += 1;
-                }
-                break;
-            case 'down':
-                if (moveValid(0, 1, this.tetro)) {
-                    this.y += 1;
-                }
-                break;
+        case 'left':
+            if (moveValid(-1, 0, this.tetro))
+                this.x -= 1;
+            break;
+        case 'right':
+            if (moveValid(1, 0, this.tetro))
+                this.x += 1;
+            break;
+        case 'down':
+            if (moveValid(0, 1, this.tetro))
+                this.y += 1;
+            break;
         }
     }
     this.hardDrop = function() {
