@@ -187,6 +187,104 @@ var binds = {
     retry: 82
 };
 
+var key = {
+    8: 'Backspace',
+    9: 'Tab',
+    13: 'Enter',
+    16: 'Shift',
+    17: 'Ctrl',
+    18: 'Alt',
+    19: 'Pause',
+    20: 'Caps Lock',
+    27: 'Esc',
+    32: 'Space',
+    33: 'PgUp',
+    34: 'PgDn',
+    35: 'End',
+    36: 'Home',
+    37: '←',
+    38: '↑',
+    39: '→',
+    40: '↓',
+    45: 'Insert',
+    46: 'Delete',
+    48: '0',
+    49: '1',
+    50: '2',
+    51: '3',
+    52: '4',
+    53: '5',
+    54: '6',
+    55: '7',
+    56: '8',
+    57: '9',
+    59: ';',
+    61: '=',
+    65: 'A',
+    66: 'B',
+    67: 'C',
+    68: 'D',
+    69: 'E',
+    70: 'F',
+    71: 'G',
+    72: 'H',
+    73: 'I',
+    74: 'J',
+    75: 'K',
+    76: 'L',
+    77: 'M',
+    78: 'N',
+    79: 'O',
+    80: 'P',
+    81: 'Q',
+    82: 'R',
+    83: 'S',
+    84: 'T',
+    85: 'U',
+    86: 'V',
+    87: 'W',
+    88: 'X',
+    89: 'Y',
+    90: 'Z',
+    96: '0kpad',
+    97: '1kpad',
+    98: '2kpad',
+    99: '3kpad',
+    100: '4kpad',
+    101: '5kpad',
+    102: '6kpad',
+    103: '7kpad',
+    104: '8kpad',
+    105: '9kpad',
+    106: '*',
+    107: '+',
+    109: '-',
+    110: '.',
+    111: '/',
+    112: 'F1',
+    113: 'F2',
+    114: 'F3',
+    115: 'F4',
+    116: 'F5',
+    117: 'F6',
+    118: 'F7',
+    119: 'F8',
+    120: 'F9',
+    121: 'F10',
+    122: 'F11',
+    123: 'F12',
+    173: '-',
+    187: '=',
+    188: ',',
+    190: '.',
+    191: '/',
+    192: '`',
+    219: '[',
+    220: '\\',
+    221: ']',
+    222: "'"
+}
+
 //var localScores = {
 //    1: 'time' + 'piece' + 'ppm',
 //}
@@ -210,7 +308,7 @@ progressCanvas.width = 6;
 
 /**
  * Add divisor method so we can do clock arithmetics which is later used to
- * determine tetromino orientation.
+ *  determine tetromino orientation.
  */
 Number.prototype.mod = function(n) {
     return ((this % n) + n) % n;
@@ -229,7 +327,7 @@ function newGrid(x, y) {
 
 /**
  * Creates a "grab bag" of the 7 tetrominos. The first
- * drop of the first generation can not be an S, O, or Z piece.
+ *  drop of the first generation can not be an S, O, or Z piece.
  */
 function randomGenerator() {
     var pieceList = [0, 1, 2, 3, 4, 5, 6];
@@ -249,8 +347,8 @@ function randomGenerator() {
 
 /**
  * Checks if position and orientation passed is valid.
- * We call it for every action instead of only once in case one of the actions
- * is still valid, we don't want to block it.
+ *  We call it for every action instead of only once in case one of the actions
+ *  is still valid, we don't want to block it.
  */
 function moveValid(cx, cy, tetro) {
     cx = cx + fallingPiece.x;
@@ -797,34 +895,57 @@ function init(gt) {
 //        //add a row to table
 //    }
 //}
-//function toggleMenu(menuName) {
-//    if (menuName.style.display == 'none' && menu.style.display == 'none') {
-//        //open the menu
-//        menu.style.display = 'table';
-//        menuName.style.display = 'inline-block';
+function toggleMenu(menuName) {
+    if (menuName.style.display == 'none' && menu.style.display == 'none') {
+        //open the menu
+        menu.style.display = 'table';
+        menuName.style.display = 'block';
 //    } else if (menuName.style.display == 'none' && menu.style.display != 'none') {
 //        //switch menus
 //        for (i = 0; i < menus.length; i++) {
 //            menus[i].style.display = 'none';
 //        }
 //        menuName.style.display = 'inline-block';
-//    } else {
-//        //close the menu
-//        menu.style.display = 'none';
-//        menuName.style.display = 'none';
-//    }
-//}
+    } else {
+        //close the menu
+        menu.style.display = 'none';
+        menuName.style.display = 'none';
+    }
+}
 
 /**
  * Local Storage
  */
+var newKey,
+    currCell,
+    controls = document.getElementById('controls'),
+    controlCells = controls.getElementsByTagName('td');
+for (var i = 0, len = controlCells.length; i < len; i++) {
+    controlCells[i].onclick = function() {
+        currCell = this;
+    }
+}
+
+addEventListener('keyup', function(e) {
+    //TODO unbind key if used elsewhere
+    // if click outside of cell or press esc clear currCell
+    // get names for keycodes
+    if (currCell) {
+        binds[currCell.id] = e.keyCode;
+        currCell.innerHTML = key[e.keyCode];
+        localStorage.setItem('binds', JSON.stringify(binds));
+        currCell = 0;
+    }
+}, false);
+
 //function saveLocalData() {
 //    for (var key in binds) {
 //        localStorage[key] = binds[key];
 //    }
 //}
-//function loadLocalData() {
-//    for (var key in localStorage) {
-//        binds[key] = parseInt(localStorage[key]);
-//    }
-//}
+function loadLocalData() {
+    if (localStorage['binds']) {
+        binds = JSON.parse(localStorage.getItem('binds'));
+    }
+}
+loadLocalData();

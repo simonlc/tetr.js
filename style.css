@@ -16,12 +16,21 @@
   font-weight: 700;
   src: local('Lato Bold'), local('Lato-Bold'), url(http://themes.googleusercontent.com/static/fonts/lato/v6/wkfQbvfT_02e2IWO3yYueQ.woff) format('woff');
 }
-::-moz-selection {
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('fontawesome-webfont.eot?v=3.0.1');
+  src: url('fontawesome-webfont.eot?#iefix&v=3.0.1') format('embedded-opentype'),
+    url('fontawesome-webfont.woff?v=3.0.1') format('woff'),
+    url('fontawesome-webfont.ttf?v=3.0.1') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+/*::-moz-selection {
   background: none;
 }
 ::selection {
   background: none;
-}
+}*/
 html, body {
   height: 100%;
   max-height: 100%;
@@ -53,10 +62,10 @@ header {
   box-shadow: inset -3px 0 6px rgba(0,0,0,0.5);
   margin: 0 1rem 0 0;
 }
-header>img {
+/*header>img {
   background: #555;
   padding: 14px 22px;
-}
+}*/
 header a {
   color: #aaa;
   font-weight: bold;
@@ -81,6 +90,23 @@ header a {
   position: relative;
   top: -0.4rem;
 }
+[class^="icon-"],
+[class*=" icon-"] {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  -webkit-font-smoothing: antialiased;
+}
+.icon-cog:before{font-size:2.3em;display:block;content:'\f021'}
+nav>a {
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+nav>a:hover {
+  background: #444;
+}
+
 h1 {
   font-size: 2rem;
   margin: 0;
@@ -138,45 +164,6 @@ canvas {
 #preview {
   margin: 0 0 0 0.5rem;
 }
-
-/* Menus */
-#menu {
-  background: #ddd;
-  padding: 1rem;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 4rem;
-  left: 6rem;
-  z-index: 99;
-}
-#mainMenu,
-#gameOverMenu,
-#pauseMenu,
-#controlsMenu,
-#settingsMenu {
-}
-/*#endStats {
-  font-size: 1.5em;
-  display: table-cell;
-  vertical-align: middle;
-}
-#endStats tr {
-  display: block;
-}
-#endStats th {
-  color: #999;
-  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
-               0 1px 0 rgba(255,255,255,0.5);
-}
-#endStats td {
-  font-size: 1.85em;
-  color: #102836;
-  font-family:'Share Tech Mono', monospace;
-  display: block;
-  position: relative;
-}*/
-
 h2 {
   margin: 0 0 1rem;
 }
@@ -201,26 +188,49 @@ h2 {
   position: relative;
 }
 
-#controlsMenu tr {
-  font-size: 1.125rem;
-  background: white;
-  border-top: 2px solid #ffc719;
-  cursor: pointer;
+/* Menus */
+#menu {
+  background: #ddd;
+  padding: 1rem;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 4rem;
+  left: 6rem;
+  z-index: 99;
 }
-#controlsMenu tr:hover {
-  background: #eee;
+#mainMenu,
+#gameOverMenu,
+#pauseMenu,
+#controls,
+#settingsMenu {
+
 }
-#controlsMenu th {
+#controls {
+}
+#controls th {
   font-weight: normal;
   text-align: left;
-  padding: 0.5rem 1rem;
 }
-#controlsMenu td {
-  text-align: right;
-  padding: 0.5rem 1rem;
+#controls td{
+  cursor: pointer;
+  display: block;
+  margin: 5px 0 0 4em;
+  text-align: center;
+  width: 6em;
+  line-height: 2em;
+  background: #eee;
+  border-radius: 5px;
+}
+#controls td:hover {
+  background: #eaeaea;
 }
 
-/*.button {
+#controls td:active {
+  background: #e7e7e7;
+}
+.button {
+  text-align: center;
   text-decoration: none;
   display: block;
   width: 10em;
@@ -240,4 +250,4 @@ h2 {
 .button:active {
   top: 1px;
   box-shadow: 0 5px 0 -3px rgba(0,0,0,0.5);
-}*/
+}
