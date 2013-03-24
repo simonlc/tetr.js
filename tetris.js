@@ -527,7 +527,7 @@ function update() {
             rotateReleased = false;
         }
     }
-    if (shiftReleased || fallingPiece.shiftDelay == 14) {
+    if (shiftReleased || fallingPiece.shiftDelay == 10) {
         if (binds.moveLeft in keysDown) {
             fallingPiece.shift('left');
             shiftReleased = false;
