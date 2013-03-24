@@ -307,7 +307,7 @@ progressCanvas.width = 6;
  */
 
 /**
- * Add divisor method so we can do clock arithmetics which is later used to
+ * Add divisor method so we can do clock arithmetics. This is later used to
  *  determine tetromino orientation.
  */
 Number.prototype.mod = function(n) {
@@ -381,8 +381,11 @@ function addPiece(tetro) {
             if (tetro[x][y]) {
                 stack[x + fallingPiece.x][y + fallingPiece.y] = tetro[x][y];
                 if (lineRange.indexOf(y + fallingPiece.y) == -1) {
+
                     lineRange.push(y + fallingPiece.y);
-                    // This checks if any cell is in the play field.
+
+                    // This checks if any cell is in the play field. If there
+                    //  isn't any this is called a lock out and the game ends.
                     if (y + fallingPiece.y > 1) {
                         valid = true;
                     }
@@ -437,13 +440,10 @@ function statistics() {
     minutes = time / 1000 / 60;
     lpm = (lines / minutes).toPrecision().slice(0, 8);
     ppm = (piecesSet / minutes).toPrecision().slice(0, 8);
-    // TODO learn shortform javascript;
-    if (isNaN(lpm)) {
+    if (isNaN(lpm))
         lpm = 0;
-    }
-    if (isNaN(ppm)) {
+    if (isNaN(ppm))
         ppm = 0;
-    }
 
     // Seconds and minutes for displaying clock.
     // TODO Clean this up.
@@ -487,13 +487,17 @@ function gameOverAnimation() {
  */
 function update() {
     if (!fallingPiece.active) {
+
+        // TODO Do this better.
         fallingPiece.tetro = pieces[grabBag[inc]].tetro;
         fallingPiece.kickData = pieces[grabBag[inc]].kickData;
         fallingPiece.x = pieces[grabBag[inc]].x;
         fallingPiece.y = pieces[grabBag[inc]].y;
         fallingPiece.index = pieces[grabBag[inc]].index;
+
         fallingPiece.active = true;
 
+        // Determine if we need another grab bag.
         if (inc < 6) {
             inc++;
         } else {
@@ -502,6 +506,7 @@ function update() {
             inc = 0;
         }
 
+        // Check for blockout.
         if (!moveValid(0, 0, fallingPiece.tetro)) {
             gameState = 9;
             msg.innerHTML = 'KO!';
@@ -513,15 +518,12 @@ function update() {
     // TODO Move to controller.
     if (rotateReleased) {
         if (binds.rotLeft in keysDown) {
-            // Z key down, Counter-Clockwise
             fallingPiece.rotate(-1);
             rotateReleased = false;
         } else if (binds.rotRight in keysDown) {
-            // X key down, Clockwise
             fallingPiece.rotate(1);
             rotateReleased = false;
         } else if (binds.rot180 in keysDown) {
-            //180 rotate
             fallingPiece.rotate(1);
             fallingPiece.rotate(1);
             rotateReleased = false;
@@ -766,7 +768,7 @@ document.onkeydown = function(e) {
     if ([32,37,38,39,40].indexOf(e.keyCode) != -1) {
         e.preventDefault();
     }
-    //if (bindsArr.indexOf(e.keyCode) > -1) {
+    //if (bindsArr.indexOf(e.keyCode) != -1) {
     //    e.preventDefault();
     //}
     if (e.keyCode == binds.pause) {
@@ -797,7 +799,8 @@ addEventListener('keyup', function(e) {
 // ========================== Loop ===========================================
 
 
-function refresh() {
+function gameLoop() {
+    // TODO upgrade to request animation frame.
     if (!gameState) {
         update();
     } else {
@@ -808,11 +811,7 @@ function refresh() {
     draw(fallingPiece.tetro, fallingPiece.x,
          fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
     draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
-}
 
-function gameLoop() {
-    // TODO upgrade to request animation frame.
-    refresh();
     gLoop = setTimeout(gameLoop, 1000 / 60);
 }
 
