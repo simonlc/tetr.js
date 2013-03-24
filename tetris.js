@@ -573,6 +573,12 @@ var FallingPiece = function() {
     this.active = false;
     this.held = false;
 
+    this.reset = function() {
+        this.pos = 0;
+        this.tetro = [];
+        this.active = false;
+        this.held = false;
+    }
     this.rotate = function(direction) {
 
         // Rotates the tetromino's matrix.
@@ -597,19 +603,21 @@ var FallingPiece = function() {
         }
 
         // Goes thorugh kick data until it finds a valid move.
-        for (var x = 0; x < this.kickData[0].length; x++) {
+        var curPos = this.pos.mod(4);
+        var newPos = (this.pos + direction).mod(4);
+
+        for (var x = 0, len = this.kickData[0].length; x < len; x++) {
             if (moveValid(
-            this.kickData[this.pos.mod(4)][x][0] -
-            this.kickData[(this.pos + direction).mod(4)][x][0],
-            this.kickData[this.pos.mod(4)][x][1] -
-            this.kickData[(this.pos + direction).mod(4)][x][1], rotated
+            this.kickData[curPos][x][0] - this.kickData[newPos][x][0],
+            this.kickData[curPos][x][1] - this.kickData[newPos][x][1],
+            rotated
             )) {
-                this.x += this.kickData[this.pos.mod(4)][x][0] -
-                    this.kickData[(this.pos + direction).mod(4)][x][0];
-                this.y += this.kickData[this.pos.mod(4)][x][1] -
-                    this.kickData[(this.pos + direction).mod(4)][x][1];
+                this.x += this.kickData[curPos][x][0] -
+                          this.kickData[newPos][x][0];
+                this.y += this.kickData[curPos][x][1] -
+                          this.kickData[newPos][x][1];
                 this.tetro = rotated;
-                this.pos = (this.pos + direction).mod(4);
+                this.pos = newPos;
                 break;
             }
         }
@@ -642,12 +650,6 @@ var FallingPiece = function() {
             }
         }
     }
-    this.reset = function() {
-        this.pos = 0;
-        this.tetro = [];
-        this.active = false;
-        this.held = false;
-    }
     this.hold = function() {
         if (!this.held) {
             if (holdPiece !== undefined) {
@@ -656,6 +658,7 @@ var FallingPiece = function() {
                 this.y = pieces[holdPiece].y;
                 this.pos = 0;
                 this.tetro = pieces[holdPiece].tetro;
+                this.kickData = pieces[holdPiece].kickData;
                 holdPiece = this.index;
                 this.index = temp;
             } else {
