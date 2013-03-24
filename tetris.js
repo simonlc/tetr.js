@@ -946,6 +946,9 @@ addEventListener('keyup', function(e) {
 function loadLocalData() {
     if (localStorage['binds']) {
         binds = JSON.parse(localStorage.getItem('binds'));
+        for (var i = 0, len = controlCells.length; i < len; i++) {
+            controlCells[i].innerHTML = key[binds[controlCells[i].id]];
+        }
     }
 }
 loadLocalData();
