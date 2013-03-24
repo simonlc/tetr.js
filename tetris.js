@@ -520,10 +520,6 @@ function update() {
             // X key down, Clockwise
             fallingPiece.rotate(1);
             rotateReleased = false;
-        } else if (38 in keysDown) {
-            // Up key down, Clockwise
-            fallingPiece.rotate(1);
-            rotateReleased = false;
         } else if (binds.rot180 in keysDown) {
             //180 rotate
             fallingPiece.rotate(1);
@@ -781,7 +777,7 @@ document.onkeydown = function(e) {
     }
 };
 addEventListener('keyup', function(e) {
-    if (e.keyCode == binds.rot180 || e.keyCode == binds.rotLeft || e.keyCode == 38 || e.keyCode == binds.rotRight) {
+    if (e.keyCode == binds.rot180 || e.keyCode == binds.rotLeft || e.keyCode == binds.rotRight) {
         rotateReleased = true;
     }
     if (e.keyCode == binds.moveLeft || e.keyCode == binds.moveRight) {
