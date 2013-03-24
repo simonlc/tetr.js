@@ -884,13 +884,6 @@ function init(gt) {
 /**
  * Menu Buttons
  */
-//function controls() {
-//    toggleMenu(controlsMenu);
-//    // edit table with controls keycodes
-//    for (i in localBinds.key()) {
-//        //add a row to table
-//    }
-//}
 function toggleMenu(menuName) {
     if (menuName.style.display == 'none' && menu.style.display == 'none') {
         //open the menu
@@ -926,6 +919,7 @@ addEventListener('keyup', function(e) {
     //TODO unbind key if used elsewhere
     // if click outside of cell or press esc clear currCell
     // get names for keycodes
+    // reset binds button.
     if (currCell) {
         binds[currCell.id] = e.keyCode;
         currCell.innerHTML = key[e.keyCode];
@@ -934,11 +928,6 @@ addEventListener('keyup', function(e) {
     }
 }, false);
 
-//function saveLocalData() {
-//    for (var key in binds) {
-//        localStorage[key] = binds[key];
-//    }
-//}
 function loadLocalData() {
     if (localStorage['binds']) {
         binds = JSON.parse(localStorage.getItem('binds'));
