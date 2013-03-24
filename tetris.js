@@ -381,9 +381,7 @@ function addPiece(tetro) {
             if (tetro[x][y]) {
                 stack[x + fallingPiece.x][y + fallingPiece.y] = tetro[x][y];
                 if (lineRange.indexOf(y + fallingPiece.y) == -1) {
-
                     lineRange.push(y + fallingPiece.y);
-
                     // This checks if any cell is in the play field. If there
                     //  isn't any this is called a lock out and the game ends.
                     if (y + fallingPiece.y > 1) {
@@ -402,7 +400,7 @@ function addPiece(tetro) {
     }
 
     // Check modified lines for full lines.
-    lineRange = lineRange.sort();
+    lineRange = lineRange.sort(function(a,b){return a-b});
     for (var row = lineRange[0], len = row + lineRange.length; row < len; row++) {
         var count = 0;
         for (var x = 0; x < 10; x++) { // 10 is the stack width
