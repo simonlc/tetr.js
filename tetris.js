@@ -911,6 +911,7 @@ var newKey,
     controlCells = controls.getElementsByTagName('td');
 for (var i = 0, len = controlCells.length; i < len; i++) {
     controlCells[i].onclick = function() {
+        this.innerHTML = 'Press key';
         currCell = this;
     }
 }
