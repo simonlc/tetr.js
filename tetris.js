@@ -21,7 +21,7 @@ var stats = document.getElementById('stats');
 
 // Get canvases and contexts
 for (x = 0; x < document.getElementsByTagName('canvas').length; x++) {
-    ID = document.getElementsByTagName("canvas")[x].id;
+    ID = document.getElementsByTagName('canvas')[x].id;
     eval('var ' + ID +
     'Canvas = document.getElementsByTagName("canvas")[x],' +
     ID + 'Ctx = ' + ID + 'Canvas.getContext("2d");');
@@ -142,6 +142,10 @@ var holdPiece;
 var gravityUnit = 0.00390625;
 var gravity;
 var firstRun;
+
+var shift;
+var DAS = 12;
+var ARR = 1;
 
 var inc;
 var gLoop;
@@ -303,7 +307,7 @@ progressCanvas.width = 6;
 //previewCanvas.height = borderSize + (cellSize + borderSize) * 9;
 
 /**
- * ========================== Model ==========================================
+ * ========================== Model ===========================================
  */
 
 /**
@@ -374,14 +378,14 @@ function moveValid(cx, cy, tetro) {
 function addPiece(tetro) {
 
     // Add the piece to the stack, and check which lines are modified.
-    var lineRange = [];
+    var range = [];
     var valid = false;
     for (var x = 0; x < tetro.length; x++) {
         for (var y = 0; y < tetro[x].length; y++) {
             if (tetro[x][y]) {
                 stack[x + fallingPiece.x][y + fallingPiece.y] = tetro[x][y];
-                if (lineRange.indexOf(y + fallingPiece.y) == -1) {
-                    lineRange.push(y + fallingPiece.y);
+                if (range.indexOf(y + fallingPiece.y) == -1) {
+                    range.push(y + fallingPiece.y);
                     // This checks if any cell is in the play field. If there
                     //  isn't any this is called a lock out and the game ends.
                     if (y + fallingPiece.y > 1) {
@@ -400,8 +404,8 @@ function addPiece(tetro) {
     }
 
     // Check modified lines for full lines.
-    lineRange = lineRange.sort(function(a,b){return a-b});
-    for (var row = lineRange[0], len = row + lineRange.length; row < len; row++) {
+    range = range.sort(function(a,b){return a-b});
+    for (var row = range[0], len = row + range.length; row < len; row++) {
         var count = 0;
         for (var x = 0; x < 10; x++) { // 10 is the stack width
             if (stack[x][row]) {
@@ -527,18 +531,29 @@ function update() {
             rotateReleased = false;
         }
     }
-    if (shiftReleased || fallingPiece.shiftDelay == 10) {
-        if (binds.moveLeft in keysDown) {
-            fallingPiece.shift('left');
-            shiftReleased = false;
-        }
-        if (binds.moveRight in keysDown) {
-            fallingPiece.shift('right');
-            shiftReleased = false;
-        }
-    } else {
+
+    // 1. When key pressed instantly move over once.
+    if (shiftReleased) {
+        fallingPiece.shift(shift);
+    // 3. Once the delay is complete, move over once.
+    //     Inc delay so this doesn't run again.
+    } else if (fallingPiece.shiftDelay == DAS) {
+        fallingPiece.shift(shift);
+        if (ARR != 0)
+            fallingPiece.shiftDelay++;
+    // 5. If ARR Delay is full, move piece, and reset delay and repeat.
+    } else if (fallingPiece.arrDelay == ARR && ARR != 0) {
+        fallingPiece.shift(shift);
+        // TODO Put this in method
+        fallingPiece.arrDelay = 0;
+    // 2. Apply DAS delay
+    } else if (fallingPiece.shiftDelay < DAS) {
         fallingPiece.shiftDelay++;
+    // 4. Apply DAS delay
+    } else if (fallingPiece.arrDelay < ARR) {
+        fallingPiece.arrDelay++;
     }
+
     if (binds.moveDown in keysDown) {
         fallingPiece.shift('down');
     }
@@ -570,6 +585,7 @@ var FallingPiece = function() {
     this.kickData;
     this.lockDelay = 0;
     this.shiftDelay = 0;
+    this.arrDelay = 0;
     this.active = false;
     this.held = false;
 
@@ -622,15 +638,34 @@ var FallingPiece = function() {
             }
         }
     }
-    this.shift = function(key) {
-        switch(key) {
+    this.shift = function(direction) {
+        shiftReleased = false;
+        switch(direction) {
         case 'left':
-            if (moveValid(-1, 0, this.tetro))
-                this.x -= 1;
+            if (ARR == 0 && this.shiftDelay == DAS) {
+                for (var i = 0; i < 10; i++) {
+                    if (!moveValid(-i, 0, this.tetro)) {
+                        this.x += -i + 1;
+                        break;
+                    }
+                }
+            } else {
+                if (moveValid(-1, 0, this.tetro))
+                    this.x -= 1;
+            }
             break;
         case 'right':
-            if (moveValid(1, 0, this.tetro))
-                this.x += 1;
+            if (ARR == 0 && this.shiftDelay == DAS) {
+                for (var i = 0; i < 10; i++) {
+                    if (!moveValid(i, 0, this.tetro)) {
+                        this.x += i - 1;
+                        break;
+                    }
+                }
+            } else {
+                if (moveValid(1, 0, this.tetro))
+                    this.x += 1;
+            }
             break;
         case 'down':
             if (moveValid(0, 1, this.tetro))
@@ -691,7 +726,7 @@ var FallingPiece = function() {
 }
 var fallingPiece = new FallingPiece();
 
-// ========================== View ===========================================
+// ========================== View ============================================
 
 /**
  * Draws a mino.
@@ -764,40 +799,73 @@ function progressUpdate() {
 
 // ========================== Controller ======================================
 
-document.onkeydown = function(e) {
-    keysDown[e.keyCode] = true;
+//document.onkeydown = function(e) {
+addEventListener('keydown', function(e) {
     if ([32,37,38,39,40].indexOf(e.keyCode) != -1) {
         e.preventDefault();
+    }
+    if (e.keyCode == binds.moveLeft && !keysDown[e.keyCode]) {
+        // Reset key
+        fallingPiece.shiftDelay = 0;
+        fallingPiece.arrDelay = 0;
+        shiftReleased = true;
+        shift = 'left';
+    }
+    if (e.keyCode == binds.moveRight && !keysDown[e.keyCode]) {
+        // Reset key
+        fallingPiece.shiftDelay = 0;
+        fallingPiece.arrDelay = 0;
+        shiftReleased = true;
+        shift = 'right';
     }
     //if (bindsArr.indexOf(e.keyCode) != -1) {
     //    e.preventDefault();
     //}
-    if (e.keyCode == binds.pause) {
-        //toggleMenu(pauseMenu);
-    }
+    //if (e.keyCode == binds.pause) {
+    //    toggleMenu(pauseMenu);
+    //}
     if (e.keyCode == binds.retry) {
         init(gametype);
     }
-};
+    keysDown[e.keyCode] = true;
+}, false);
 addEventListener('keyup', function(e) {
-    if (e.keyCode == binds.rot180 || e.keyCode == binds.rotLeft || e.keyCode == binds.rotRight) {
-        rotateReleased = true;
-    }
-    if (e.keyCode == binds.moveLeft || e.keyCode == binds.moveRight) {
-        fallingPiece.shiftDelay = 0;
-        shiftReleased = true;
-    }
-    if (e.keyCode == binds.hardDrop) {
-        hardDropReleased = true;
-    }
-    if (e.keyCode == binds.hold) {
-        holdReleased = true;
-    }
     delete keysDown[e.keyCode];
+
+    //if shift == right and moveright: shift released
+    if (shift == 'right' && e.keyCode == binds.moveRight && keysDown[binds.moveLeft]) {
+        fallingPiece.shiftDelay = 0;
+        fallingPiece.arrDelay = 0;
+        shiftReleased = true;
+        shift = 'left';
+    } else if (shift == 'left' && e.keyCode == binds.moveLeft && keysDown[binds.moveRight]) {
+        fallingPiece.shiftDelay = 0;
+        fallingPiece.arrDelay = 0;
+        shiftReleased = true;
+        shift = 'right';
+    } else if (e.keyCode == binds.moveRight && keysDown[binds.moveLeft]) {
+        shift = 'left';
+    } else if (e.keyCode == binds.moveLeft && keysDown[binds.moveRight]) {
+        shift = 'right';
+    } else if (e.keyCode == binds.moveLeft || e.keyCode == binds.moveRight) {
+        // Reset key
+        fallingPiece.shiftDelay = 0;
+        fallingPiece.arrDelay = 0;
+        shiftReleased = true;
+        shift = 0;
+    }
+    // Prevent repeating.
+    if (e.keyCode == binds.rot180 || e.keyCode == binds.rotLeft || e.keyCode == binds.rotRight)
+        rotateReleased = true;
+    if (e.keyCode == binds.hardDrop)
+        hardDropReleased = true;
+    if (e.keyCode == binds.hold)
+        holdReleased = true;
+
 }, false);
 
 
-// ========================== Loop ===========================================
+// ========================== Loop ============================================
 
 
 function gameLoop() {
