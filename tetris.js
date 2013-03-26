@@ -470,18 +470,24 @@ function statistics() {
 }
 
 /**
- * Fade to grey animation played when player loses.
+ * Fade to grey animation played when player loses. Skip is used to slow down
+ *  the animation.
  */
+var skip = false;
 function gameOverAnimation() {
-    // FIXME Stopped working.
-    if (toGreyRow >= 2) {
-        for (var x = 0; x < stack.length; x++) {
+    if (toGreyRow >= 2 && skip) {
+        for (var x = 0; x < 10; x++) {
             if (stack[x][toGreyRow]) {
                 stack[x][toGreyRow] = gameState - 1;
             }
         }
+        clear(stackCtx);
+        draw(stack, 0, 0, stackCtx);
         toGreyRow--;
+        skip = false;
+        return;
     }
+    skip = true;
 }
 
 /**
@@ -571,6 +577,7 @@ function update() {
     // Win
     if (lines >= lineLimit) {
         gameState = 1;
+        msg.innerHTML = 'GREAT!';
     }
 
     statistics();
@@ -872,14 +879,13 @@ function gameLoop() {
     // TODO upgrade to request animation frame.
     if (!gameState) {
         update();
+        clear(activeCtx);
+        draw(fallingPiece.tetro, fallingPiece.x,
+             fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
+        draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
     } else {
         gameOverAnimation();
     }
-
-    clear(activeCtx);
-    draw(fallingPiece.tetro, fallingPiece.x,
-         fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
-    draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
 
     gLoop = setTimeout(gameLoop, 1000 / 60);
 }
@@ -906,7 +912,7 @@ function countDownLoop() {
 }
 
 function init(gt) {
-    toGreyRow = 22; // this just =='s 22 I think.
+    toGreyRow = 21; // this just =='s 22 I think.
     clearTimeout(gLoop);
     fallingPiece.reset();
     inc = 0;
@@ -927,7 +933,7 @@ function init(gt) {
 
     // Stats
     if (gametype === 0) {
-        lineLimit = 40; //TODO select 10, 20, or 40
+        lineLimit = 10; //TODO select 10, 20, or 40
     } else {
         lineLimit = 150;
         score = 0;
