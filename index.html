@@ -2,19 +2,12 @@
   <meta charset=utf-8>
   <title>Tetr.js</title>
   <link rel=stylesheet href=style.css>
-<header>
-  <nav>
-    <!--<a onclick=>Play</a>--><!-- close all menus -->
-    <!--<a onclick=>Trainer</a>-->
-    <!--<a onclick=>Stats</a>-->
-    <a onclick=toggleMenu(settingsMenu)><i class=icon-cog></i>Settings</a>
-  </nav>
-</header>
-<nav id=snav> <!-- Sub nav -->
+<nav>
   <h1>Tetr.js</h1>
   <a onclick=init(0)>Play Sprint</a>
   <a onclick=init(1)>Play Marathon</a>
   <a onclick=init(gametype)>Retry</a> <!-- only show at end in green -->
+  <a onclick=toggleMenu(settingsMenu)><i class=icon-cog></i>Settings</a>
 </nav>
 <div id=content>
 
@@ -28,36 +21,38 @@
   <canvas id=progress></canvas>
   <canvas id=preview></canvas>
 
-  <!-- Menus -->
-  <div id=menu style=display:none>
-    <div id=settingsMenu style=display:none>
-      <!--<h2>Settings</h2>
-      <ul>
-        <li>DAS Speed
-        <li>DAS Delay
-        <li>Gravity
-        <li>Reset High Scores
-      </ul>-->
-      <h2>Controls</h2>
-      <p>Click on the control you want to change, then press any key.
-      <table id=controls>
-        <tr> <th>Move Left    <td class=key id=moveLeft>←
-        <tr> <th>Move Right   <td id=moveRight>→
-        <tr> <th>Move Down    <td id=moveDown>↓
-        <tr> <th>Hard Drop    <td id=hardDrop>Space
-        <tr> <th>Hold         <td id=hold>Shift
-        <tr> <th>Spin Right   <td id=rotRight>C
-        <tr> <th>Spin Left    <td id=rotLeft>Z
-        <tr> <th>Spin 180     <td id=rot180>X
-        <tr> <th>Retry        <td id=retry>R
-      </table>
-      <a class=button onclick=toggleMenu(settingsMenu)>Done</a>
-    </div>
-  </div>
-
   <!-- Stats -->
   <p id=stats>
+  <p id=lines>
 
+</div>
+
+<!-- Menus -->
+<div id=menu style=display:none>
+  <div id=settingsMenu style=display:none>
+
+    <h2>Settings</h2>
+    <label for=das>DAS</label>      <input id=das type=range min=0 max=30 value=12>
+    <label for=arr>ARR</label>      <input id=arr type=range min=0 max=10 value=1>
+    <label for=grav>Gravity</label> <input id=grav type=number>
+
+    <h2>Controls</h2>
+    <p>Click on the control you want to change, then press any key.
+    <table id=controls>
+      <tr> <th>Move Left    <td id=moveLeft>←
+      <tr> <th>Move Right   <td id=moveRight>→
+      <tr> <th>Move Down    <td id=moveDown>↓
+      <tr> <th>Hard Drop    <td id=hardDrop>Space
+      <tr> <th>Hold         <td id=hold>Shift
+      <tr> <th>Spin Right   <td id=rotRight>C
+      <tr> <th>Spin Left    <td id=rotLeft>Z
+      <tr> <th>Spin 180     <td id=rot180>X
+      <tr> <th>Retry        <td id=retry>R
+    </table>
+
+    <a class=button onclick=toggleMenu(settingsMenu)>Done</a>
+
+  </div>
 </div>
 <script src=tetris.js></script>
 <!--<script>_gaq=[['_setAccount','UA-30472693-1'],['_trackPageview']];(function(d){var g=d.createElement('script'),s=d.scripts[0];g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)})(document)</script>-->

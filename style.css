@@ -31,10 +31,14 @@
 ::selection {
   background: none;
 }*/
+/* General */
 html, body {
   height: 100%;
   max-height: 100%;
   margin: 0;
+  color: #222;
+  background: #ddd;
+  font: 1em 'Lato';
 }
 a {
   text-decoration: none;
@@ -47,48 +51,31 @@ th {
   font-weight: normal;
 }
 
-body {
-  color: #222;
-  background: #ddd;
-  font: 1em 'Lato';
-}
-header {
-  background: #333;
-  text-align: center;
+/* Header */
+h1 {
+  font-size: 2rem;
+  margin: 0;
+  display: inline;
   position: relative;
-  width: 6rem;
-  height: 100%;
-  float: left;
-  box-shadow: inset -3px 0 6px rgba(0,0,0,0.5);
-  margin: 0 1rem 0 0;
+  top: 0.2rem;
 }
-/*header>img {
-  background: #555;
-  padding: 14px 22px;
-}*/
-header a {
-  color: #aaa;
-  font-weight: bold;
-  text-shadow: 0 1px 1px rgba(0,0,0,0.5);
-  margin: 1rem 0 0;
-  display: block;
-}
-#snav {
+nav {
   background: #eee;
-  height: 4rem;
-  margin: 0 0 1rem 0;
-  vertical-align: middle;
+  padding: 0 0 0 1rem;
 }
-#snav>a {
+.button,
+nav > a {
   font-size: 1.25rem;
-  margin: 0 0 0 1rem;
+  margin: 0.5rem 0 0.5rem 1rem;
+  display: inline-block;
   color: #f8f8f8;
   background: #4da6ee;
   cursor: pointer;
   border-radius: 5px;
   padding: 0.3rem 0.6rem 0.4rem;
-  position: relative;
-  top: -0.4rem;
+}
+.button {
+  margin: 0;
 }
 [class^="icon-"],
 [class*=" icon-"] {
@@ -96,26 +83,17 @@ header a {
   font-weight: normal;
   font-style: normal;
   text-decoration: inherit;
+  margin: 0 0.4em 0 0;
   -webkit-font-smoothing: antialiased;
 }
-.icon-cog:before{font-size:2.3em;display:block;content:'\f021'}
-nav>a {
-  cursor: pointer;
-  padding: 0.5rem 0;
-}
-nav>a:hover {
-  background: #444;
-}
+.icon-cog:before{content:'\f021'}
 
-h1 {
-  font-size: 2rem;
-  margin: 0;
-  line-height: 4rem;
-  display: inline;
-}
+/* Content */
 #content {
+  padding: 1rem;
 }
 
+/* Canvases */
 canvas {
   background: #f8f8f8 url('c.png');
   border: 2px solid #999;
@@ -164,7 +142,9 @@ canvas {
 #preview {
   margin: 0 0 0 0.5rem;
 }
-h2 {
+
+/* Stats */
+#stats h2 {
   margin: 0 0 1rem;
 }
 #stats {
@@ -188,6 +168,15 @@ h2 {
   position: relative;
 }
 
+#lines {
+  font-size: 4rem;
+  line-height: 1em;
+  margin: 0;
+  position: absolute;
+  top: 646px;
+  left: 3rem;
+}
+
 /* Menus */
 #menu {
   background: #ddd;
@@ -195,22 +184,22 @@ h2 {
   position: fixed;
   width: 100%;
   height: 100%;
-  top: 4rem;
-  left: 6rem;
+  top: 3.2rem;
+  left: 0;
   z-index: 99;
-}
-#mainMenu,
-#gameOverMenu,
-#pauseMenu,
-#controls,
-#settingsMenu {
-
-}
-#controls {
 }
 #controls th {
   font-weight: normal;
   text-align: left;
+}
+input {
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  width: 6em;
+  height: 2rem;
+  background: #eee;
+  border-radius: 5px;
 }
 #controls td{
   cursor: pointer;
@@ -229,6 +218,7 @@ h2 {
 #controls td:active {
   background: #e7e7e7;
 }
+/*
 .button {
   text-align: center;
   text-decoration: none;
@@ -250,4 +240,4 @@ h2 {
 .button:active {
   top: 1px;
   box-shadow: 0 5px 0 -3px rgba(0,0,0,0.5);
-}
+}*/

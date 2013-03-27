@@ -18,6 +18,7 @@ var stack;
  */
 var msg = document.getElementById('msg');
 var stats = document.getElementById('stats');
+var linesLeft = document.getElementById('lines');
 
 // Get canvases and contexts
 for (x = 0; x < document.getElementsByTagName('canvas').length; x++) {
@@ -330,6 +331,53 @@ function newGrid(x, y) {
 }
 
 /**
+ * Resets all the settings and starts the game.
+ */
+function init(gt) {
+    toGreyRow = 21; // this just =='s 22 I think.
+    clearTimeout(gLoop);
+    fallingPiece.reset();
+    inc = 0;
+    stack = newGrid(10, 22);
+    clear(stackCtx);
+    clear(activeCtx);
+    clear(holdCtx);
+    holdPiece = undefined;
+    gametype = gt;
+    gravity = gravityUnit * 4;
+    startTime = new Date().getTime();
+
+    //TODO add first draw of grab bag here.
+    //XXX fix ugly code lolwut
+    firstRun = true;
+    grabBag = randomGenerator();
+    grabBag.push.apply(grabBag, randomGenerator());
+
+    // Stats
+    if (gametype === 0) {
+        lineLimit = 40; //TODO select 10, 20, or 40
+    } else {
+        lineLimit = 150;
+        score = 0;
+        level = 1;
+    }
+    lines = 0;
+    piecesSet = 0;
+    score = 0;
+    //time;
+    //actions;
+    level = 0;
+    //combo = 0;
+    statistics();
+
+    drawPreview();
+    progressUpdate();
+
+    clearTimeout(cDown);
+    countDownLoop();
+}
+
+/**
  * Creates a "grab bag" of the 7 tetrominos. The first
  *  drop of the first generation can not be an S, O, or Z piece.
  */
@@ -467,6 +515,7 @@ function statistics() {
                  '<tr><th>Piece/Min:<td>' + ppm +
                  '<tr><th>Time:<td>' + time +
                  '</table>';
+    linesLeft.innerHTML = lineLimit - lines;
 }
 
 /**
@@ -911,54 +960,11 @@ function countDownLoop() {
     }
 }
 
-function init(gt) {
-    toGreyRow = 21; // this just =='s 22 I think.
-    clearTimeout(gLoop);
-    fallingPiece.reset();
-    inc = 0;
-    stack = newGrid(10, 22);
-    clear(stackCtx);
-    clear(activeCtx);
-    clear(holdCtx);
-    holdPiece = undefined;
-    gametype = gt;
-    gravity = gravityUnit * 4;
-    startTime = new Date().getTime();
-
-    //TODO add first draw of grab bag here.
-    //XXX fix ugly code lolwut
-    firstRun = true;
-    grabBag = randomGenerator();
-    grabBag.push.apply(grabBag, randomGenerator());
-
-    // Stats
-    if (gametype === 0) {
-        lineLimit = 40; //TODO select 10, 20, or 40
-    } else {
-        lineLimit = 150;
-        score = 0;
-        level = 1;
-    }
-    lines = 0;
-    piecesSet = 0;
-    score = 0;
-    //time;
-    //actions;
-    level = 0;
-    //combo = 0;
-    statistics();
-
-    drawPreview();
-    progressUpdate();
-
-    clearTimeout(cDown);
-    countDownLoop();
-}
-
 /**
  * Menu Buttons
  */
 function toggleMenu(menuName) {
+    saveLocalData();
     if (menuName.style.display == 'none' && menu.style.display == 'none') {
         //open the menu
         menu.style.display = 'table';
@@ -1003,6 +1009,21 @@ addEventListener('keyup', function(e) {
     }
 }, false);
 
+function saveLocalData() {
+    //if (localStorage['binds']) {
+    //    binds = JSON.parse(localStorage.getItem('binds'));
+    //    for (var i = 0, len = controlCells.length; i < len; i++) {
+    //        controlCells[i].innerHTML = key[binds[controlCells[i].id]];
+    //    }
+    //}
+    var das = document.getElementById('das');
+    var arr = document.getElementById('arr');
+    //var grav = document.getElementById('grav');
+    localStorage.setItem('DAS', das.value);
+    localStorage.setItem('ARR', arr.value);
+    //localStorage.setItem('gravity', JSON.stringify(binds));
+}
+
 function loadLocalData() {
     if (localStorage['binds']) {
         binds = JSON.parse(localStorage.getItem('binds'));
@@ -1010,5 +1031,14 @@ function loadLocalData() {
             controlCells[i].innerHTML = key[binds[controlCells[i].id]];
         }
     }
+    if (localStorage['DAS']) {
+        DAS = Number(localStorage.getItem('DAS'));
+    }
+    if (localStorage['ARR']) {
+        ARR = Number(localStorage.getItem('ARR'));
+    }
+    //if (localStorage['gravity']) {
+    //    gravity = localStorage.getItem('gravity');
+    //}
 }
 loadLocalData();
