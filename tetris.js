@@ -345,7 +345,7 @@ function init(gt) {
   clear(stackCtx);
   clear(activeCtx);
   clear(holdCtx);
-  holdPiece = undefined;
+  holdPiece = void 0;
   gametype = gt;
   gravity = gravityUnit * 4;
   startTime = new Date().getTime();
@@ -739,7 +739,7 @@ var FallingPiece = function() {
   }
   this.hold = function() {
     if (!this.held) {
-      if (holdPiece !== undefined) {
+      if (holdPiece !== void 0) {
         var temp = holdPiece;
         this.x = pieces[holdPiece].x;
         this.y = pieces[holdPiece].y;
@@ -815,7 +815,7 @@ function draw(tetro, cx, cy, ctx, color) {
   for (var x = 0, len = tetro.length; x < len; x++) {
     for (var y = 0, wid = tetro[x].length; y < wid; y++) {
       if (tetro[x][y]) {
-        if (typeof color === "undefined") {
+        if (color === void 0) {
           drawCell(x + cx, y + cy, colors[tetro[x][y]], ctx);
         } else {
           drawCell(x + cx, y + cy, colors[color], ctx);
