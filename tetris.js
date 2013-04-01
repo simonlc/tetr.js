@@ -148,7 +148,8 @@ var shift;
 
 var settings = {
   DAS: 12,
-  ARR: 1
+  ARR: 1,
+  dark: false
 };
 
 var inc;
@@ -997,9 +998,20 @@ for (var i = 0, len = controlCells.length; i < len; i++) {
 // Give settings an event listener.
 for (var i = 0, len = inputs.length; i < len; i++) {
   inputs[i].onchange = function() {
-    outputs[this.name].value = this.value;
-    settings[this.name] = this.value;
+
+    if (this.type == 'checkbox')
+      settings[this.name] = this.checked;
+    else
+      settings[this.name] = this.value;
+    if (outputs[this.name])
+      outputs[this.name].value = this.value;
+
     localStorage.setItem('settings', JSON.stringify(settings));
+
+    if (settings.dark)
+      document.getElementsByTagName('html')[0].id = 'dark';
+    else
+      document.getElementsByTagName('html')[0].id = '';
   }
 }
 
@@ -1027,8 +1039,16 @@ function loadLocalData() {
   if (localStorage['settings']) {
     settings = JSON.parse(localStorage.getItem('settings'));
     for (var i = 0, len = inputs.length; i < len; i++) {
-      inputs[i].value = outputs[i].value = settings[inputs[i].name];
+      if (inputs[i].type == 'checkbox') {
+        inputs[i].checked = settings[inputs[i].name];
+      } else {
+        inputs[i].value = settings[inputs[i].name];
+      }
+      if (outputs[i])
+        outputs[i].value = settings[inputs[i].name];
     }
   }
+  if (settings.dark)
+    document.getElementsByTagName('html')[0].id = 'dark';
 }
 loadLocalData();

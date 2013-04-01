@@ -218,26 +218,55 @@ input {
 #controls td:active {
   background: #e7e7e7;
 }
-/*
-.button {
-  text-align: center;
-  text-decoration: none;
-  display: block;
-  width: 10em;
+#dark,
+#dark body {
+  color: #ddd;
+  background: #222;
+}
+#dark nav {
+  background: #111;
+}
+#dark .button,
+#dark nav > a {
   color: #f8f8f8;
   background: #4da6ee;
-  padding: 0.5em;
-  margin: 1em auto;
-  border-bottom: 3px solid #268bd2;
-  box-shadow: 0 6px 0 -3px rgba(0,0,0,0.5);
-  position: relative;
-  cursor: pointer;
 }
-.button:hover {
-  top: -1px;
-  box-shadow: 0 7px 0 -3px rgba(0,0,0,0.5);
+#dark canvas {
+  background: #0b0b0b url('cd.png');
+  border: 2px solid #333;
 }
-.button:active {
-  top: 1px;
-  box-shadow: 0 5px 0 -3px rgba(0,0,0,0.5);
-}*/
+  #dark #active {
+    background: none;
+  }
+  #dark #msg {
+    color: #fff;
+    text-shadow:
+     -1px -1px 0 #000,  
+      1px -1px 0 #000,
+     -1px  1px 0 #000,
+      1px  1px 0 #000;
+  }
+#dark #stats th {
+  color: #aaa;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
+               0 1px 0 rgba(255,255,255,0.5);
+}
+#dark #stats td {
+  color: #eee;
+}
+#dark #menu {
+  background: #222;
+}
+#dark input {
+  background: #111;
+}
+#dark #controls td{
+  background: #111;
+}
+#dark #controls td:hover {
+  background: #191919;
+}
+
+#dark #controls td:active {
+  background: #1c1c1c;
+}
