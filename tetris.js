@@ -338,7 +338,7 @@ function newGrid(x, y) {
  * Resets all the settings and starts the game.
  */
 function init(gt) {
-  toGreyRow = 21; // this just =='s 22 I think.
+  toGreyRow = 21;
   clearTimeout(gLoop);
   fallingPiece.reset();
   inc = 0;
@@ -532,6 +532,8 @@ function gameOverAnimation() {
     toGreyRow--;
     skip = false;
     return;
+  } else {
+    clearTimeout(gLoop);
   }
   skip = true;
 }
