@@ -9,8 +9,8 @@ the game so you know why some things are done a certain way.
 /**
  * Define playfield size.
  */
-var cellSize = 30;
-var borderSize = 2;
+//var cellSize = 30;
+//var borderSize = 2;
 var stack;
 
 /**
@@ -20,7 +20,21 @@ var msg = document.getElementById('msg');
 var stats = document.getElementById('stats');
 var linesLeft = document.getElementById('lines');
 
-// Get canvases and contexts
+// For canvas height
+//var content = document.getElementById('content');
+var nav = document.getElementsByTagName('nav')[0];
+//content.style.height = (window.innerHeight - nav.offsetHeight - 1 - 32) + 'px';
+
+// 23 borders, 20 cells
+console.log(window.innerHeight - nav.offsetHeight - 1 - 32);
+screenHeight = window.innerHeight - nav.offsetHeight - 1 - 32;
+var borderSize = screenHeight / 323;
+var cellSize = borderSize * 15;
+var a = document.getElementById('a');
+var b = document.getElementById('b');
+var c = document.getElementById('c');
+
+// Get canvases and contexts (there's 8 of them each)
 for (x = 0; x < document.getElementsByTagName('canvas').length; x++) {
   ID = document.getElementsByTagName('canvas')[x].id;
   eval('var ' + ID +
@@ -29,6 +43,7 @@ for (x = 0; x < document.getElementsByTagName('canvas').length; x++) {
 }
 /**
  * Piece data
+ * [medium, light, dark]
  */
 var cyan = ['#2aa198', '#4dbdb3', '#00877e']; //I
 var blue = ['#268bd2', '#4da6ee', '#0072b6']; //J
@@ -39,7 +54,8 @@ var purple = ['#6c71c4', '#878ae0', '#5158a9']; //T
 var red = ['#dc322f', '#fc5246', '#bd001a']; //Z
 var dark = ['#999', '#aaa', '#888'];
 var grey = ['#ccc', '#ddd', '#bbb'];
-var colors = [grey, cyan, blue, orange, yellow, green, purple, red, dark];
+var grey2 = ['#333', '#444', '#222'];
+var colors = [grey, cyan, blue, orange, yellow, green, purple, red, dark, grey2];
 
 // NOTE y values are inverted since our matrix counts from top to bottom.
 var kickData = [
@@ -298,18 +314,31 @@ var key = {
 //    1: 'time' + 'piece' + 'ppm',
 //}
 
-stackCanvas.width = 322;
-stackCanvas.height = 642;
+stackCanvas.width = borderSize + (cellSize + borderSize) * 10;
+stackCanvas.height = borderSize + (cellSize + borderSize) * 20;
 activeCanvas.width = stackCanvas.width;
 activeCanvas.height = stackCanvas.height;
-holdCanvas.width = 130;
-holdCanvas.height = 98;
-previewCanvas.width = 130;
-previewCanvas.height = 578;
+bgCanvas.width = stackCanvas.width;
+bgCanvas.height = stackCanvas.height;
+b.style.width = stackCanvas.width + 4 + 'px';
+b.style.height = stackCanvas.height + 4 + 'px';
+
 progressCanvas.height = stackCanvas.height;
 progressCanvas.width = 6;
-//for marathon
-//previewCanvas.height = borderSize + (cellSize + borderSize) * 9;
+
+holdCanvas.width = borderSize + (cellSize + borderSize) * 4;
+holdCanvas.height = borderSize + (cellSize + borderSize) * 3;
+bgHoldCanvas.width = holdCanvas.width;
+bgHoldCanvas.height = holdCanvas.height;
+a.style.width = holdCanvas.width + 4 + 'px';
+a.style.height = holdCanvas.height + 4 + 'px';
+
+previewCanvas.width = borderSize + (cellSize + borderSize) * 4;
+previewCanvas.height = borderSize + (cellSize + borderSize) * 9 * 2;
+bgPreviewCanvas.width = previewCanvas.width;
+bgPreviewCanvas.height = previewCanvas.height;
+c.style.width = previewCanvas.width + 4 + 'px';
+c.style.height = previewCanvas.height + 4 + 'px';
 
 /**
  * ========================== Model ===========================================
@@ -783,6 +812,30 @@ var fallingPiece = new FallingPiece();
 
 // ========================== View ============================================
 
+function bg(ctx) {
+    // TODO have work with light and dark.
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    if (settings.dark)
+      ctx.fillStyle = '#0b0b0b';
+    else
+      ctx.fillStyle = '#f8f8f8';
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    function bgGrid(cellSize, borderSize, color) {
+        ctx.fillStyle = color;
+        for (var x = 0; x < ctx.canvas.width + 1; x += cellSize + borderSize) {
+            ctx.fillRect(x, 0, borderSize, ctx.canvas.height);
+        }
+        for (var y = 0; y < ctx.canvas.height + 1; y += cellSize + borderSize) {
+            ctx.fillRect(0, y, ctx.canvas.width, borderSize);
+        }
+    }
+    if (settings.dark)
+      bgGrid(cellSize, borderSize, '#111');
+    else
+      bgGrid(cellSize, borderSize, '#eee');
+}
+
 /**
  * Draws a mino.
  */
@@ -928,8 +981,13 @@ function gameLoop() {
   if (!gameState) {
     update();
     clear(activeCtx);
-    draw(fallingPiece.tetro, fallingPiece.x,
-         fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
+    if (settings.dark) {
+      draw(fallingPiece.tetro, fallingPiece.x,
+           fallingPiece.y + fallingPiece.getDrop(), activeCtx, 9);
+    } else {
+      draw(fallingPiece.tetro, fallingPiece.x,
+           fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
+    }
     draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
   } else {
     gameOverAnimation();
@@ -1054,3 +1112,8 @@ function loadLocalData() {
     document.getElementsByTagName('html')[0].id = 'dark';
 }
 loadLocalData();
+bg(bgCtx);
+bg(bgHoldCtx);
+bg(bgPreviewCtx);
+
+

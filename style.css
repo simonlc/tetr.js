@@ -95,29 +95,52 @@ nav > a {
 
 /* Canvases */
 canvas {
-  background: #f8f8f8 url('c.png');
   border: 2px solid #999;
   vertical-align: top;
   float: left;
 }
 #hold {
-  margin: 0 0.5rem 0 0;
+  /*margin: 0 0.5rem 0 0;*/
 }
-#c {
+#a {
   /* TODO adjust in js */
-  width: 326px;
-  height: 646px;
+  /*width: 134px;
+  height: 102px;*/
+  background: #fcc;
   position: relative;
   overflow: hidden;
   float: left;
 }
-  #stack {
-    z-index: 1;
+#b {
+  /* TODO adjust in js */
+  /*width: 326px;
+  height: 646px;*/
+  position: relative;
+  overflow: hidden;
+  float: left;
+}
+#c {
+  /* TODO adjust in js */
+  /*width: 134px;
+  height: 582px;*/
+  position: relative;
+  overflow: hidden;
+  float: left;
+}
+  #bg,
+  #bgPreview,
+  #bgHold {
     position: absolute;
+    z-index: 1;
+  }
+  #hold,
+  #preview,
+  #stack {
+    position: absolute;
+    z-index: 1;
   }
   #active {
     position: absolute;
-    background: none;
     z-index: 2;
   }
   #msg {
@@ -140,7 +163,7 @@ canvas {
   border-left: none;
 }
 #preview {
-  margin: 0 0 0 0.5rem;
+  /*margin: 0 0 0 0.5rem;*/
 }
 
 /* Stats */
@@ -173,7 +196,7 @@ canvas {
   line-height: 1em;
   margin: 0;
   position: absolute;
-  top: 646px;
+  top: 50%;
   left: 3rem;
 }
 
@@ -232,7 +255,6 @@ input {
   background: #4da6ee;
 }
 #dark canvas {
-  background: #0b0b0b url('cd.png');
   border: 2px solid #333;
 }
   #dark #active {
