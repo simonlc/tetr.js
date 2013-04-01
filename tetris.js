@@ -188,10 +188,10 @@ var binds = {
   moveRight: 39,
   moveDown: 40,
   hardDrop: 32,
-  hold: 16,
-  rotRight: 67,
+  hold: 67,
+  rotRight: 88,
   rotLeft: 90,
-  rot180: 88,
+  rot180: 16,
   retry: 82
 };
 
@@ -491,27 +491,20 @@ function statistics() {
   time = thisFrame - startTime;
 
   minutes = time / 1000 / 60;
-  lpm = (lines / minutes).toPrecision().slice(0, 8);
-  ppm = (piecesSet / minutes).toPrecision().slice(0, 8);
+  lpm = (lines / minutes).toString().slice(0, 8);
+  ppm = (piecesSet / minutes).toString().slice(0, 8);
   if (isNaN(lpm))
     lpm = 0;
   if (isNaN(ppm))
     ppm = 0;
 
   // Seconds and minutes for displaying clock.
-  // TODO Clean this up.
-  seconds = Math.round((time / 1000) % 60 * 100) / 100;
-  minutes = ~~((time / (1000 * 60)) % 60);
+  seconds = (time / 1000 % 60).toFixed(2);
+  minutes = ~~(time / 60000);
+  time = ((minutes < 10 ? '0' : '') + minutes).slice(-2) +
+          (seconds < 10 ? ':0' : ':') + seconds;
 
-  if (seconds >= 10) {
-    // TODO use 5 digits in final stats atleast
-    time = ('0' + minutes).slice(-2) + ':' + (seconds % 60);
-  } else {
-    time = ('0' + minutes).slice(-2) + ':' + '0' + (seconds % 60);
-  }
   stats.innerHTML = '<h2>' + gametypes[gametype] + '</h2><table>' +
-               //'<tr><th>Level:<td>' + level + // If level != 0
-               //'<tr><th>Score:<td>' + score +
                '<tr><th>Line:<td>' + (lineLimit - lines) + 
                '<tr><th>Piece:<td>' + piecesSet +
                '<tr><th>Line/Min:<td>' + lpm +
