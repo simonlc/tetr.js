@@ -145,8 +145,11 @@ var gravity;
 var firstRun;
 
 var shift;
-var DAS = 12;
-var ARR = 1;
+
+var settings = {
+  DAS: 12,
+  ARR: 1
+};
 
 var inc;
 var gLoop;
@@ -592,20 +595,20 @@ function update() {
     fallingPiece.shift(shift);
   // 3. Once the delay is complete, move over once.
   //     Inc delay so this doesn't run again.
-  } else if (fallingPiece.shiftDelay == DAS) {
+  } else if (fallingPiece.shiftDelay == settings.DAS) {
     fallingPiece.shift(shift);
-    if (ARR != 0)
+    if (settings.ARR != 0)
       fallingPiece.shiftDelay++;
   // 5. If ARR Delay is full, move piece, and reset delay and repeat.
-  } else if (fallingPiece.arrDelay == ARR && ARR != 0) {
+  } else if (fallingPiece.arrDelay == settings.ARR && settings.ARR != 0) {
     fallingPiece.shift(shift);
     // TODO Put this in method
     fallingPiece.arrDelay = 0;
   // 2. Apply DAS delay
-  } else if (fallingPiece.shiftDelay < DAS) {
+  } else if (fallingPiece.shiftDelay < settings.DAS) {
     fallingPiece.shiftDelay++;
   // 4. Apply DAS delay
-  } else if (fallingPiece.arrDelay < ARR) {
+  } else if (fallingPiece.arrDelay < settings.ARR) {
     fallingPiece.arrDelay++;
   }
 
@@ -698,7 +701,7 @@ var FallingPiece = function() {
     shiftReleased = false;
     switch(direction) {
     case 'left':
-      if (ARR == 0 && this.shiftDelay == DAS) {
+      if (settings.ARR == 0 && this.shiftDelay == settings.DAS) {
         for (var i = 0; i < 10; i++) {
           if (!moveValid(-i, 0, this.tetro)) {
             this.x += -i + 1;
@@ -711,7 +714,7 @@ var FallingPiece = function() {
       }
       break;
     case 'right':
-      if (ARR == 0 && this.shiftDelay == DAS) {
+      if (settings.ARR == 0 && this.shiftDelay == settings.DAS) {
         for (var i = 0; i < 10; i++) {
           if (!moveValid(i, 0, this.tetro)) {
             this.x += i - 1;
@@ -964,17 +967,16 @@ function countDownLoop() {
  * Menu Buttons
  */
 function toggleMenu(menuName) {
-  saveLocalData();
   if (menuName.style.display == 'none' && menu.style.display == 'none') {
-    //open the menu
+    // Open menu
     menu.style.display = 'table';
     menuName.style.display = 'block';
-//  } else if (menuName.style.display == 'none' && menu.style.display != 'none') {
-//    //switch menus
-//    for (i = 0; i < menus.length; i++) {
-//      menus[i].style.display = 'none';
-//    }
-//    menuName.style.display = 'inline-block';
+  //} else if (menuName.style.display == 'none' && menu.style.display != 'none') {
+  //  //switch menus
+  //  for (i = 0; i < menus.length; i++) {
+  //    menus[i].style.display = 'none';
+  //  }
+  //  menuName.style.display = 'inline-block';
   } else {
     //close the menu
     menu.style.display = 'none';
@@ -989,13 +991,26 @@ var newKey,
   currCell,
   controls = document.getElementById('controls'),
   controlCells = controls.getElementsByTagName('td');
+var inputs = document.getElementsByTagName('input');
+var outputs = document.getElementsByTagName('output');
+
+// Give controls an event listener.
 for (var i = 0, len = controlCells.length; i < len; i++) {
   controlCells[i].onclick = function() {
     this.innerHTML = 'Press key';
     currCell = this;
   }
 }
+// Give settings an event listener.
+for (var i = 0, len = inputs.length; i < len; i++) {
+  inputs[i].onchange = function() {
+    outputs[this.name].value = this.value;
+    settings[this.name] = this.value;
+    localStorage.setItem('settings', JSON.stringify(settings));
+  }
+}
 
+// Listen for key input if a control has been clicked on.
 addEventListener('keyup', function(e) {
   //TODO unbind key if used elsewhere
   // if click outside of cell or press esc clear currCell
@@ -1009,21 +1024,6 @@ addEventListener('keyup', function(e) {
   }
 }, false);
 
-function saveLocalData() {
-  //if (localStorage['binds']) {
-  //  binds = JSON.parse(localStorage.getItem('binds'));
-  //  for (var i = 0, len = controlCells.length; i < len; i++) {
-  //    controlCells[i].innerHTML = key[binds[controlCells[i].id]];
-  //  }
-  //}
-  var das = document.getElementById('das');
-  var arr = document.getElementById('arr');
-  //var grav = document.getElementById('grav');
-  localStorage.setItem('DAS', das.value);
-  localStorage.setItem('ARR', arr.value);
-  //localStorage.setItem('gravity', JSON.stringify(binds));
-}
-
 function loadLocalData() {
   if (localStorage['binds']) {
     binds = JSON.parse(localStorage.getItem('binds'));
@@ -1031,14 +1031,11 @@ function loadLocalData() {
       controlCells[i].innerHTML = key[binds[controlCells[i].id]];
     }
   }
-  if (localStorage['DAS']) {
-    DAS = Number(localStorage.getItem('DAS'));
+  if (localStorage['settings']) {
+    settings = JSON.parse(localStorage.getItem('settings'));
+    for (var i = 0, len = inputs.length; i < len; i++) {
+      inputs[i].value = outputs[i].value = settings[inputs[i].name];
+    }
   }
-  if (localStorage['ARR']) {
-    ARR = Number(localStorage.getItem('ARR'));
-  }
-  //if (localStorage['gravity']) {
-  //  gravity = localStorage.getItem('gravity');
-  //}
 }
 loadLocalData();
