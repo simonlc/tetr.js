@@ -90,6 +90,9 @@ nav > a {
 
 /* Content */
 #content {
+  position: relative;
+  display: table;
+  margin: auto;
   padding: 1rem;
 }
 
@@ -106,10 +109,10 @@ canvas {
   /* TODO adjust in js */
   /*width: 134px;
   height: 102px;*/
-  background: #fcc;
   position: relative;
   overflow: hidden;
   float: left;
+  margin: 0 0.5rem 0 0;
 }
 #b {
   /* TODO adjust in js */
@@ -126,6 +129,7 @@ canvas {
   position: relative;
   overflow: hidden;
   float: left;
+  margin: 0 0 0 0.5rem;
 }
   #bg,
   #bgPreview,
@@ -168,12 +172,13 @@ canvas {
 
 /* Stats */
 #stats h2 {
-  margin: 0 0 1rem;
+  margin: 0 0 0.5em;
 }
 #stats {
   font-size: 1.5em;
   margin: 0 1em;
   float: left;
+  width: 8em;
 }
 #stats tr {
   display: block;
@@ -197,7 +202,7 @@ canvas {
   margin: 0;
   position: absolute;
   top: 50%;
-  left: 3rem;
+  left: 1rem;
 }
 
 /* Menus */

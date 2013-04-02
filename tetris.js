@@ -9,8 +9,8 @@ the game so you know why some things are done a certain way.
 /**
  * Define playfield size.
  */
-//var cellSize = 30;
-//var borderSize = 2;
+var cellSize;
+var borderSize;
 var stack;
 
 /**
@@ -19,20 +19,7 @@ var stack;
 var msg = document.getElementById('msg');
 var stats = document.getElementById('stats');
 var linesLeft = document.getElementById('lines');
-
-// For canvas height
-//var content = document.getElementById('content');
 var nav = document.getElementsByTagName('nav')[0];
-//content.style.height = (window.innerHeight - nav.offsetHeight - 1 - 32) + 'px';
-
-// 23 borders, 20 cells
-console.log(window.innerHeight - nav.offsetHeight - 1 - 32);
-screenHeight = window.innerHeight - nav.offsetHeight - 1 - 32;
-var borderSize = screenHeight / 323;
-var cellSize = borderSize * 15;
-var a = document.getElementById('a');
-var b = document.getElementById('b');
-var c = document.getElementById('c');
 
 // Get canvases and contexts (there's 8 of them each)
 for (x = 0; x < document.getElementsByTagName('canvas').length; x++) {
@@ -41,6 +28,7 @@ for (x = 0; x < document.getElementsByTagName('canvas').length; x++) {
   'Canvas = document.getElementsByTagName("canvas")[x],' +
   ID + 'Ctx = ' + ID + 'Canvas.getContext("2d");');
 }
+
 /**
  * Piece data
  * [medium, light, dark]
@@ -314,31 +302,55 @@ var key = {
 //    1: 'time' + 'piece' + 'ppm',
 //}
 
-stackCanvas.width = borderSize + (cellSize + borderSize) * 10;
-stackCanvas.height = borderSize + (cellSize + borderSize) * 20;
-activeCanvas.width = stackCanvas.width;
-activeCanvas.height = stackCanvas.height;
-bgCanvas.width = stackCanvas.width;
-bgCanvas.height = stackCanvas.height;
-b.style.width = stackCanvas.width + 4 + 'px';
-b.style.height = stackCanvas.height + 4 + 'px';
+function resize() {
+  var a = document.getElementById('a');
+  var b = document.getElementById('b');
+  var c = document.getElementById('c');
 
-progressCanvas.height = stackCanvas.height;
-progressCanvas.width = 6;
+  screenHeight = window.innerHeight - nav.offsetHeight - 1 - 32;
+  borderSize = Math.max((screenHeight / 323), 1);
+  cellSize = borderSize * 15;
 
-holdCanvas.width = borderSize + (cellSize + borderSize) * 4;
-holdCanvas.height = borderSize + (cellSize + borderSize) * 3;
-bgHoldCanvas.width = holdCanvas.width;
-bgHoldCanvas.height = holdCanvas.height;
-a.style.width = holdCanvas.width + 4 + 'px';
-a.style.height = holdCanvas.height + 4 + 'px';
+  stackCanvas.width = borderSize + (cellSize + borderSize) * 10;
+  stackCanvas.height = borderSize + (cellSize + borderSize) * 20;
+  activeCanvas.width = stackCanvas.width;
+  activeCanvas.height = stackCanvas.height;
+  bgCanvas.width = stackCanvas.width;
+  bgCanvas.height = stackCanvas.height;
+  b.style.width = stackCanvas.width + 4 + 'px';
+  b.style.height = stackCanvas.height + 4 + 'px';
 
-previewCanvas.width = borderSize + (cellSize + borderSize) * 4;
-previewCanvas.height = borderSize + (cellSize + borderSize) * 9 * 2;
-bgPreviewCanvas.width = previewCanvas.width;
-bgPreviewCanvas.height = previewCanvas.height;
-c.style.width = previewCanvas.width + 4 + 'px';
-c.style.height = previewCanvas.height + 4 + 'px';
+  progressCanvas.height = stackCanvas.height;
+  progressCanvas.width = borderSize * 3;
+
+  holdCanvas.width = borderSize + (cellSize + borderSize) * 4;
+  holdCanvas.height = borderSize + (cellSize + borderSize) * 3;
+  bgHoldCanvas.width = holdCanvas.width;
+  bgHoldCanvas.height = holdCanvas.height;
+  a.style.width = holdCanvas.width + 4 + 'px';
+  a.style.height = holdCanvas.height + 4 + 'px';
+
+  previewCanvas.width = borderSize + (cellSize + borderSize) * 4;
+  previewCanvas.height = borderSize + (cellSize + borderSize) * 9 * 2;
+  bgPreviewCanvas.width = previewCanvas.width;
+  bgPreviewCanvas.height = previewCanvas.height;
+  c.style.width = previewCanvas.width + 4 + 'px';
+  c.style.height = previewCanvas.height + 4 + 'px';
+
+  // Scale the text so it fits in the thing.
+  // TODO add min & max values (Math.min, and max).
+  msg.style.lineHeight = stackCanvas.height + 'px';
+  msg.style.fontSize = ~~(stackCanvas.width / 6) + 'px';
+  linesLeft.style.fontSize = msg.style.fontSize;
+  stats.style.fontSize = ~~(stackCanvas.width / 12) + 'px';
+
+  bg(bgCtx);
+  bg(bgHoldCtx);
+  bg(bgPreviewCtx);
+}
+addEventListener('resize', function() {
+  resize();
+}, false);
 
 /**
  * ========================== Model ===========================================
@@ -620,7 +632,7 @@ function update() {
     fallingPiece.shift(shift);
   // 3. Once the delay is complete, move over once.
   //     Inc delay so this doesn't run again.
-  } else if (fallingPiece.shiftDelay == settings.DAS) {
+  } else if (fallingPiece.shiftDelay == settings.DAS && settings.DAS != 0) {
     fallingPiece.shift(shift);
     if (settings.ARR != 0)
       fallingPiece.shiftDelay++;
@@ -1112,8 +1124,6 @@ function loadLocalData() {
     document.getElementsByTagName('html')[0].id = 'dark';
 }
 loadLocalData();
-bg(bgCtx);
-bg(bgHoldCtx);
-bg(bgPreviewCtx);
+resize();
 
 
