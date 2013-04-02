@@ -1,0 +1,69 @@
+<!doctype html>
+  <meta charset=utf-8>
+  <title>Tetr.js</title>
+  <link rel=stylesheet href=style.css>
+<nav>
+  <h1>Tetr.js</h1>
+  <a onclick=init(0)>Play Sprint</a>
+  <a onclick=init(1)>Play Marathon</a>
+  <a onclick=init(gametype)>Retry</a> <!-- only show at end in green -->
+  <a onclick=toggleMenu(settingsMenu)><i class=icon-cog></i>Settings</a>
+</nav>
+<div id=content>
+
+  <!-- Canvases -->
+  <div id=a>
+    <canvas id=bgHold></canvas>
+    <canvas id=hold></canvas>
+  </div>
+  <div id=b>
+    <canvas id=bg></canvas>
+    <canvas id=stack></canvas>
+    <canvas id=active></canvas>
+    <p id=msg>
+  </div>
+  <canvas id=progress></canvas>
+  <div id=c>
+    <canvas id=bgPreview></canvas>
+    <canvas id=preview></canvas>
+  </div>
+
+  <!-- Stats -->
+  <p id=stats>
+  <p id=lines>
+
+</div>
+
+<!-- Menus -->
+<div id=menu style=display:none>
+  <div id=settingsMenu style=display:none>
+
+    <h2>Settings</h2>
+    <label for=DAS>DAS</label>      <input name=DAS type=range min=0 max=30 value=12>
+    <output name=DAS>12</output>
+    <label for=ARR>ARR</label>      <input name=ARR type=range min=0 max=10 value=1>
+    <output name=ARR>1</output>
+    <label for=grav>Gravity</label> <input name=grav type=number>
+    <label for=dark>Dark Theme</label> <input name=dark type=checkbox>
+
+    <h2>Controls</h2>
+    <p>Click on the control you want to change, then press any key.
+    <table id=controls>
+      <tr> <th>Move Left    <td id=moveLeft>←
+      <tr> <th>Move Right   <td id=moveRight>→
+      <tr> <th>Move Down    <td id=moveDown>↓
+      <tr> <th>Hard Drop    <td id=hardDrop>Space
+      <tr> <th>Hold         <td id=hold>Shift
+      <tr> <th>Spin Right   <td id=rotRight>C
+      <tr> <th>Spin Left    <td id=rotLeft>Z
+      <tr> <th>Spin 180     <td id=rot180>X
+      <tr> <th>Retry        <td id=retry>R
+    </table>
+
+    <a class=button onclick=toggleMenu(settingsMenu)>Done</a>
+
+  </div>
+</div>
+<script src=tetris.js></script>
+<script src=html5slider/html5slider.js></script>
+<!--<script>_gaq=[['_setAccount','UA-30472693-1'],['_trackPageview']];(function(d){var g=d.createElement('script'),s=d.scripts[0];g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)})(document)</script>-->

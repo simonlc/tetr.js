@@ -1,0 +1,299 @@
+@font-face {
+  font-family: 'Share Tech Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Share Tech Mono'), local('ShareTechMono-Regular'), url(http://themes.googleusercontent.com/static/fonts/sharetechmono/v1/RQxK-3RA0Lnf3gnnnNrAsUYuTAAIFFn5GTWtryCmBQ4.woff) format('woff');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url(http://themes.googleusercontent.com/static/fonts/lato/v6/9k-RPmcnxYEPm8CNFsH2gg.woff) format('woff');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Lato Bold'), local('Lato-Bold'), url(http://themes.googleusercontent.com/static/fonts/lato/v6/wkfQbvfT_02e2IWO3yYueQ.woff) format('woff');
+}
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('fontawesome-webfont.eot?v=3.0.1');
+  src: url('fontawesome-webfont.eot?#iefix&v=3.0.1') format('embedded-opentype'),
+    url('fontawesome-webfont.woff?v=3.0.1') format('woff'),
+    url('fontawesome-webfont.ttf?v=3.0.1') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+/*::-moz-selection {
+  background: none;
+}
+::selection {
+  background: none;
+}*/
+/* General */
+html, body {
+  height: 100%;
+  max-height: 100%;
+  margin: 0;
+  color: #222;
+  background: #ddd;
+  font: 1em 'Lato';
+}
+a {
+  text-decoration: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+th {
+  font-weight: normal;
+}
+
+/* Header */
+h1 {
+  font-size: 2rem;
+  margin: 0;
+  display: inline;
+  position: relative;
+  top: 0.2rem;
+}
+nav {
+  background: #eee;
+  padding: 0 0 0 1rem;
+}
+.button,
+nav > a {
+  font-size: 1.25rem;
+  margin: 0.5rem 0 0.5rem 1rem;
+  display: inline-block;
+  color: #f8f8f8;
+  background: #4da6ee;
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 0.3rem 0.6rem 0.4rem;
+}
+.button {
+  margin: 0;
+}
+[class^="icon-"],
+[class*=" icon-"] {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  text-decoration: inherit;
+  margin: 0 0.4em 0 0;
+  -webkit-font-smoothing: antialiased;
+}
+.icon-cog:before{content:'\f021'}
+
+/* Content */
+#content {
+  position: relative;
+  display: table;
+  margin: auto;
+  padding: 1rem;
+}
+
+/* Canvases */
+canvas {
+  border: 2px solid #999;
+  vertical-align: top;
+  float: left;
+}
+#hold {
+  /*margin: 0 0.5rem 0 0;*/
+}
+#a {
+  /* TODO adjust in js */
+  /*width: 134px;
+  height: 102px;*/
+  position: relative;
+  overflow: hidden;
+  float: left;
+  margin: 0 0.5rem 0 0;
+}
+#b {
+  /* TODO adjust in js */
+  /*width: 326px;
+  height: 646px;*/
+  position: relative;
+  overflow: hidden;
+  float: left;
+}
+#c {
+  /* TODO adjust in js */
+  /*width: 134px;
+  height: 582px;*/
+  position: relative;
+  overflow: hidden;
+  float: left;
+  margin: 0 0 0 0.5rem;
+}
+  #bg,
+  #bgPreview,
+  #bgHold {
+    position: absolute;
+    z-index: 1;
+  }
+  #hold,
+  #preview,
+  #stack {
+    position: absolute;
+    z-index: 1;
+  }
+  #active {
+    position: absolute;
+    z-index: 2;
+  }
+  #msg {
+    font-size: 4rem;
+    color: #000;
+    text-shadow:
+     -1px -1px 0 #fff,  
+      1px -1px 0 #fff,
+     -1px  1px 0 #fff,
+      1px  1px 0 #fff;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    line-height: 642px;
+    margin: 0;
+    z-index: 3;
+  }
+#progress {
+  background: none;
+  border-left: none;
+}
+#preview {
+  /*margin: 0 0 0 0.5rem;*/
+}
+
+/* Stats */
+#stats h2 {
+  margin: 0 0 0.5em;
+}
+#stats {
+  font-size: 1.5em;
+  margin: 0 1em;
+  float: left;
+  width: 8em;
+}
+#stats tr {
+  display: block;
+}
+#stats th {
+  color: #999;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
+               0 1px 0 rgba(255,255,255,0.5);
+}
+#stats td {
+  font-size: 1.85em;
+  color: #102836;
+  font-family:'Share Tech Mono', monospace;
+  display: block;
+  position: relative;
+}
+
+#lines {
+  font-size: 4rem;
+  line-height: 1em;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+}
+
+/* Menus */
+#menu {
+  background: #ddd;
+  padding: 1rem;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 3.2rem;
+  left: 0;
+  z-index: 99;
+}
+#controls th {
+  font-weight: normal;
+  text-align: left;
+}
+input {
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  width: 6em;
+  height: 2rem;
+  background: #eee;
+  border-radius: 5px;
+}
+#controls td{
+  cursor: pointer;
+  display: block;
+  margin: 5px 0 0 4em;
+  text-align: center;
+  width: 6em;
+  line-height: 2em;
+  background: #eee;
+  border-radius: 5px;
+}
+#controls td:hover {
+  background: #eaeaea;
+}
+
+#controls td:active {
+  background: #e7e7e7;
+}
+#dark,
+#dark body {
+  color: #ddd;
+  background: #222;
+}
+#dark nav {
+  background: #111;
+}
+#dark .button,
+#dark nav > a {
+  color: #f8f8f8;
+  background: #4da6ee;
+}
+#dark canvas {
+  border: 2px solid #333;
+}
+  #dark #active {
+    background: none;
+  }
+  #dark #msg {
+    color: #fff;
+    text-shadow:
+     -1px -1px 0 #000,  
+      1px -1px 0 #000,
+     -1px  1px 0 #000,
+      1px  1px 0 #000;
+  }
+#dark #stats th {
+  color: #aaa;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
+               0 1px 0 rgba(255,255,255,0.5);
+}
+#dark #stats td {
+  color: #eee;
+}
+#dark #menu {
+  background: #222;
+}
+#dark input {
+  background: #111;
+}
+#dark #controls td{
+  background: #111;
+}
+#dark #controls td:hover {
+  background: #191919;
+}
+
+#dark #controls td:active {
+  background: #1c1c1c;
+}
