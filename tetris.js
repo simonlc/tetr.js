@@ -348,9 +348,7 @@ function resize() {
   bg(bgHoldCtx);
   bg(bgPreviewCtx);
 }
-addEventListener('resize', function() {
-  resize();
-}, false);
+addEventListener('resize', resize, false);
 
 /**
  * ========================== Model ===========================================
@@ -1084,6 +1082,8 @@ for (var i = 0, len = inputs.length; i < len; i++) {
       document.getElementsByTagName('html')[0].id = 'dark';
     else
       document.getElementsByTagName('html')[0].id = '';
+
+    resize();
   }
 }
 
