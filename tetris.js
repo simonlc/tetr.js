@@ -1148,8 +1148,8 @@ for (var s in settings) {
   span.innerHTML = settings[s][1][settings[s][0]];
   iLeft.className = 'left';
   iRight.className = 'right';
-  iLeft.onclick = left;
-  iRight.onclick = right;
+  iLeft.onmousedown = left;
+  iRight.onmousedown = right;
 
   set.appendChild(div);
   div.appendChild(b);
@@ -1157,15 +1157,32 @@ for (var s in settings) {
   div.appendChild(span);
   div.appendChild(iRight);
 }
-function left() {
-  var s = this.parentNode.id;
-  settings[s][0] = (settings[s][0] === 0) ? settings[s][1].length - 1 : settings[s][0] - 1;
+function settingsLoop() {
+  if (settingsArrow)
+    settings[s][0] = (settings[s][0] === 0) ? settings[s][1].length - 1 : settings[s][0] - 1;
+  else
+    settings[s][0] = (settings[s][0] === settings[s][1].length - 1) ? 0 : settings[s][0] + 1;
   saveSetting(s);
+  setLoop = setTimeout(settingsLoop, 100);
+}
+var s;
+var settingsArrow;
+// TODO DRY this.
+function left() {
+  settingsArrow = 1;
+  s = this.parentNode.id;
+  this.onmouseup = function() {
+    clearTimeout(setLoop)
+  };
+  settingsLoop();
 }
 function right() {
-  var s = this.parentNode.id;
-  settings[s][0] = (settings[s][0] === settings[s][1].length - 1) ? 0 : settings[s][0] + 1;
-  saveSetting(s);
+  settingsArrow = 0;
+  s = this.parentNode.id;
+  this.onmouseup = function() {
+    clearTimeout(setLoop)
+  };
+  settingsLoop();
 }
 function saveSetting(s) {
   document.getElementById(s)
