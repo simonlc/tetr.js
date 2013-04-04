@@ -220,7 +220,7 @@ canvas {
   font-weight: normal;
   text-align: left;
 }
-input {
+/*input {
   border: none;
   cursor: pointer;
   text-align: center;
@@ -228,7 +228,7 @@ input {
   height: 2rem;
   background: #eee;
   border-radius: 5px;
-}
+}*/
 #controls td{
   cursor: pointer;
   display: block;
@@ -246,6 +246,43 @@ input {
 #controls td:active {
   background: #e7e7e7;
 }
+
+
+/* Settings */
+.left,
+.right {
+  font-family: FontAwesome;
+  font-weight: normal;
+  font-style: normal;
+  cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  -webkit-transition:all .1s ease-out;
+  transition:all .1s ease-out
+}
+.left:hover,
+.right:hover {
+  color: #4da6ee;
+}
+.left:before,
+.right:before {
+  text-decoration: inherit;
+  display: inline-block;
+}
+.left:before  { content: "\f022"; }
+.right:before { content: "\f023"; }
+#settings b {
+  display: inline-block;
+  width: 7em;
+}
+#settings span {
+  text-align: center;
+  display: inline-block;
+  width: 5em;
+  margin: 0.5em 0;
+}
+
+
+/* Dark theme */
 #dark,
 #dark body {
   color: #ddd;

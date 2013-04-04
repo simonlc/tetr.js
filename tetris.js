@@ -20,10 +20,11 @@ var msg = document.getElementById('msg');
 var stats = document.getElementById('stats');
 var linesLeft = document.getElementById('lines');
 var nav = document.getElementsByTagName('nav')[0];
+var set = document.getElementById('settings');
 
 // Get canvases and contexts (there's 8 of them each)
-for (x = 0; x < document.getElementsByTagName('canvas').length; x++) {
-  ID = document.getElementsByTagName('canvas')[x].id;
+for (var x = 0; x < document.getElementsByTagName('canvas').length; x++) {
+  var ID = document.getElementsByTagName('canvas')[x].id;
   eval('var ' + ID +
   'Canvas = document.getElementsByTagName("canvas")[x],' +
   ID + 'Ctx = ' + ID + 'Canvas.getContext("2d");');
@@ -150,10 +151,22 @@ var firstRun;
 
 var shift;
 
+//var settings = {
+//  DAS: 12,
+//  ARR: 1,
+//  dark: false
+//};
 var settings = {
-  DAS: 12,
-  ARR: 1,
-  dark: false
+  DAS: [10, range(0,31)],
+  ARR: [1, range(0,11)],
+  Theme: [0, ['Light', 'Dark']],
+  Gravity: [0, range(0,21)], //TODO Add auto option
+  Size: [0, ['Auto', 'Small', 'Medium', 'Large']],
+  Sound: [0, ['Off', 'On']],
+  Volume: [100, range(0, 101)],
+  Block: [0, ['<img src=0.jpg>', '<img src=1.jpg>']],
+  Ghost: [0, ['Normal', 'Colored', 'Off']],
+  'Hide Cursor': [1, ['On', 'Off']],
 };
 
 var inc;
@@ -302,6 +315,7 @@ var key = {
 //    1: 'time' + 'piece' + 'ppm',
 //}
 
+var screenHeight;
 function resize() {
   var a = document.getElementById('a');
   var b = document.getElementById('b');
@@ -353,6 +367,15 @@ addEventListener('resize', resize, false);
 /**
  * ========================== Model ===========================================
  */
+
+function range(start, end, inc) {
+  inc = inc || 1;
+  var array = [];
+  for (var i = start; i < end; i += inc) {
+    array.push(i);
+  }
+  return array;
+}
 
 /**
  * Add divisor method so we can do clock arithmetics. This is later used to
@@ -630,20 +653,20 @@ function update() {
     fallingPiece.shift(shift);
   // 3. Once the delay is complete, move over once.
   //     Inc delay so this doesn't run again.
-  } else if (fallingPiece.shiftDelay == settings.DAS && settings.DAS != 0) {
+  } else if (fallingPiece.shiftDelay == settings.DAS[0] && settings.DAS[0] != 0) {
     fallingPiece.shift(shift);
-    if (settings.ARR != 0)
+    if (settings.ARR[0] != 0)
       fallingPiece.shiftDelay++;
   // 5. If ARR Delay is full, move piece, and reset delay and repeat.
-  } else if (fallingPiece.arrDelay == settings.ARR && settings.ARR != 0) {
+  } else if (fallingPiece.arrDelay == settings.ARR[0] && settings.ARR[0] != 0) {
     fallingPiece.shift(shift);
     // TODO Put this in method
     fallingPiece.arrDelay = 0;
   // 2. Apply DAS delay
-  } else if (fallingPiece.shiftDelay < settings.DAS) {
+  } else if (fallingPiece.shiftDelay < settings.DAS[0]) {
     fallingPiece.shiftDelay++;
   // 4. Apply DAS delay
-  } else if (fallingPiece.arrDelay < settings.ARR) {
+  } else if (fallingPiece.arrDelay < settings.ARR[0]) {
     fallingPiece.arrDelay++;
   }
 
@@ -736,7 +759,7 @@ var FallingPiece = function() {
     shiftReleased = false;
     switch(direction) {
     case 'left':
-      if (settings.ARR == 0 && this.shiftDelay == settings.DAS) {
+      if (settings.ARR[0] == 0 && this.shiftDelay == settings.DAS[0]) {
         for (var i = 0; i < 10; i++) {
           if (!moveValid(-i, 0, this.tetro)) {
             this.x += -i + 1;
@@ -749,7 +772,7 @@ var FallingPiece = function() {
       }
       break;
     case 'right':
-      if (settings.ARR == 0 && this.shiftDelay == settings.DAS) {
+      if (settings.ARR[0] == 0 && this.shiftDelay == settings.DAS[0]) {
         for (var i = 0; i < 10; i++) {
           if (!moveValid(i, 0, this.tetro)) {
             this.x += i - 1;
@@ -823,9 +846,8 @@ var fallingPiece = new FallingPiece();
 // ========================== View ============================================
 
 function bg(ctx) {
-  // TODO have work with light and dark.
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  if (settings.dark)
+  if (settings.Theme[0])
     ctx.fillStyle = '#0b0b0b';
   else
     ctx.fillStyle = '#f8f8f8';
@@ -840,7 +862,7 @@ function bg(ctx) {
       ctx.fillRect(0, y, ctx.canvas.width, borderSize);
     }
   }
-  if (settings.dark)
+  if (settings.Theme[0])
     bgGrid(cellSize, borderSize, '#111');
   else
     bgGrid(cellSize, borderSize, '#eee');
@@ -991,7 +1013,7 @@ function gameLoop() {
   if (!gameState) {
     update();
     clear(activeCtx);
-    if (settings.dark) {
+    if (settings.Theme[0]) {
       draw(fallingPiece.tetro, fallingPiece.x,
            fallingPiece.y + fallingPiece.getDrop(), activeCtx, 9);
     } else {
@@ -1051,13 +1073,32 @@ function toggleMenu(menuName) {
 /**
  * Local Storage
  */
+// Give settings an event listener.
+//for (var i = 0, len = inputs.length; i < len; i++) {
+//  inputs[i].onchange = function() {
+//
+//    if (this.type == 'checkbox')
+//      settings[this.name] = this.checked;
+//    else
+//      settings[this.name] = this.value;
+//    if (outputs[this.name])
+//      outputs[this.name].value = this.value;
+//
+//    localStorage.setItem('settings', JSON.stringify(settings));
+//
+//    if (settings.dark)
+//      document.getElementsByTagName('html')[0].id = 'dark';
+//    else
+//      document.getElementsByTagName('html')[0].id = '';
+//
+//    resize();
+//  }
+//}
+
 var newKey,
   currCell,
   controls = document.getElementById('controls'),
   controlCells = controls.getElementsByTagName('td');
-var inputs = document.getElementsByTagName('input');
-var outputs = document.getElementsByTagName('output');
-
 // Give controls an event listener.
 for (var i = 0, len = controlCells.length; i < len; i++) {
   controlCells[i].onclick = function() {
@@ -1065,28 +1106,6 @@ for (var i = 0, len = controlCells.length; i < len; i++) {
     currCell = this;
   }
 }
-// Give settings an event listener.
-for (var i = 0, len = inputs.length; i < len; i++) {
-  inputs[i].onchange = function() {
-
-    if (this.type == 'checkbox')
-      settings[this.name] = this.checked;
-    else
-      settings[this.name] = this.value;
-    if (outputs[this.name])
-      outputs[this.name].value = this.value;
-
-    localStorage.setItem('settings', JSON.stringify(settings));
-
-    if (settings.dark)
-      document.getElementsByTagName('html')[0].id = 'dark';
-    else
-      document.getElementsByTagName('html')[0].id = '';
-
-    resize();
-  }
-}
-
 // Listen for key input if a control has been clicked on.
 addEventListener('keyup', function(e) {
   //TODO unbind key if used elsewhere
@@ -1110,18 +1129,51 @@ function loadLocalData() {
   }
   if (localStorage['settings']) {
     settings = JSON.parse(localStorage.getItem('settings'));
-    for (var i = 0, len = inputs.length; i < len; i++) {
-      if (inputs[i].type == 'checkbox') {
-        inputs[i].checked = settings[inputs[i].name];
-      } else {
-        inputs[i].value = settings[inputs[i].name];
-      }
-      if (outputs[i])
-        outputs[i].value = settings[inputs[i].name];
-    }
   }
-  if (settings.dark)
+  if (settings.Theme[0])
     document.getElementsByTagName('html')[0].id = 'dark';
 }
 loadLocalData();
 resize();
+
+for (var s in settings) {
+  var div = document.createElement('div');
+  var b = document.createElement('b');
+  var iLeft = document.createElement('i');
+  var span = document.createElement('span');
+  var iRight = document.createElement('i');
+
+  div.id = s;
+  b.innerHTML = s + ':';
+  span.innerHTML = settings[s][1][settings[s][0]];
+  iLeft.className = 'left';
+  iRight.className = 'right';
+  iLeft.onclick = left;
+  iRight.onclick = right;
+
+  set.appendChild(div);
+  div.appendChild(b);
+  div.appendChild(iLeft);
+  div.appendChild(span);
+  div.appendChild(iRight);
+}
+function left() {
+  var s = this.parentNode.id;
+  settings[s][0] = (settings[s][0] === 0) ? settings[s][1].length - 1 : settings[s][0] - 1;
+  saveSetting(s);
+}
+function right() {
+  var s = this.parentNode.id;
+  settings[s][0] = (settings[s][0] === settings[s][1].length - 1) ? 0 : settings[s][0] + 1;
+  saveSetting(s);
+}
+function saveSetting(s) {
+  document.getElementById(s)
+  .getElementsByTagName('span')[0]
+  .innerHTML = settings[s][1][settings[s][0]];
+  localStorage['settings'] = JSON.stringify(settings);
+  if (settings.Theme[0])
+    document.getElementsByTagName('html')[0].id = 'dark';
+  else
+    document.getElementsByTagName('html')[0].id = '';
+}
