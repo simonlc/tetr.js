@@ -34,16 +34,26 @@ for (var x = 0; x < document.getElementsByTagName('canvas').length; x++) {
  * Piece data
  * [medium, light, dark]
  */
-var cyan = ['#2aa198', '#4dbdb3', '#00877e']; //I
-var blue = ['#268bd2', '#4da6ee', '#0072b6']; //J
-var orange = ['#cb4b16', '#ea6630', '#ac3000']; //L
-var yellow = ['#b58900', '#d2a32b', '#987000']; //O
-var green = ['#859900', '#a0b42b', '#697f00']; //S
-var purple = ['#6c71c4', '#878ae0', '#5158a9']; //T
-var red = ['#dc322f', '#fc5246', '#bd001a']; //Z
-var dark = ['#999', '#aaa', '#888'];
-var grey = ['#ccc', '#ddd', '#bbb'];
-var grey2 = ['#333', '#444', '#222'];
+//var cyan = ['#2aa198', '#4dbdb3', '#00877e']; //I
+//var blue = ['#268bd2', '#4da6ee', '#0072b6']; //J
+//var orange = ['#cb4b16', '#ea6630', '#ac3000']; //L
+//var yellow = ['#b58900', '#d2a32b', '#987000']; //O
+//var green = ['#859900', '#a0b42b', '#697f00']; //S
+//var purple = ['#6c71c4', '#878ae0', '#5158a9']; //T
+//var red = ['#dc322f', '#fc5246', '#bd001a']; //Z
+//var dark = ['#999', '#aaa', '#888'];
+//var grey = ['#ccc', '#ddd', '#bbb'];
+//var grey2 = ['#333', '#444', '#222'];
+var cyan = [60, -35, -5];
+var blue = [55, -10, -45];
+var orange = [50, 50, 55];
+var yellow = [60, 10, 64];
+var green = [60, -20, 62];
+var purple = [50, 15, -45];
+var red = [50, 65, 45];
+var dark = [60, 0, 0];
+var grey = [80, 0, 0];
+var grey2 = [20, 0, 0];
 var colors = [grey, cyan, blue, orange, yellow, green, purple, red, dark, grey2];
 
 // NOTE y values are inverted since our matrix counts from top to bottom.
@@ -146,7 +156,6 @@ var pieces = [PieceI, PieceJ, PieceL, PieceO, PieceS, PieceT, PieceZ];
  */
 var holdPiece;
 var gravityUnit = 0.00390625;
-var gravity;
 var firstRun;
 
 var shift;
@@ -161,16 +170,18 @@ var settings = {
   ARR: [1, range(0,11)],
   Theme: [0, ['Light', 'Dark']],
   Gravity: [0, range(0,21)], //TODO Add auto option
+  'Lock Delay': [30, range(0,101)],
   Size: [0, ['Auto', 'Small', 'Medium', 'Large']],
   Sound: [0, ['Off', 'On']],
   Volume: [100, range(0, 101)],
   Block: [0, ['<img src=0.jpg>', '<img src=1.jpg>']],
   Ghost: [0, ['Normal', 'Colored', 'Off']],
-  'Hide Cursor': [1, ['On', 'Off']],
+  'Hide Cursor': [1, ['On', 'Off']]
 };
 
 var inc;
 var gLoop;
+var setLoop;
 var cDown;
 
 /**
@@ -195,6 +206,8 @@ var level;
 
 // Keys
 var keysDown = {};
+var arrowReleased = true;
+var arrowDelay = 0;
 var rotateReleased = true;
 var hardDropReleased = true;
 var shiftReleased = true;
@@ -368,6 +381,39 @@ addEventListener('resize', resize, false);
  * ========================== Model ===========================================
  */
 
+/**
+ * Converts Lab colors to RGB and returns string.
+ * Info: http://www.brucelindbloom.com/index.html
+ */
+function lab(color, adjust) {
+  var e = 0.008856;
+  var k = 903.3;
+  var L = color[0] + adjust;
+  var A = color[1];
+  var B = color[2];
+  var y = (L + 16) / 116;
+  var x = A / 500 + y;
+  var z = y - B / 200;
+  var r,g,b;
+
+  x = Math.pow(x, 3) > e ? Math.pow(x, 3) : (116 * x - 16) / k;
+  y = Math.pow(y, 3) > e ? Math.pow(y, 3) : (116 * y - 16) / k;
+  z = Math.pow(z, 3) > e ? Math.pow(z, 3) : (116 * z - 16) / k;
+
+  x *= 0.95047;
+  z *= 1.08883;
+
+  r = x * 3.2405 + y * -1.5371 + z * -0.4985;
+  g = x * -0.9693 + y * 1.876 + z * 0.0416;
+  b = x * 0.0556 + y * -0.204 + z * 1.0572;
+
+  r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : r * 12.92;
+  g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : g * 12.92;
+  b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : b * 12.92;
+
+  return "rgb(" + ~~(255 * r) + "," + ~~(255 * g) + "," + ~~(255 * b) + ")"
+}
+
 function range(start, end, inc) {
   inc = inc || 1;
   var array = [];
@@ -410,7 +456,7 @@ function init(gt) {
   clear(holdCtx);
   holdPiece = void 0;
   gametype = gt;
-  gravity = gravityUnit * 4;
+  //gravity = gravityUnit * 4;
   startTime = new Date().getTime();
 
   //TODO add first draw of grab bag here.
@@ -551,18 +597,18 @@ function addPiece(tetro) {
  */
 function statistics() {
   var thisFrame = Date.now();
-  time = thisFrame - startTime;
+  var time = thisFrame - startTime;
 
-  minutes = time / 1000 / 60;
-  lpm = (lines / minutes).toString().slice(0, 8);
-  ppm = (piecesSet / minutes).toString().slice(0, 8);
+  var minutes = time / 1000 / 60;
+  var lpm = (lines / minutes).toString().slice(0, 8);
+  var ppm = (piecesSet / minutes).toString().slice(0, 8);
   if (isNaN(lpm))
     lpm = 0;
   if (isNaN(ppm))
     ppm = 0;
 
   // Seconds and minutes for displaying clock.
-  seconds = (time / 1000 % 60).toFixed(2);
+  var seconds = (time / 1000 % 60).toFixed(2);
   minutes = ~~(time / 60000);
   time = ((minutes < 10 ? '0' : '') + minutes).slice(-2) +
           (seconds < 10 ? ':0' : ':') + seconds;
@@ -791,16 +837,16 @@ var FallingPiece = function() {
     }
   }
   this.hardDrop = function() {
-    this.y += this.getDrop();
-    this.lockDelay = 30;
+    this.y += this.getDrop(22);
+    this.lockDelay = settings['Lock Delay'][0];
   }
-  this.getDrop = function() {
-    var i = 1;
-    for (i = 1; i < 22; i++) {
+  this.getDrop = function(distance) {
+    for (var i = 1; i < distance; i++) {
       if (!moveValid(0, i, this.tetro)) {
         return i - 1;
       }
     }
+    return i - 1;
   }
   this.hold = function() {
     if (!this.held) {
@@ -826,11 +872,11 @@ var FallingPiece = function() {
   this.update = function() {
     // Apply gravity.
     if (moveValid(0, 1, this.tetro)) {
-      this.y += gravity;
+      this.y += this.getDrop(settings.Gravity[0]);
     } else {
       // We've landed.
       this.y = ~~this.y;
-      if (this.lockDelay >= 30) {
+      if (this.lockDelay >= settings['Lock Delay'][0]) {
         // Set piece.
         addPiece(this.tetro);
         this.held = false;
@@ -871,16 +917,16 @@ function bg(ctx) {
 /**
  * Draws a mino.
  */
-function drawCell(x, y, color, ctx) {
+function drawCell(x, y, color, ctx, adjust) {
   x = ~~x * (cellSize + borderSize) + borderSize;
   y = (~~y * (cellSize + borderSize) + borderSize) - 2 * (cellSize + borderSize);
-  ctx.fillStyle = color[1];
+  ctx.fillStyle = lab(color, 10 + adjust);
   ctx.fillRect(x, y, cellSize, cellSize);
 
-  ctx.fillStyle = color[2];
+  ctx.fillStyle = lab(color, -10 + adjust);
   ctx.fillRect(x, y + cellSize / 2, cellSize, cellSize / 2);
 
-  ctx.fillStyle = color[0];
+  ctx.fillStyle = lab(color, 0 + adjust);
   ctx.beginPath();
   ctx.moveTo(x, y);
   ctx.lineTo(x + cellSize, y + cellSize);
@@ -899,14 +945,15 @@ function clear(ctx) {
 /**
  * Takes an array of minos and tells drawCell where to draw it.
  */
-function draw(tetro, cx, cy, ctx, color) {
+function draw(tetro, cx, cy, ctx, adjust, color) {
+  adjust = adjust || 0
   for (var x = 0, len = tetro.length; x < len; x++) {
     for (var y = 0, wid = tetro[x].length; y < wid; y++) {
       if (tetro[x][y]) {
         if (color === void 0) {
-          drawCell(x + cx, y + cy, colors[tetro[x][y]], ctx);
+          drawCell(x + cx, y + cy, colors[tetro[x][y]], ctx, adjust);
         } else {
-          drawCell(x + cx, y + cy, colors[color], ctx);
+          drawCell(x + cx, y + cy, colors[color], ctx, adjust);
         }
       }
     }
@@ -927,11 +974,11 @@ function drawPreview() {
 //TODO display none if not sprint or use for levels or soemthing.
 function progressUpdate() {
   if (lines <= 10) {
-    progressCtx.fillStyle = green[1];
+    progressCtx.fillStyle = lab(green, 0);
   } else if (lines > 30) {
-    progressCtx.fillStyle = red[1];
+    progressCtx.fillStyle = lab(red, 0);
   } else {
-    progressCtx.fillStyle = yellow[1];
+    progressCtx.fillStyle = lab(yellow, 0);
   }
   progressCtx.fillRect(0, 0, progress.width, progress.height);
   progressCtx.clearRect(0, 0, progress.width, progress.height * lines / lineLimit);
@@ -1013,14 +1060,26 @@ function gameLoop() {
   if (!gameState) {
     update();
     clear(activeCtx);
-    if (settings.Theme[0]) {
-      draw(fallingPiece.tetro, fallingPiece.x,
-           fallingPiece.y + fallingPiece.getDrop(), activeCtx, 9);
-    } else {
-      draw(fallingPiece.tetro, fallingPiece.x,
-           fallingPiece.y + fallingPiece.getDrop(), activeCtx, 0);
+
+    // TODO make prettier.
+    if (!settings.Ghost[0]) {
+      if (settings.Theme[0]) {
+        draw(fallingPiece.tetro, fallingPiece.x,
+             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0, 9);
+      } else {
+        draw(fallingPiece.tetro, fallingPiece.x,
+             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0, 0);
+      }
+    } else if (settings.Ghost[0] === 1) {
+      if (settings.Theme[0]) {
+        draw(fallingPiece.tetro, fallingPiece.x,
+             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, -20);
+      } else {
+        draw(fallingPiece.tetro, fallingPiece.x,
+             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 20);
+      }
     }
-    draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
+    draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx, 5);
   } else {
     gameOverAnimation();
   }
@@ -1029,9 +1088,9 @@ function gameLoop() {
 }
 
 function countDownLoop() {
-  end = startTime + 1999;
+  var end = startTime + 1999;
   var thisFrame = Date.now();
-  time = end - thisFrame;
+  var time = end - thisFrame;
   if (time > 1000) {
     //TODO find better allcaps font
     msg.innerHTML = 'READY';
@@ -1158,12 +1217,17 @@ for (var s in settings) {
   div.appendChild(iRight);
 }
 function settingsLoop() {
-  if (settingsArrow)
-    settings[s][0] = (settings[s][0] === 0) ? settings[s][1].length - 1 : settings[s][0] - 1;
-  else
-    settings[s][0] = (settings[s][0] === settings[s][1].length - 1) ? 0 : settings[s][0] + 1;
-  saveSetting(s);
-  setLoop = setTimeout(settingsLoop, 100);
+  if (arrowReleased || arrowDelay >= 6) {
+    if (settingsArrow)
+      settings[s][0] = (settings[s][0] === 0) ? settings[s][1].length - 1 : settings[s][0] - 1;
+    else
+      settings[s][0] = (settings[s][0] === settings[s][1].length - 1) ? 0 : settings[s][0] + 1;
+    saveSetting(s);
+    arrowReleased = false;
+  } else {
+    arrowDelay++;
+  }
+  setLoop = setTimeout(settingsLoop, 50);
 }
 var s;
 var settingsArrow;
@@ -1172,6 +1236,8 @@ function left() {
   settingsArrow = 1;
   s = this.parentNode.id;
   this.onmouseup = function() {
+    arrowReleased = true;
+    arrowDelay = 0;
     clearTimeout(setLoop)
   };
   settingsLoop();
@@ -1180,6 +1246,8 @@ function right() {
   settingsArrow = 0;
   s = this.parentNode.id;
   this.onmouseup = function() {
+    arrowReleased = true;
+    arrowDelay = 0;
     clearTimeout(setLoop)
   };
   settingsLoop();
