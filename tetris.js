@@ -576,8 +576,9 @@ function addPiece(tetro) {
     // TODO Ponder during the day and see if there is a more elegant solution.
     if (count == 10) {
       lines++; //NOTE stats
-      for (var y = row; y > 0; y--) {
+      for (var y = row; y >= -1; y--) {
         for (var x = 0; x < 10; x++) {
+          console.log(stack[x][y - 1]);
           stack[x][y] = stack[x][y - 1];
         }
       }
