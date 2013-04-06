@@ -36,12 +36,20 @@
 
 <!-- Menus -->
 <div id=menu style=display:none>
+  <nav>
+    <h1>Tetr.js</h1>
+    <a onclick=toggleMenu(settingsMenu)><i class=icon-cog></i>Settings</a>
+    <a onclick=toggleMenu(controlsMenu)>Controls</a>
+  </nav>
+
   <div id=settingsMenu style=display:none>
-
+    <h2>Settings</h2>
     <div id=settings>
-      <h2>Settings</h2>
     </div>
+    <a class=button onclick=toggleMenu(settingsMenu)>Done</a>
+  </div>
 
+  <div id=controlsMenu style=display:none>
     <h2>Controls</h2>
     <p>Click on the control you want to change, then press any key.
     <table id=controls>
@@ -49,16 +57,15 @@
       <tr> <th>Move Right   <td id=moveRight>→
       <tr> <th>Move Down    <td id=moveDown>↓
       <tr> <th>Hard Drop    <td id=hardDrop>Space
-      <tr> <th>Hold         <td id=hold>Shift
+      <tr> <th>Hold         <td id=holdPiece>X
       <tr> <th>Spin Right   <td id=rotRight>C
       <tr> <th>Spin Left    <td id=rotLeft>Z
-      <tr> <th>Spin 180     <td id=rot180>X
+      <tr> <th>Spin 180     <td id=rot180>Shift
       <tr> <th>Retry        <td id=retry>R
     </table>
-
-    <a class=button onclick=toggleMenu(settingsMenu)>Done</a>
-
+    <a class=button onclick=toggleMenu(controlsMenu)>Done</a>
   </div>
+
 </div>
 <script src=tetris.js></script>
 <!--<script>_gaq=[['_setAccount','UA-30472693-1'],['_trackPageview']];(function(d){var g=d.createElement('script'),s=d.scripts[0];g.src='//www.google-analytics.com/ga.js';s.parentNode.insertBefore(g,s)})(document)</script>-->

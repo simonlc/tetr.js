@@ -103,12 +103,9 @@ canvas {
   float: left;
 }
 #hold {
-  /*margin: 0 0.5rem 0 0;*/
 }
 #a {
   /* TODO adjust in js */
-  /*width: 134px;
-  height: 102px;*/
   position: relative;
   overflow: hidden;
   float: left;
@@ -116,16 +113,12 @@ canvas {
 }
 #b {
   /* TODO adjust in js */
-  /*width: 326px;
-  height: 646px;*/
   position: relative;
   overflow: hidden;
   float: left;
 }
 #c {
   /* TODO adjust in js */
-  /*width: 134px;
-  height: 582px;*/
   position: relative;
   overflow: hidden;
   float: left;
@@ -167,7 +160,6 @@ canvas {
   border-left: none;
 }
 #preview {
-  /*margin: 0 0 0 0.5rem;*/
 }
 
 /* Stats */
@@ -208,11 +200,10 @@ canvas {
 /* Menus */
 #menu {
   background: #ddd;
-  padding: 1rem;
   position: fixed;
   width: 100%;
   height: 100%;
-  top: 3.2rem;
+  top: 0;
   left: 0;
   z-index: 99;
 }
@@ -220,15 +211,6 @@ canvas {
   font-weight: normal;
   text-align: left;
 }
-/*input {
-  border: none;
-  cursor: pointer;
-  text-align: center;
-  width: 6em;
-  height: 2rem;
-  background: #eee;
-  border-radius: 5px;
-}*/
 #controls td{
   cursor: pointer;
   display: block;

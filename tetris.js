@@ -32,18 +32,7 @@ for (var x = 0; x < document.getElementsByTagName('canvas').length; x++) {
 
 /**
  * Piece data
- * [medium, light, dark]
  */
-//var cyan = ['#2aa198', '#4dbdb3', '#00877e']; //I
-//var blue = ['#268bd2', '#4da6ee', '#0072b6']; //J
-//var orange = ['#cb4b16', '#ea6630', '#ac3000']; //L
-//var yellow = ['#b58900', '#d2a32b', '#987000']; //O
-//var green = ['#859900', '#a0b42b', '#697f00']; //S
-//var purple = ['#6c71c4', '#878ae0', '#5158a9']; //T
-//var red = ['#dc322f', '#fc5246', '#bd001a']; //Z
-//var dark = ['#999', '#aaa', '#888'];
-//var grey = ['#ccc', '#ddd', '#bbb'];
-//var grey2 = ['#333', '#444', '#222'];
 var cyan = [60, -35, -5];
 var blue = [55, -10, -45];
 var orange = [50, 50, 55];
@@ -160,11 +149,6 @@ var firstRun;
 
 var shift;
 
-//var settings = {
-//  DAS: 12,
-//  ARR: 1,
-//  dark: false
-//};
 var settings = {
   DAS: [10, range(0,31)],
   ARR: [1, range(0,11)],
@@ -219,7 +203,7 @@ var binds = {
   moveRight: 39,
   moveDown: 40,
   hardDrop: 32,
-  hold: 67,
+  holdPiece: 67,
   rotRight: 88,
   rotLeft: 90,
   rot180: 16,
@@ -729,7 +713,7 @@ function update() {
   if (binds.moveDown in keysDown) {
     fallingPiece.shift('down');
   }
-  if (holdReleased && binds.hold in keysDown) {
+  if (holdReleased && binds.holdPiece in keysDown) {
     fallingPiece.hold();
     holdReleased = false;
   }
@@ -1056,7 +1040,7 @@ addEventListener('keyup', function(e) {
     rotateReleased = true;
   if (e.keyCode == binds.hardDrop)
     hardDropReleased = true;
-  if (e.keyCode == binds.hold)
+  if (e.keyCode == binds.holdPiece)
     holdReleased = true;
 
 }, false);
@@ -1121,17 +1105,21 @@ function countDownLoop() {
 /**
  * Menu Buttons
  */
+
+var settingsMenu = document.getElementById('settingsMenu');
+var controlsMenu = document.getElementById('controlsMenu');
+var menus = [controlsMenu, settingsMenu];
 function toggleMenu(menuName) {
   if (menuName.style.display == 'none' && menu.style.display == 'none') {
     // Open menu
     menu.style.display = 'table';
     menuName.style.display = 'block';
-  //} else if (menuName.style.display == 'none' && menu.style.display != 'none') {
-  //  //switch menus
-  //  for (i = 0; i < menus.length; i++) {
-  //    menus[i].style.display = 'none';
-  //  }
-  //  menuName.style.display = 'inline-block';
+  } else if (menuName.style.display == 'none' && menu.style.display != 'none') {
+    //switch menus
+    for (i = 0; i < menus.length; i++) {
+      menus[i].style.display = 'none';
+    }
+    menuName.style.display = 'inline-block';
   } else {
     //close the menu
     menu.style.display = 'none';
@@ -1142,28 +1130,6 @@ function toggleMenu(menuName) {
 /**
  * Local Storage
  */
-// Give settings an event listener.
-//for (var i = 0, len = inputs.length; i < len; i++) {
-//  inputs[i].onchange = function() {
-//
-//    if (this.type == 'checkbox')
-//      settings[this.name] = this.checked;
-//    else
-//      settings[this.name] = this.value;
-//    if (outputs[this.name])
-//      outputs[this.name].value = this.value;
-//
-//    localStorage.setItem('settings', JSON.stringify(settings));
-//
-//    if (settings.dark)
-//      document.getElementsByTagName('html')[0].id = 'dark';
-//    else
-//      document.getElementsByTagName('html')[0].id = '';
-//
-//    resize();
-//  }
-//}
-
 var newKey,
   currCell,
   controls = document.getElementById('controls'),
