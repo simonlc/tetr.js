@@ -329,12 +329,20 @@ var key = {
 //}
 
 var screenHeight;
+var screenWidth;
 function resize() {
   var a = document.getElementById('a');
   var b = document.getElementById('b');
   var c = document.getElementById('c');
+  var content = document.getElementById('content');
 
+  // Aspect ratio: 1.35
+  // TODO Perfect these numbers.
   screenHeight = window.innerHeight - nav.offsetHeight - 1 - 32;
+  screenWidth = ~~(screenHeight * 1.4);
+  if (screenWidth > window.innerWidth)
+    screenHeight = ~~(window.innerWidth / 1.4 - 33);
+
   borderSize = Math.max((screenHeight / 323), 1);
   cellSize = borderSize * 15;
 
@@ -385,6 +393,7 @@ addEventListener('resize', resize, false);
  * Converts Lab colors to RGB and returns string.
  * Info: http://www.brucelindbloom.com/index.html
  */
+//TODO Cache colors.
 function lab(color, adjust) {
   var e = 0.008856;
   var k = 903.3;
