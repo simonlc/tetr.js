@@ -26,6 +26,8 @@
 - Fast code and drawing
 - DAS and DAS delay settings
 - Configurable controls
+- Adjustable game size
+- Ghost piece color and transparency
 
 ## Planned future mechanics and features
 
@@ -38,9 +40,6 @@
 - Sound effects
 - T-spin and twist detection
 - Custom mino skins (or at least a selection)
-- Ghost piece color and transparency
-- Fullscreen
-- Adjustable game size
 
 ## TODO misc
 
@@ -49,4 +48,3 @@
 - Feedback button
 - Include license
 - Pause, and pause game while in menu
-- Context sensitive menu buttons
