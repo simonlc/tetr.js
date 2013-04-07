@@ -145,6 +145,7 @@ var pieces = [PieceI, PieceJ, PieceL, PieceO, PieceS, PieceT, PieceZ];
  */
 var holdPiece;
 var gravityUnit = 0.00390625;
+var gravity;
 var firstRun;
 
 var shift;
@@ -153,12 +154,24 @@ var settings = {
   DAS: [10, range(0,31)],
   ARR: [1, range(0,11)],
   Theme: [0, ['Light', 'Dark']],
-  Gravity: [0, range(0,21)], //TODO Add auto option
+  Gravity: [0, (function() {
+    var array = [];
+    array.push('Auto');
+    array.push('0G');
+    for (var i = 1; i < 64; i++) {
+      array.push(i + '/64G');
+    }
+    for (var i = 1; i <= 20; i++) {
+      array.push(i + 'G');
+    }
+    return array;
+  })()],
   'Lock Delay': [30, range(0,101)],
   Size: [0, ['Auto', 'Small', 'Medium', 'Large']],
   Sound: [0, ['Off', 'On']],
   Volume: [100, range(0, 101)],
-  Block: [0, ['<img src=0.jpg>', '<img src=1.jpg>']],
+  //Block: [0, ['<img src=0.jpg>', '<img src=1.jpg>']],
+  Block: [0, ['Shaded', 'Solid']],
   Ghost: [0, ['Normal', 'Colored', 'Off']],
   'Hide Cursor': [1, ['On', 'Off']]
 };
@@ -449,7 +462,8 @@ function init(gt) {
   clear(holdCtx);
   holdPiece = void 0;
   gametype = gt;
-  //gravity = gravityUnit * 4;
+  if (settings.Gravity[0] === 0)
+    gravity = gravityUnit * 4;
   startTime = new Date().getTime();
 
   //TODO add first draw of grab bag here.
@@ -571,7 +585,6 @@ function addPiece(tetro) {
       lines++; //NOTE stats
       for (var y = row; y >= -1; y--) {
         for (var x = 0; x < 10; x++) {
-          console.log(stack[x][y - 1]);
           stack[x][y] = stack[x][y - 1];
         }
       }
@@ -866,7 +879,15 @@ var FallingPiece = function() {
   this.update = function() {
     // Apply gravity.
     if (moveValid(0, 1, this.tetro)) {
-      this.y += this.getDrop(settings.Gravity[0]);
+      if (settings.Gravity[0]) {
+        var grav = eval(settings.Gravity[1][settings.Gravity[0]].slice(0, -1));
+        if (grav > 1)
+          this.y += this.getDrop(grav);
+        else
+          this.y += grav;
+      } else {
+        this.y += gravity;
+      }
     } else {
       // We've landed.
       this.y = ~~this.y;
@@ -914,19 +935,24 @@ function bg(ctx) {
 function drawCell(x, y, color, ctx, adjust) {
   x = ~~x * (cellSize + borderSize) + borderSize;
   y = (~~y * (cellSize + borderSize) + borderSize) - 2 * (cellSize + borderSize);
-  ctx.fillStyle = lab(color, 10 + adjust);
-  ctx.fillRect(x, y, cellSize, cellSize);
+  if (settings.Block[0]) {
+    ctx.fillStyle = lab(color, 0 + adjust);
+    ctx.fillRect(x, y, cellSize, cellSize);
+  } else {
+    ctx.fillStyle = lab(color, 10 + adjust);
+    ctx.fillRect(x, y, cellSize, cellSize);
 
-  ctx.fillStyle = lab(color, -10 + adjust);
-  ctx.fillRect(x, y + cellSize / 2, cellSize, cellSize / 2);
+    ctx.fillStyle = lab(color, -10 + adjust);
+    ctx.fillRect(x, y + cellSize / 2, cellSize, cellSize / 2);
 
-  ctx.fillStyle = lab(color, 0 + adjust);
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + cellSize, y + cellSize);
-  ctx.lineTo(x + cellSize, y);
-  ctx.lineTo(x, y + cellSize);
-  ctx.fill();
+    ctx.fillStyle = lab(color, 0 + adjust);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + cellSize, y + cellSize);
+    ctx.lineTo(x + cellSize, y);
+    ctx.lineTo(x, y + cellSize);
+    ctx.fill();
+  }
 }
 
 /**
@@ -1120,10 +1146,24 @@ function toggleMenu(menuName) {
       menus[i].style.display = 'none';
     }
     menuName.style.display = 'inline-block';
+    if (currCell) {
+      // Reset keys if waiting on input and the menu is closed.
+      // TODO DRY
+      binds[currCell.id] = tempKey;
+      currCell.innerHTML = key[tempKey];
+      currCell = 0;
+    }
   } else {
     //close the menu
     menu.style.display = 'none';
     menuName.style.display = 'none';
+    if (currCell) {
+      // Reset keys if waiting on input and the menu is closed.
+      // TODO DRY
+      binds[currCell.id] = tempKey;
+      currCell.innerHTML = key[tempKey];
+      currCell = 0;
+    }
   }
 }
 
@@ -1132,22 +1172,37 @@ function toggleMenu(menuName) {
  */
 var newKey,
   currCell,
+  tempKey,
   controls = document.getElementById('controls'),
   controlCells = controls.getElementsByTagName('td');
 // Give controls an event listener.
 for (var i = 0, len = controlCells.length; i < len; i++) {
   controlCells[i].onclick = function() {
+    // First check if we're already waiting for an input.
+    if (currCell) {
+      // TODO DRY
+      // Make this into a function and call it when we press Esc.
+      binds[currCell.id] = tempKey;
+      currCell.innerHTML = key[tempKey];
+    }
+    tempKey = binds[this.id];
     this.innerHTML = 'Press key';
     currCell = this;
   }
 }
 // Listen for key input if a control has been clicked on.
 addEventListener('keyup', function(e) {
-  //TODO unbind key if used elsewhere
   // if click outside of cell or press esc clear currCell
-  // get names for keycodes
   // reset binds button.
   if (currCell) {
+    // Checks if key already in use, and unbinds it.
+    for (var i in binds) {
+      if (e.keyCode === binds[i]) {
+        binds[i] = void 0;
+        document.getElementById(i).innerHTML = binds[i];
+      }
+    }
+    // Binds the key and saves the data.
     binds[currCell.id] = e.keyCode;
     currCell.innerHTML = key[e.keyCode];
     localStorage.setItem('binds', JSON.stringify(binds));
@@ -1171,6 +1226,10 @@ function loadLocalData() {
 loadLocalData();
 resize();
 
+
+/**
+ * Settings Menu
+ */
 for (var s in settings) {
   var div = document.createElement('div');
   var b = document.createElement('b');
