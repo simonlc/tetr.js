@@ -340,7 +340,15 @@ function resize() {
   if (screenWidth > window.innerWidth)
     screenHeight = ~~(window.innerWidth / 1.4 - 33);
 
-  borderSize = Math.max((screenHeight / 323), 1);
+  if (settings.Size[0] === 1)
+    borderSize = 1;
+  else if (settings.Size[0] === 2 && screenHeight > 646 && screenWidth > 878)
+    borderSize = 2;
+  else if (settings.Size[0] === 3 && screenHeight > 1755 && screenWidth > 1312)
+    borderSize = 3;
+  else
+    borderSize = Math.max((screenHeight / 323), 1);
+
   cellSize = borderSize * 15;
 
   stackCanvas.width = borderSize + (cellSize + borderSize) * 10;
@@ -379,6 +387,11 @@ function resize() {
   bg(bgCtx);
   bg(bgHoldCtx);
   bg(bgPreviewCtx);
+  // TODO Do this only if game is started.
+  //draw(stack, 0, 0, stackCtx);
+  //draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
+  //     2 + pieces[holdPiece].y, holdCtx);
+  //drawPreview();
 }
 addEventListener('resize', resize, false);
 
