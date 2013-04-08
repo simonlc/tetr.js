@@ -6,6 +6,8 @@ Note: Before looking at this code, it would be wise to do a bit of reading about
 the game so you know why some things are done a certain way.
 */
 
+localStorage['version'] = 0.1;
+
 /**
  * Define playfield size.
  */
@@ -158,6 +160,16 @@ var settings = {
     var array = [];
     array.push('Auto');
     array.push('0G');
+    for (var i = 1; i < 64; i++) {
+      array.push(i + '/64G');
+    }
+    for (var i = 1; i <= 20; i++) {
+      array.push(i + 'G');
+    }
+    return array;
+  })()],
+  'Soft Drop': [31, (function() {
+    var array = [];
     for (var i = 1; i < 64; i++) {
       array.push(i + '/64G');
     }
@@ -851,8 +863,13 @@ var FallingPiece = function() {
       }
       break;
     case 'down':
-      if (moveValid(0, 1, this.tetro))
-        this.y += 1;
+      if (moveValid(0, 1, this.tetro)) {
+        var grav = eval(settings['Soft Drop'][1][settings['Soft Drop'][0]].slice(0, -1));
+        if (grav > 1)
+          this.y += this.getDrop(grav);
+        else
+          this.y += grav;
+      }
       break;
     }
   }
@@ -1230,6 +1247,8 @@ function loadLocalData() {
       controlCells[i].innerHTML = key[binds[controlCells[i].id]];
     }
   }
+  if (localStorage['version'] === void 0)
+    localStorage.removeItem('settings');
   if (localStorage['settings']) {
     settings = JSON.parse(localStorage.getItem('settings'));
   }
