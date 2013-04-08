@@ -3,9 +3,9 @@
 ### Default Controls:
 
 - **Rotate Left:** Z
-- **Rotate 180:** X
-- **Rotate Right:** C and Up
-- **Hold:** Shift
+- **Rotate Right:** X
+- **Rotate 180:** Shift
+- **Hold:** C
 - **Hard Drop:** Space
 - **Shift Left:** Left Arrow
 - **Shift Right:** Right Arrow
