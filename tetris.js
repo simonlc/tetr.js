@@ -834,13 +834,15 @@ var FallingPiece = function() {
   this.shift = function(direction) {
     fallingPiece.arrDelay = 0;
     shiftReleased = false;
+    var counter = 0;
     switch(direction) {
     case 'left':
       if (settings.ARR[0] == 0 && this.shiftDelay == settings.DAS[0]) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(-i, 0, this.tetro)) {
-            this.x += -i;
+            continue;
           } else {
+            this.x += -i + 1;
             break;
           }
         }
@@ -853,8 +855,9 @@ var FallingPiece = function() {
       if (settings.ARR[0] == 0 && this.shiftDelay == settings.DAS[0]) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(i, 0, this.tetro)) {
-            this.x += i;
+            continue;
           } else {
+            this.x += i - 1;
             break;
           }
         }
