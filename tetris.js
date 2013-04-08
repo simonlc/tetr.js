@@ -738,8 +738,6 @@ function update() {
   // 5. If ARR Delay is full, move piece, and reset delay and repeat.
   } else if (fallingPiece.arrDelay == settings.ARR[0] && settings.ARR[0] != 0) {
     fallingPiece.shift(shift);
-    // TODO Put this in method
-    fallingPiece.arrDelay = 0;
   // 2. Apply DAS delay
   } else if (fallingPiece.shiftDelay < settings.DAS[0]) {
     fallingPiece.shiftDelay++;
@@ -834,13 +832,15 @@ var FallingPiece = function() {
     }
   }
   this.shift = function(direction) {
+    fallingPiece.arrDelay = 0;
     shiftReleased = false;
     switch(direction) {
     case 'left':
       if (settings.ARR[0] == 0 && this.shiftDelay == settings.DAS[0]) {
-        for (var i = 0; i < 10; i++) {
-          if (!moveValid(-i, 0, this.tetro)) {
-            this.x += -i + 1;
+        for (var i = 1; i < 10; i++) {
+          if (moveValid(-i, 0, this.tetro)) {
+            this.x += -i;
+          } else {
             break;
           }
         }
@@ -851,9 +851,10 @@ var FallingPiece = function() {
       break;
     case 'right':
       if (settings.ARR[0] == 0 && this.shiftDelay == settings.DAS[0]) {
-        for (var i = 0; i < 10; i++) {
-          if (!moveValid(i, 0, this.tetro)) {
-            this.x += i - 1;
+        for (var i = 1; i < 10; i++) {
+          if (moveValid(i, 0, this.tetro)) {
+            this.x += i;
+          } else {
             break;
           }
         }
