@@ -579,7 +579,7 @@ function addPiece(tetro) {
   // Lock out
   if (!valid) {
     gameState = 9;
-    msg.innerHTML = 'KO!';
+    msg.innerHTML = 'LOCK OUT!';
     return;
   }
 
@@ -693,7 +693,7 @@ function update() {
     // Check for blockout.
     if (!moveValid(0, 0, fallingPiece.tetro)) {
       gameState = 9;
-      msg.innerHTML = 'KO!';
+      msg.innerHTML = 'BLOCK OUT!';
     } else {
       drawPreview();
     }
