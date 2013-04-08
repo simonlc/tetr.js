@@ -1299,24 +1299,23 @@ function settingsLoop() {
 var s;
 var settingsArrow;
 // TODO DRY this.
-function left() {
-  settingsArrow = 1;
-  s = this.parentNode.id;
-  this.onmouseup = function() {
+function arrowRelease() {
     arrowReleased = true;
     arrowDelay = 0;
     clearTimeout(setLoop)
-  };
+}
+function left() {
+  settingsArrow = 1;
+  s = this.parentNode.id;
+  this.onmouseup = arrowRelease;
+  this.onmouseleave = arrowRelease;
   settingsLoop();
 }
 function right() {
   settingsArrow = 0;
   s = this.parentNode.id;
-  this.onmouseup = function() {
-    arrowReleased = true;
-    arrowDelay = 0;
-    clearTimeout(setLoop)
-  };
+  this.onmouseup = arrowRelease;
+  this.onmouseleave = arrowRelease;
   settingsLoop();
 }
 function saveSetting(s) {
