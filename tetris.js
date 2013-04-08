@@ -6,7 +6,7 @@ Note: Before looking at this code, it would be wise to do a bit of reading about
 the game so you know why some things are done a certain way.
 */
 
-localStorage['version'] = 0.1;
+var version = '0.1.1';
 
 /**
  * Define playfield size.
@@ -1248,7 +1248,7 @@ function loadLocalData() {
       controlCells[i].innerHTML = key[binds[controlCells[i].id]];
     }
   }
-  if (localStorage['version'] === void 0)
+  if (localStorage['version'] !== version)
     localStorage.removeItem('settings');
   if (localStorage['settings']) {
     settings = JSON.parse(localStorage.getItem('settings'));
@@ -1320,6 +1320,7 @@ function right() {
   settingsLoop();
 }
 function saveSetting(s) {
+  localStorage['version'] = '0.1.1';
   document.getElementById(s)
   .getElementsByTagName('span')[0]
   .innerHTML = settings[s][1][settings[s][0]];
