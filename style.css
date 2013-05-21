@@ -1,20 +1,20 @@
 @font-face {
-  font-family: 'Share Tech Mono';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Share Tech Mono'), local('ShareTechMono-Regular'), url(http://themes.googleusercontent.com/static/fonts/sharetechmono/v1/RQxK-3RA0Lnf3gnnnNrAsUYuTAAIFFn5GTWtryCmBQ4.woff) format('woff');
-}
-@font-face {
   font-family: 'Lato';
   font-style: normal;
   font-weight: 400;
   src: local('Lato Regular'), local('Lato-Regular'), url(http://themes.googleusercontent.com/static/fonts/lato/v6/9k-RPmcnxYEPm8CNFsH2gg.woff) format('woff');
 }
 @font-face {
-  font-family: 'Lato';
+  font-family: 'Source Sans Pro';
   font-style: normal;
-  font-weight: 700;
-  src: local('Lato Bold'), local('Lato-Bold'), url(http://themes.googleusercontent.com/static/fonts/lato/v6/wkfQbvfT_02e2IWO3yYueQ.woff) format('woff');
+  font-weight: 400;
+  src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v5/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
+}
+@font-face {
+  font-family: 'Source Sans Pro';
+  font-style: normal;
+  font-weight: 900;
+  src: local('Source Sans Pro Black'), local('SourceSansPro-Black'), url(http://themes.googleusercontent.com/static/fonts/sourcesanspro/v5/toadOcfmlt9b38dHJxOBGHiec-hVyr2k4iOzEQsW1iE.woff) format('woff');
 }
 @font-face {
   font-family: 'FontAwesome';
@@ -25,22 +25,19 @@
   font-weight: normal;
   font-style: normal;
 }
-/*::-moz-selection {
-  background: none;
-}
-::selection {
-  background: none;
-}*/
 /* General */
-html, body {
-  height: 100%;
-  max-height: 100%;
+html {
+  font-size: 1em;
+}
+body {
+  font: 1em 'Source Sans Pro';
   margin: 0;
-  color: #222;
-  background: #ddd;
-  font: 1em 'Lato';
+  background: #000;
+  background-size: cover;
+  color: #fff;
 }
 a {
+  color: #fff;
   text-decoration: none;
 }
 table {
@@ -48,31 +45,45 @@ table {
   border-spacing: 0;
 }
 th {
+  padding: 0;
   font-weight: normal;
+}
+td {
+  padding: 0;
 }
 
 /* Header */
 h1 {
+  color: #fff;
   font-size: 2rem;
-  margin: 0;
-  display: inline;
-  position: relative;
-  top: 0.2rem;
+  margin: 0.65em 0;
 }
-nav {
-  background: #eee;
-  padding: 0 0 0 1rem;
+h3 {
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: normal;
+  text-align: center;
+}
+nav > ul {
+  margin: 0;
+  padding: 0;
 }
 .button,
-nav > a {
-  font-size: 1.25rem;
-  margin: 0.5rem 0 0.5rem 1rem;
+nav li {
+  display: block;
+}
+.button,
+nav a {
+  font: 1.25rem 'Lato';
   display: inline-block;
-  color: #f8f8f8;
-  background: #4da6ee;
+  width: 50%;
+  color: #fff;
+  border: 2px solid #fff;
   cursor: pointer;
   border-radius: 5px;
   padding: 0.3rem 0.6rem 0.4rem;
+  margin: 0.5em;
+  background: #000;
 }
 .button {
   margin: 0;
@@ -90,143 +101,165 @@ nav > a {
 
 /* Content */
 #content {
-  position: relative;
   display: table;
   margin: auto;
-  padding: 1rem;
+  background: rgba(0,0,0,0.6);
 }
 
 /* Canvases */
-canvas {
-  border: 2px solid #999;
-  vertical-align: top;
-  float: left;
-}
-#hold {
+#bg {
+  position: fixed;
+  top:0;
+  left:0;
+  height:100%;
+  width:100%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity .5s ease-in;
 }
 #a {
-  /* TODO adjust in js */
   position: relative;
   overflow: hidden;
   float: left;
-  margin: 0 0.5rem 0 0;
 }
 #b {
-  /* TODO adjust in js */
+  border: 1px solid #fff;
+  box-shadow: 0 0 20px rgba(255,255,255,0.5);
   position: relative;
   overflow: hidden;
   float: left;
+  z-index: 3;
 }
 #c {
-  /* TODO adjust in js */
+  padding: 0 0.5em;
   position: relative;
   overflow: hidden;
   float: left;
-  margin: 0 0 0 0.5rem;
 }
-  #bg,
-  #bgPreview,
-  #bgHold {
+  #bgStack {
+    background: #000;
     position: absolute;
-    z-index: 1;
+    z-index: 2;
   }
   #hold,
   #preview,
   #stack {
     position: absolute;
-    z-index: 1;
+    z-index: 2;
   }
   #active {
     position: absolute;
-    z-index: 2;
+    z-index: 3;
   }
   #msg {
+    font: 900 4rem 'Source Sans Pro', sans-serif;
     font-size: 4rem;
-    color: #000;
-    text-shadow:
-     -1px -1px 0 #fff,  
-      1px -1px 0 #fff,
-     -1px  1px 0 #fff,
-      1px  1px 0 #fff;
+    color: #fff;
     position: absolute;
     text-align: center;
     width: 100%;
     line-height: 642px;
     margin: 0;
-    z-index: 3;
+    z-index: 4;
   }
-#progress {
-  background: none;
-  border-left: none;
-}
 #preview {
 }
 
-/* Stats */
-#stats h2 {
-  margin: 0 0 0.5em;
-}
-#stats {
-  font-size: 1.5em;
-  margin: 0 1em;
+#d {
   float: left;
-  width: 8em;
+}
+
+/* Stats */
+#stats {
+  display: block;
+  position: absolute;
+}
+#stats tbody {
+  display: block;
 }
 #stats tr {
   display: block;
+  width: 100%;
+  padding: 0 0.5rem;
 }
 #stats th {
-  color: #999;
-  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
-               0 1px 0 rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
 }
 #stats td {
-  font-size: 1.85em;
-  color: #102836;
-  font-family:'Share Tech Mono', monospace;
-  display: block;
-  position: relative;
+  font-size: 280%;
+  font-weight: 900;
+  text-align: center;
+  line-height: 1;
+  display: inline-block;
+  width: 100%;
 }
-
-#lines {
-  font-size: 4rem;
-  line-height: 1em;
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  left: 1rem;
+#time {
+  text-align: center;
+  font-weight: 900;
+  font-size: 1.125em;
+  display: block;
 }
 
 /* Menus */
-#menu {
-  background: #ddd;
-  position: fixed;
+.cul {
+  display: inline-block;
+  float: left;
+  padding: 5%;
+  width: 40%;
+}
+.menu {
+  text-align: center;
   width: 100%;
   height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin-top: -200%;
+  position: absolute;
+  background: #000;
+  background: rgba(0,0,0,0.8);
   top: 0;
-  left: 0;
-  z-index: 99;
+  z-index: 50;
+  opacity: 0;
+  /*-webkit-transition: opacity .4s ease-in-out;
+     -moz-transition: opacity .4s ease-in-out;
+       -o-transition: opacity .4s ease-in-out;*/
+          transition: opacity .8s ease-out,
+                      margin .4s ease-out;
+}
+.on {
+  opacity: 1;
+  margin: 0;
+}
+
+/* Controls */
+#controls {
+  margin: 0 auto 1em;
 }
 #controls th {
-  font-weight: normal;
+  font-weight: bold;
   text-align: left;
+  line-height: 1.6;
 }
-#controls td{
+#controls td {
+  font-weight: bold;
   cursor: pointer;
   display: block;
-  margin: 5px 0 0 4em;
+  margin: 0.2em 0 0.2em 2em;
   text-align: center;
   width: 6em;
-  line-height: 2em;
-  background: #eee;
+  line-height: 1.6;
+  background: #111;
   border-radius: 5px;
 }
 #controls td:hover {
-  background: #eaeaea;
+  background: #191919;
 }
 
 #controls td:active {
-  background: #e7e7e7;
+  background: #1a1a1a;
 }
 
 
@@ -252,67 +285,40 @@ canvas {
 }
 .left:before  { content: "\f022"; }
 .right:before { content: "\f023"; }
+
+#settings {
+  margin: 0 0 1em;
+}
 #settings b {
+  text-align: left;
   display: inline-block;
   width: 7em;
 }
 #settings span {
   text-align: center;
+  font-weight: bold;
   display: inline-block;
   width: 5em;
-  margin: 0.5em 0;
+  margin: 0.4em 0;
 }
 
-
-/* Dark theme */
-#dark,
-#dark body {
-  color: #ddd;
-  background: #222;
+/* Special Menus */
+#go {
+  background: none;
+  transition: opacity .8s ease-out .8s;
 }
-#dark nav {
-  background: #111;
-}
-#dark .button,
-#dark nav > a {
-  color: #f8f8f8;
-  background: #4da6ee;
-}
-#dark canvas {
-  border: 2px solid #333;
-}
-  #dark #active {
-    background: none;
-  }
-  #dark #msg {
-    color: #fff;
-    text-shadow:
-     -1px -1px 0 #000,  
-      1px -1px 0 #000,
-     -1px  1px 0 #000,
-      1px  1px 0 #000;
-  }
-#dark #stats th {
-  color: #aaa;
-  text-shadow: 0 -1px 0 rgba(0,0,0,0.5),
-               0 1px 0 rgba(255,255,255,0.5);
-}
-#dark #stats td {
-  color: #eee;
-}
-#dark #menu {
-  background: #222;
-}
-#dark input {
-  background: #111;
-}
-#dark #controls td{
-  background: #111;
-}
-#dark #controls td:hover {
-  background: #191919;
+#go ul {
+  width: 100%;
+  position: absolute;
+  bottom: 4em;
 }
 
-#dark #controls td:active {
-  background: #1c1c1c;
+#pause {
+  background: none;
+  transition: opacity .8s ease-out;
+}
+#pause ul {
+  width: 100%;
+  position: absolute;
+  bottom: 2em;
 }

@@ -6,13 +6,12 @@ Note: Before looking at this code, it would be wise to do a bit of reading about
 the game so you know why some things are done a certain way.
 */
 
-var version = '0.1.1';
+var version = '0.1.4';
 
 /**
  * Define playfield size.
  */
 var cellSize;
-var borderSize;
 var stack;
 
 /**
@@ -20,8 +19,12 @@ var stack;
  */
 var msg = document.getElementById('msg');
 var stats = document.getElementById('stats');
-var linesLeft = document.getElementById('lines');
+var statsTime = document.getElementById('time');
+var statsLines = document.getElementById('line');
+var statsPiece = document.getElementById('piece');
 var nav = document.getElementsByTagName('nav')[0];
+var footer = document.getElementsByTagName('footer')[0];
+var h3 = document.getElementsByTagName('h3');
 var set = document.getElementById('settings');
 
 // Get canvases and contexts (there's 8 of them each)
@@ -35,16 +38,16 @@ for (var x = 0; x < document.getElementsByTagName('canvas').length; x++) {
 /**
  * Piece data
  */
-var cyan = [60, -35, -5];
-var blue = [55, -10, -45];
-var orange = [50, 50, 55];
-var yellow = [60, 10, 64];
-var green = [60, -20, 62];
-var purple = [50, 15, -45];
-var red = [50, 65, 45];
-var dark = [60, 0, 0];
-var grey = [80, 0, 0];
-var grey2 = [20, 0, 0];
+var cyan = [68, -45, 5];
+var blue = [59, -12, -43];
+var orange = [64, 37, 63];
+var yellow = [81, 6, 80];
+var green = [77, -32, 64];
+var purple = [49, 40, -39];
+var red = [55, 60, 44];
+var dark = [57, 0, 0];
+var grey = [78, 0, 0];
+var grey2 = [25, 0, 0];
 var colors = [grey, cyan, blue, orange, yellow, green, purple, red, dark, grey2];
 
 // NOTE y values are inverted since our matrix counts from top to bottom.
@@ -155,7 +158,6 @@ var shift;
 var settings = {
   DAS: [10, range(0,31)],
   ARR: [1, range(0,11)],
-  Theme: [0, ['Light', 'Dark']],
   Gravity: [0, (function() {
     var array = [];
     array.push('Auto');
@@ -183,7 +185,7 @@ var settings = {
   Sound: [0, ['Off', 'On']],
   Volume: [100, range(0, 101)],
   //Block: [0, ['<img src=0.jpg>', '<img src=1.jpg>']],
-  Block: [0, ['Shaded', 'Solid']],
+  Block: [0, ['Shaded', 'Solid', 'Glossy', 'Arika']],
   Ghost: [0, ['Normal', 'Colored', 'Off']],
   'Hide Cursor': [1, ['On', 'Off']]
 };
@@ -199,7 +201,7 @@ var cDown;
  * 9 = loss
  */
 var gameState;
-//var paused = false;
+var paused = false;
 var lineLimit;
 var gametype;
 var gametypes = ['Sprint', 'Marathon'];
@@ -337,73 +339,82 @@ var key = {
 //    1: 'time' + 'piece' + 'ppm',
 //}
 
-var screenHeight;
-var screenWidth;
 function resize() {
+  // TODO make function to append 'px' to a thing.
   var a = document.getElementById('a');
   var b = document.getElementById('b');
   var c = document.getElementById('c');
   var content = document.getElementById('content');
 
-  // Aspect ratio: 1.35
-  // TODO Perfect these numbers.
-  screenHeight = window.innerHeight - nav.offsetHeight - 1 - 32;
-  screenWidth = ~~(screenHeight * 1.4);
+  // TODO Finalize this.
+  // Aspect ratio: 1.024
+  //footer.removeAttribute('style');
+  //var screenHeight = window.innerHeight - nav.offsetHeight - 34;
+  var screenHeight = window.innerHeight - 34;
+  var screenWidth = ~~(screenHeight * 1.024);
   if (screenWidth > window.innerWidth)
-    screenHeight = ~~(window.innerWidth / 1.4 - 33);
+    screenHeight = ~~(window.innerWidth / 1.024);
 
-  if (settings.Size[0] === 1)
-    borderSize = 1;
-  else if (settings.Size[0] === 2 && screenHeight > 646 && screenWidth > 878)
-    borderSize = 2;
-  else if (settings.Size[0] === 3 && screenHeight > 1755 && screenWidth > 1312)
-    borderSize = 3;
+  if (settings.Size[0] === 1 && screenHeight > 602)
+    cellSize = 15;
+  else if (settings.Size[0] === 2 && screenHeight > 602)
+    cellSize = 30;
+  else if (settings.Size[0] === 3 && screenHeight > 902)
+    cellSize = 45;
   else
-    borderSize = Math.max((screenHeight / 323), 1);
+    cellSize = Math.max(~~(screenHeight / 20), 10);
 
-  cellSize = borderSize * 15;
+  var pad = (window.innerHeight - (cellSize * 20 + 2)) / 2 + 'px';
+  content.style.padding = pad + ' 0 ' + pad;
+  stats.style.bottom = pad;
 
-  stackCanvas.width = borderSize + (cellSize + borderSize) * 10;
-  stackCanvas.height = borderSize + (cellSize + borderSize) * 20;
+  //TODO Combine all margins into one;
+
+  // TODO em size body font.
+  a.style.padding = '0 0.5rem ' + ~~(cellSize / 2) + 'px';
+
+  stackCanvas.width = cellSize * 10;
+  stackCanvas.height = cellSize * 20;
   activeCanvas.width = stackCanvas.width;
   activeCanvas.height = stackCanvas.height;
-  bgCanvas.width = stackCanvas.width;
-  bgCanvas.height = stackCanvas.height;
-  b.style.width = stackCanvas.width + 4 + 'px';
-  b.style.height = stackCanvas.height + 4 + 'px';
+  bgStackCanvas.width = stackCanvas.width;
+  bgStackCanvas.height = stackCanvas.height;
+  b.style.width = stackCanvas.width + 'px';
+  b.style.height = stackCanvas.height + 'px';
 
-  progressCanvas.height = stackCanvas.height;
-  progressCanvas.width = borderSize * 3;
+  holdCanvas.width = cellSize * 4;
+  holdCanvas.height = cellSize * 2;
+  a.style.width = holdCanvas.width + 'px';
+  a.style.height = holdCanvas.height + 'px';
 
-  holdCanvas.width = borderSize + (cellSize + borderSize) * 4;
-  holdCanvas.height = borderSize + (cellSize + borderSize) * 3;
-  bgHoldCanvas.width = holdCanvas.width;
-  bgHoldCanvas.height = holdCanvas.height;
-  a.style.width = holdCanvas.width + 4 + 'px';
-  a.style.height = holdCanvas.height + 4 + 'px';
-
-  previewCanvas.width = borderSize + (cellSize + borderSize) * 4;
-  previewCanvas.height = borderSize + (cellSize + borderSize) * 9 * 2;
-  bgPreviewCanvas.width = previewCanvas.width;
-  bgPreviewCanvas.height = previewCanvas.height;
-  c.style.width = previewCanvas.width + 4 + 'px';
-  c.style.height = previewCanvas.height + 4 + 'px';
+  previewCanvas.width = cellSize * 4;
+  previewCanvas.height = stackCanvas.height;
+  c.style.width = previewCanvas.width + 'px';
+  c.style.height = previewCanvas.height + 'px';
 
   // Scale the text so it fits in the thing.
-  // TODO add min & max values (Math.min, and max).
   msg.style.lineHeight = stackCanvas.height + 'px';
   msg.style.fontSize = ~~(stackCanvas.width / 6) + 'px';
-  linesLeft.style.fontSize = msg.style.fontSize;
-  stats.style.fontSize = ~~(stackCanvas.width / 12) + 'px';
+  stats.style.fontSize = ~~(stackCanvas.width / 11) + 'px';
+  document.documentElement.style.fontSize = ~~(stackCanvas.width / 16) + 'px';
 
-  bg(bgCtx);
-  bg(bgHoldCtx);
-  bg(bgPreviewCtx);
+  stats.style.width = holdCanvas.width + 'px';
+  //c.style.paddingTop = cellSize * 2 + 'px';
+  for (var i = 0, len = h3.length; i < len; i++) {
+    h3[i].style.lineHeight = cellSize * 2 + 'px';
+    h3[i].style.fontSize = ~~(stackCanvas.width / 11) + 'px';
+  }
+
+  // Borders n shit
+
+  //bg(bgStackCtx);
   // TODO Do this only if game is started.
-  //draw(stack, 0, 0, stackCtx);
-  //draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
-  //     2 + pieces[holdPiece].y, holdCtx);
-  //drawPreview();
+  if (gameState === 0) {
+    draw(stack, 0, 0, stackCtx);
+    draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
+         2 + pieces[holdPiece].y, holdCtx);
+    drawPreview();
+  }
 }
 addEventListener('resize', resize, false);
 
@@ -473,10 +484,17 @@ function newGrid(x, y) {
   return cells;
 }
 
+function unpause() {
+  paused = false;
+  msg.innerHTML = '';
+  menu();
+}
+
 /**
  * Resets all the settings and starts the game.
  */
 function init(gt) {
+  menu();
   toGreyRow = 21;
   clearTimeout(gLoop);
   fallingPiece.reset();
@@ -491,7 +509,6 @@ function init(gt) {
     gravity = gravityUnit * 4;
   startTime = new Date().getTime();
 
-  //TODO add first draw of grab bag here.
   //XXX fix ugly code lolwut
   firstRun = true;
   grabBag = randomGenerator();
@@ -499,7 +516,7 @@ function init(gt) {
 
   // Stats
   if (gametype === 0) {
-    lineLimit = 40; //TODO select 10, 20, or 40
+    lineLimit = 40;
   } else {
     lineLimit = 150;
     score = 0;
@@ -515,7 +532,6 @@ function init(gt) {
   statistics();
 
   drawPreview();
-  progressUpdate();
 
   clearTimeout(cDown);
   countDownLoop();
@@ -559,7 +575,6 @@ function moveValid(cx, cy, tetro) {
       }
     }
   }
-  //TODO move this away
   fallingPiece.lockDelay = 0;
   return true;
 }
@@ -592,6 +607,7 @@ function addPiece(tetro) {
   if (!valid) {
     gameState = 9;
     msg.innerHTML = 'LOCK OUT!';
+    menu(3);
     return;
   }
 
@@ -613,13 +629,12 @@ function addPiece(tetro) {
           stack[x][y] = stack[x][y - 1];
         }
       }
-      progressUpdate();
     }
   }
-  // Move lines down.
+
+  piecesSet++; // Stats
 
   // Move the stack down.
-  piecesSet++; // Stats
   clear(stackCtx);
   draw(stack, 0, 0, stackCtx);
 }
@@ -629,30 +644,17 @@ function addPiece(tetro) {
  */
 function statistics() {
   var thisFrame = Date.now();
-  var time = thisFrame - startTime;
-
-  var minutes = time / 1000 / 60;
-  var lpm = (lines / minutes).toString().slice(0, 8);
-  var ppm = (piecesSet / minutes).toString().slice(0, 8);
-  if (isNaN(lpm))
-    lpm = 0;
-  if (isNaN(ppm))
-    ppm = 0;
+  var time = thisFrame - startTime || 0;
 
   // Seconds and minutes for displaying clock.
   var seconds = (time / 1000 % 60).toFixed(2);
-  minutes = ~~(time / 60000);
+  var minutes = ~~(time / 60000);
   time = ((minutes < 10 ? '0' : '') + minutes).slice(-2) +
           (seconds < 10 ? ':0' : ':') + seconds;
 
-  stats.innerHTML = '<h2>' + gametypes[gametype] + '</h2><table>' +
-               '<tr><th>Line:<td>' + (lineLimit - lines) + 
-               '<tr><th>Piece:<td>' + piecesSet +
-               '<tr><th>Line/Min:<td>' + lpm +
-               '<tr><th>Piece/Min:<td>' + ppm +
-               '<tr><th>Time:<td>' + time +
-               '</table>';
-  linesLeft.innerHTML = lineLimit - lines;
+  statsLines.innerHTML = lineLimit - lines;
+  statsPiece.innerHTML = piecesSet;
+  statsTime.innerHTML = time;
 }
 
 /**
@@ -706,12 +708,12 @@ function update() {
     if (!moveValid(0, 0, fallingPiece.tetro)) {
       gameState = 9;
       msg.innerHTML = 'BLOCK OUT!';
+      menu(3);
     } else {
       drawPreview();
     }
   }
 
-  // TODO Move to controller.
   if (rotateReleased) {
     if (binds.rotLeft in keysDown) {
       fallingPiece.rotate(-1);
@@ -764,6 +766,7 @@ function update() {
   if (lines >= lineLimit) {
     gameState = 1;
     msg.innerHTML = 'GREAT!';
+    menu(3);
   }
 
   statistics();
@@ -906,8 +909,13 @@ var FallingPiece = function() {
       }
       this.held = true;
       clear(holdCtx);
-      draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
-           2 + pieces[holdPiece].y, holdCtx);
+      if (holdPiece === 0 || holdPiece === 3) {
+        draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
+             2 + pieces[holdPiece].y, holdCtx);
+      } else {
+        draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 2.5,
+             2 + pieces[holdPiece].y, holdCtx);
+      }
     }
   }
   this.update = function() {
@@ -942,50 +950,122 @@ var fallingPiece = new FallingPiece();
 
 function bg(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  if (settings.Theme[0])
-    ctx.fillStyle = '#0b0b0b';
-  else
-    ctx.fillStyle = '#f8f8f8';
-  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-  function bgGrid(cellSize, borderSize, color) {
+  function bgGrid(color) {
     ctx.fillStyle = color;
-    for (var x = 0; x < ctx.canvas.width + 1; x += cellSize + borderSize) {
-      ctx.fillRect(x, 0, borderSize, ctx.canvas.height);
+    for (var x = -1; x < ctx.canvas.width + 1; x += cellSize) {
+      ctx.fillRect(x, 0, 2, ctx.canvas.height);
     }
-    for (var y = 0; y < ctx.canvas.height + 1; y += cellSize + borderSize) {
-      ctx.fillRect(0, y, ctx.canvas.width, borderSize);
+    for (var y = -1; y < ctx.canvas.height + 1; y += cellSize) {
+      ctx.fillRect(0, y, ctx.canvas.width, 2);
     }
   }
-  if (settings.Theme[0])
-    bgGrid(cellSize, borderSize, '#111');
-  else
-    bgGrid(cellSize, borderSize, '#eee');
+  bgGrid('#1c1c1c');
 }
-
 /**
  * Draws a mino.
  */
 function drawCell(x, y, color, ctx, adjust) {
-  x = ~~x * (cellSize + borderSize) + borderSize;
-  y = (~~y * (cellSize + borderSize) + borderSize) - 2 * (cellSize + borderSize);
-  if (settings.Block[0]) {
-    ctx.fillStyle = lab(color, 0 + adjust);
-    ctx.fillRect(x, y, cellSize, cellSize);
-  } else {
+  x = x * cellSize;
+  x = ~~x
+  y = ~~y * cellSize - 2 * cellSize;
+  if (settings.Block[0] === 0) {
+    // Shaded
+    color = colors[color];
     ctx.fillStyle = lab(color, 10 + adjust);
     ctx.fillRect(x, y, cellSize, cellSize);
 
-    ctx.fillStyle = lab(color, -10 + adjust);
+    ctx.fillStyle = lab(color, -20 + adjust);
     ctx.fillRect(x, y + cellSize / 2, cellSize, cellSize / 2);
 
     ctx.fillStyle = lab(color, 0 + adjust);
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.lineTo(x + cellSize, y + cellSize);
-    ctx.lineTo(x + cellSize, y);
+    ctx.lineTo(x + cellSize / 2, y + cellSize / 2);
     ctx.lineTo(x, y + cellSize);
     ctx.fill();
+
+    ctx.fillStyle = lab(color, -10 + adjust);
+    ctx.beginPath();
+    ctx.moveTo(x + cellSize, y);
+    ctx.lineTo(x + cellSize / 2, y + cellSize / 2);
+    ctx.lineTo(x + cellSize, y + cellSize);
+    ctx.fill();
+  } else if (settings.Block[0] === 1) {
+    // Flat
+    color = colors[color];
+    ctx.fillStyle = lab(color, 0 + adjust);
+    ctx.fillRect(x, y, cellSize, cellSize);
+  } else if (settings.Block[0] === 2) {
+    // Glossy
+    color = colors[color];
+    var k = Math.max(~~(cellSize * 0.083), 1);
+
+    var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
+    grad.addColorStop(0.5, lab(color, -21));
+    grad.addColorStop(1, lab(color, -45));
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, cellSize, cellSize);
+
+    var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
+    grad.addColorStop(0, lab(color, 52));
+    grad.addColorStop(0.5, lab(color, 37));
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, cellSize - k, cellSize - k);
+
+    var grad = ctx.createLinearGradient(x + k, y + k, x + cellSize - k, y + cellSize - k);
+    grad.addColorStop(0, lab(color, 0)); //normal color
+    grad.addColorStop(0.5, lab(color, 28));
+    grad.addColorStop(0.5, lab(color, 0));
+    grad.addColorStop(1, lab(color, 25));
+    ctx.fillStyle = grad;
+    ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
+  } else if (settings.Block[0] === 3) {
+    // Arika
+    var k = Math.max(~~(cellSize * 0.125), 1);
+
+    var tgm = [
+      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
+      ['#f70808', '#ffa500', '#ffbd00', '#ff4210', '#ce0000', '#de0000'],
+      ['#0029f7', '#00b5ff', '#00d6ff', '#007bff', '#0000ce', '#0000de'],
+      ['#ff6b00', '#ffbd00', '#ffd600', '#ff9400', '#de4200', '#e75200'],
+      ['#b59400', '#ffff00', '#ffff00', '#e7d600', '#a56b00', '#ad8400'],
+      ['#ad00ad', '#ff29ff', '#ff31ff', '#f710f7', '#8c008c', '#940094'],
+      ['#00a5d6', '#00ffff', '#00ffff', '#00def7', '#007bce', '#008cce'],
+      ['#00ad00', '#6bff00', '#94ff00', '#18e700', '#008400', '#009400'],
+      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
+      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
+      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121']
+    ];
+
+    ctx.fillStyle = tgm[color][0];
+    ctx.fillRect(x, y, cellSize, cellSize);
+
+    var grad = ctx.createLinearGradient(x, y + k, x, y + cellSize - k * 2);
+    grad.addColorStop(0, tgm[color][1]);
+    grad.addColorStop(1, tgm[color][0]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
+
+    var grad = ctx.createLinearGradient(x, y + k, x, y + cellSize - k * 2);
+    grad.addColorStop(0, tgm[color][2]);
+    grad.addColorStop(1, tgm[color][3]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y + k, k, cellSize - k * 2);
+
+    ctx.fillStyle = tgm[color][4];
+    ctx.fillRect(x + cellSize - k, y + k, k, cellSize - k * 2);
+
+    ctx.fillStyle = tgm[color][1];
+    ctx.fillRect(x, y, cellSize - k, k);
+
+    ctx.fillStyle = tgm[color][2];
+    ctx.fillRect(x, y, cellSize / 2, k);
+
+    ctx.fillStyle = tgm[color][4];
+    ctx.fillRect(x + k, y + cellSize - k, cellSize - k, k);
+
+    ctx.fillStyle = tgm[color][5];
+    ctx.fillRect(x + cellSize / 2, y + cellSize - k, cellSize / 2, k);
   }
 }
 
@@ -1005,9 +1085,9 @@ function draw(tetro, cx, cy, ctx, adjust, color) {
     for (var y = 0, wid = tetro[x].length; y < wid; y++) {
       if (tetro[x][y]) {
         if (color === void 0) {
-          drawCell(x + cx, y + cy, colors[tetro[x][y]], ctx, adjust);
+          drawCell(x + cx, y + cy, tetro[x][y], ctx, adjust);
         } else {
-          drawCell(x + cx, y + cy, colors[color], ctx, adjust);
+          drawCell(x + cx, y + cy, color, ctx, adjust);
         }
       }
     }
@@ -1020,22 +1100,14 @@ function draw(tetro, cx, cy, ctx, adjust, color) {
 function drawPreview() {
   clear(previewCtx);
   for (var i = 0; i < 6; i++) {
-  draw(pieces[grabBag[inc + i]].tetro, pieces[grabBag[inc + i]].x - 3,
-       pieces[grabBag[inc + i]].y + 2 + i * 3, previewCtx);
+    if (grabBag[inc + i] === 0 || grabBag[inc + i] === 3) {
+      draw(pieces[grabBag[inc + i]].tetro, pieces[grabBag[inc + i]].x - 3,
+           pieces[grabBag[inc + i]].y + 2 + i * 3, previewCtx);
+    } else {
+      draw(pieces[grabBag[inc + i]].tetro, pieces[grabBag[inc + i]].x - 2.5,
+           pieces[grabBag[inc + i]].y + 2 + i * 3, previewCtx);
+    }
   }
-}
-
-//TODO display none if not sprint or use for levels or soemthing.
-function progressUpdate() {
-  if (lines <= 10) {
-    progressCtx.fillStyle = lab(green, 0);
-  } else if (lines > 30) {
-    progressCtx.fillStyle = lab(red, 0);
-  } else {
-    progressCtx.fillStyle = lab(yellow, 0);
-  }
-  progressCtx.fillRect(0, 0, progress.width, progress.height);
-  progressCtx.clearRect(0, 0, progress.width, progress.height * lines / lineLimit);
 }
 
 // ========================== Controller ======================================
@@ -1062,9 +1134,18 @@ addEventListener('keydown', function(e) {
   //if (bindsArr.indexOf(e.keyCode) != -1) {
   //  e.preventDefault();
   //}
-  //if (e.keyCode == binds.pause) {
-  //  toggleMenu(pauseMenu);
-  //}
+  if (e.keyCode == binds.pause) {
+    // TODO Pause game function
+    if (paused) {
+      paused = false;
+      msg.innerHTML = '';
+      menu();
+    } else {
+      paused = true;
+      msg.innerHTML = 'Paused';
+      menu(4);
+    }
+  }
   if (e.keyCode == binds.retry) {
     init(gametype);
   }
@@ -1117,21 +1198,11 @@ function gameLoop() {
 
     // TODO make prettier.
     if (!settings.Ghost[0]) {
-      if (settings.Theme[0]) {
-        draw(fallingPiece.tetro, fallingPiece.x,
-             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0, 9);
-      } else {
-        draw(fallingPiece.tetro, fallingPiece.x,
-             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0, 0);
-      }
+      draw(fallingPiece.tetro, fallingPiece.x,
+           fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0, 9);
     } else if (settings.Ghost[0] === 1) {
-      if (settings.Theme[0]) {
-        draw(fallingPiece.tetro, fallingPiece.x,
-             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, -20);
-      } else {
-        draw(fallingPiece.tetro, fallingPiece.x,
-             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 20);
-      }
+      draw(fallingPiece.tetro, fallingPiece.x,
+           fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 20);
     }
     draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx, 5);
   } else {
@@ -1146,7 +1217,6 @@ function countDownLoop() {
   var thisFrame = Date.now();
   var time = end - thisFrame;
   if (time > 1000) {
-    //TODO find better allcaps font
     msg.innerHTML = 'READY';
   } else {
     msg.innerHTML = 'GO!';
@@ -1165,45 +1235,19 @@ function countDownLoop() {
 /**
  * Menu Buttons
  */
-
-var settingsMenu = document.getElementById('settingsMenu');
-var controlsMenu = document.getElementById('controlsMenu');
-var menus = [controlsMenu, settingsMenu];
-function toggleMenu(menuName) {
-  if (menuName.style.display == 'none' && menu.style.display == 'none') {
-    // Open menu
-    menu.style.display = 'table';
-    menuName.style.display = 'block';
-  } else if (menuName.style.display == 'none' && menu.style.display != 'none') {
-    //switch menus
-    for (i = 0; i < menus.length; i++) {
-      menus[i].style.display = 'none';
-    }
-    menuName.style.display = 'inline-block';
-    if (currCell) {
-      // Reset keys if waiting on input and the menu is closed.
-      // TODO DRY
-      binds[currCell.id] = tempKey;
-      currCell.innerHTML = key[tempKey];
-      currCell = 0;
-    }
-  } else {
-    //close the menu
-    menu.style.display = 'none';
-    menuName.style.display = 'none';
-    if (currCell) {
-      // Reset keys if waiting on input and the menu is closed.
-      // TODO DRY
-      binds[currCell.id] = tempKey;
-      currCell.innerHTML = key[tempKey];
-      currCell = 0;
-    }
+var menus = document.getElementsByClassName('menu');
+function menu(menuIndex) {
+  for (var i = 0, len = menus.length; i < len; i++) {
+    menus[i].classList.remove('on');
   }
+  if (menuIndex !== void 0)
+    menus[menuIndex].classList.add('on');
 }
 
-/**
- * Local Storage
- */
+
+// ========================== Local Storage ===================================
+
+
 var newKey,
   currCell,
   tempKey,
@@ -1256,8 +1300,6 @@ function loadLocalData() {
   if (localStorage['settings']) {
     settings = JSON.parse(localStorage.getItem('settings'));
   }
-  if (settings.Theme[0])
-    document.getElementsByTagName('html')[0].id = 'dark';
 }
 loadLocalData();
 resize();
@@ -1323,13 +1365,11 @@ function right() {
   settingsLoop();
 }
 function saveSetting(s) {
-  localStorage['version'] = '0.1.1';
+  localStorage['version'] = version;
+
   document.getElementById(s)
   .getElementsByTagName('span')[0]
   .innerHTML = settings[s][1][settings[s][0]];
+
   localStorage['settings'] = JSON.stringify(settings);
-  if (settings.Theme[0])
-    document.getElementsByTagName('html')[0].id = 'dark';
-  else
-    document.getElementsByTagName('html')[0].id = '';
 }
