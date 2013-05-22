@@ -27,7 +27,7 @@ var footer = document.getElementsByTagName('footer')[0];
 var h3 = document.getElementsByTagName('h3');
 var set = document.getElementById('settings');
 
-// Get canvases and contexts (there's 8 of them each)
+// Get canvases and contexts
 for (var x = 0; x < document.getElementsByTagName('canvas').length; x++) {
   var ID = document.getElementsByTagName('canvas')[x].id;
   eval('var ' + ID +
@@ -38,6 +38,43 @@ for (var x = 0; x < document.getElementsByTagName('canvas').length; x++) {
 /**
  * Piece data
  */
+var shaded = [
+  // 0         +10        -10        -20
+  ['#c1c1c1', '#dddddd', '#a6a6a6', '#8b8b8b'],
+  ['#25bb9b', '#4cd7b6', '#009f81', '#008568'],
+  ['#3397d9', '#57b1f6', '#007dbd', '#0064a2'],
+  ['#e67e23', '#ff993f', '#c86400', '#a94b00'],
+  ['#efc30f', '#ffdf3a', '#d1a800', '#b38e00'],
+  ['#9ccd38', '#b9e955', '#81b214', '#659700'],
+  ['#9c5ab8', '#b873d4', '#81409d', '#672782'],
+  ['#e64b3c', '#ff6853', '#c62c25', '#a70010'],
+  ['#898989', '#a3a3a3', '#6f6f6f', '#575757']
+];
+var glossy = [
+  // 0         25         37         52         -21        -45
+  ['#c1c1c1', 'rgb(263,263,263)', 'rgb(299,299,299)', 'rgb(344,344,344)', 'rgb(136,136,136)', 'rgb(77,77,77)'],
+  ['#25bb9b', 'rgb(123,257,223)', 'rgb(159,293,258)', 'rgb(204,339,302)', 'rgb(-116,129,101)', 'rgb(-94,68,46)'],
+  ['#3397d9', 'rgb(108,220,289)', 'rgb(147,254,325)', 'rgb(194,298,372)', 'rgb(-201,98,159)', 'rgb(-146,44,96)'],
+  ['#e67e23', 'rgb(316,193,102)', 'rgb(356,227,134)', 'rgb(406,271,176)', 'rgb(170,72,-26)', 'rgb(101,5,-82)'],
+  ['#efc30f', 'rgb(327,264,106)', 'rgb(366,299,140)', 'rgb(415,345,184)', 'rgb(182,138,-74)', 'rgb(113,79,-87)'],
+  ['#9ccd38', 'rgb(239,275,129)', 'rgb(275,311,162)', 'rgb(321,357,205)', 'rgb(107,146,-27)', 'rgb(44,86,-61)'],
+  ['#9c5ab8', 'rgb(220,157,254)', 'rgb(255,190,289)', 'rgb(300,233,334)', 'rgb(93,40,126)', 'rgb(33,-14,67)'],
+  ['#e64b3c', 'rgb(315,146,119)', 'rgb(355,180,151)', 'rgb(405,224,191)', 'rgb(167,-11,10)', 'rgb(96,-56,-65)'],
+  ['#898989', 'rgb(203,203,203)', 'rgb(237,237,237)', 'rgb(281,281,281)', 'rgb(84,84,84)', 'rgb(31,31,31)']
+];
+var tgm = [
+  ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
+  ['#f70808', '#ffa500', '#ffbd00', '#ff4210', '#ce0000', '#de0000'],
+  ['#0029f7', '#00b5ff', '#00d6ff', '#007bff', '#0000ce', '#0000de'],
+  ['#ff6b00', '#ffbd00', '#ffd600', '#ff9400', '#de4200', '#e75200'],
+  ['#b59400', '#ffff00', '#ffff00', '#e7d600', '#a56b00', '#ad8400'],
+  ['#ad00ad', '#ff29ff', '#ff31ff', '#f710f7', '#8c008c', '#940094'],
+  ['#00a5d6', '#00ffff', '#00ffff', '#00def7', '#007bce', '#008cce'],
+  ['#00ad00', '#6bff00', '#94ff00', '#18e700', '#008400', '#009400'],
+  ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121']
+];
+
+
 var cyan = [68, -45, 5];
 var blue = [59, -12, -43];
 var orange = [64, 37, 63];
@@ -45,10 +82,9 @@ var yellow = [81, 6, 80];
 var green = [77, -32, 64];
 var purple = [49, 40, -39];
 var red = [55, 60, 44];
-var dark = [57, 0, 0];
 var grey = [78, 0, 0];
-var grey2 = [25, 0, 0];
-var colors = [grey, cyan, blue, orange, yellow, green, purple, red, dark, grey2];
+var dark = [57, 0, 0];
+var colors = [grey, cyan, blue, orange, yellow, green, purple, red, dark];
 
 // NOTE y values are inverted since our matrix counts from top to bottom.
 var kickData = [
@@ -970,21 +1006,20 @@ function drawCell(x, y, color, ctx, adjust) {
   y = ~~y * cellSize - 2 * cellSize;
   if (settings.Block[0] === 0) {
     // Shaded
-    color = colors[color];
-    ctx.fillStyle = lab(color, 10 + adjust);
+    ctx.fillStyle = shaded[color][1];
     ctx.fillRect(x, y, cellSize, cellSize);
 
-    ctx.fillStyle = lab(color, -20 + adjust);
+    ctx.fillStyle = shaded[color][3];
     ctx.fillRect(x, y + cellSize / 2, cellSize, cellSize / 2);
 
-    ctx.fillStyle = lab(color, 0 + adjust);
+    ctx.fillStyle = shaded[color][0];
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineTo(x + cellSize / 2, y + cellSize / 2);
     ctx.lineTo(x, y + cellSize);
     ctx.fill();
 
-    ctx.fillStyle = lab(color, -10 + adjust);
+    ctx.fillStyle = shaded[color][2];
     ctx.beginPath();
     ctx.moveTo(x + cellSize, y);
     ctx.lineTo(x + cellSize / 2, y + cellSize / 2);
@@ -992,50 +1027,35 @@ function drawCell(x, y, color, ctx, adjust) {
     ctx.fill();
   } else if (settings.Block[0] === 1) {
     // Flat
-    color = colors[color];
-    ctx.fillStyle = lab(color, 0 + adjust);
+    ctx.fillStyle = shaded[color][0];
     ctx.fillRect(x, y, cellSize, cellSize);
   } else if (settings.Block[0] === 2) {
     // Glossy
-    color = colors[color];
     var k = Math.max(~~(cellSize * 0.083), 1);
 
     var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-    grad.addColorStop(0.5, lab(color, -21));
-    grad.addColorStop(1, lab(color, -45));
+    grad.addColorStop(0.5, glossy[color][4]);
+    grad.addColorStop(1, glossy[color][5]);
     ctx.fillStyle = grad;
     ctx.fillRect(x, y, cellSize, cellSize);
 
     var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-    grad.addColorStop(0, lab(color, 52));
-    grad.addColorStop(0.5, lab(color, 37));
+    grad.addColorStop(0, glossy[color][3]);
+    grad.addColorStop(0.5, glossy[color][2]);
     ctx.fillStyle = grad;
     ctx.fillRect(x, y, cellSize - k, cellSize - k);
 
     var grad = ctx.createLinearGradient(x + k, y + k, x + cellSize - k, y + cellSize - k);
-    grad.addColorStop(0, lab(color, 0)); //normal color
-    grad.addColorStop(0.5, lab(color, 28));
-    grad.addColorStop(0.5, lab(color, 0));
-    grad.addColorStop(1, lab(color, 25));
+    grad.addColorStop(0, glossy[color][0]);
+    grad.addColorStop(0.5, glossy[color][1]);
+    grad.addColorStop(0.5, glossy[color][0]);
+    grad.addColorStop(1, glossy[color][1]);
     ctx.fillStyle = grad;
     ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
+
   } else if (settings.Block[0] === 3) {
     // Arika
     var k = Math.max(~~(cellSize * 0.125), 1);
-
-    var tgm = [
-      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
-      ['#f70808', '#ffa500', '#ffbd00', '#ff4210', '#ce0000', '#de0000'],
-      ['#0029f7', '#00b5ff', '#00d6ff', '#007bff', '#0000ce', '#0000de'],
-      ['#ff6b00', '#ffbd00', '#ffd600', '#ff9400', '#de4200', '#e75200'],
-      ['#b59400', '#ffff00', '#ffff00', '#e7d600', '#a56b00', '#ad8400'],
-      ['#ad00ad', '#ff29ff', '#ff31ff', '#f710f7', '#8c008c', '#940094'],
-      ['#00a5d6', '#00ffff', '#00ffff', '#00def7', '#007bce', '#008cce'],
-      ['#00ad00', '#6bff00', '#94ff00', '#18e700', '#008400', '#009400'],
-      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
-      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
-      ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121']
-    ];
 
     ctx.fillStyle = tgm[color][0];
     ctx.fillRect(x, y, cellSize, cellSize);
@@ -1199,7 +1219,7 @@ function gameLoop() {
     // TODO make prettier.
     if (!settings.Ghost[0]) {
       draw(fallingPiece.tetro, fallingPiece.x,
-           fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0, 9);
+           fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0, 0);
     } else if (settings.Ghost[0] === 1) {
       draw(fallingPiece.tetro, fallingPiece.x,
            fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 20);
