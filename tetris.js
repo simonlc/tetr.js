@@ -6,7 +6,7 @@ Note: Before looking at this code, it would be wise to do a bit of reading about
 the game so you know why some things are done a certain way.
 */
 
-var version = '0.1.4';
+var version = '0.1.5';
 
 /**
  * Define playfield size.
@@ -220,10 +220,9 @@ var settings = {
   Size: [0, ['Auto', 'Small', 'Medium', 'Large']],
   Sound: [0, ['Off', 'On']],
   Volume: [100, range(0, 101)],
-  //Block: [0, ['<img src=0.jpg>', '<img src=1.jpg>']],
   Block: [0, ['Shaded', 'Solid', 'Glossy', 'Arika']],
   Ghost: [0, ['Normal', 'Colored', 'Off']],
-  'Hide Cursor': [1, ['On', 'Off']]
+  Grid: [0, ['Off', 'On']]
 };
 
 var inc;
@@ -240,7 +239,6 @@ var gameState;
 var paused = false;
 var lineLimit;
 var gametype;
-var gametypes = ['Sprint', 'Marathon'];
 var grabBag;
 var toGreyRow;
 
@@ -371,10 +369,6 @@ var key = {
   222: "'"
 }
 
-//var localScores = {
-//    1: 'time' + 'piece' + 'ppm',
-//}
-
 function resize() {
   // TODO make function to append 'px' to a thing.
   var a = document.getElementById('a');
@@ -384,8 +378,6 @@ function resize() {
 
   // TODO Finalize this.
   // Aspect ratio: 1.024
-  //footer.removeAttribute('style');
-  //var screenHeight = window.innerHeight - nav.offsetHeight - 34;
   var screenHeight = window.innerHeight - 34;
   var screenWidth = ~~(screenHeight * 1.024);
   if (screenWidth > window.innerWidth)
@@ -435,16 +427,14 @@ function resize() {
   document.documentElement.style.fontSize = ~~(stackCanvas.width / 16) + 'px';
 
   stats.style.width = holdCanvas.width + 'px';
-  //c.style.paddingTop = cellSize * 2 + 'px';
   for (var i = 0, len = h3.length; i < len; i++) {
     h3[i].style.lineHeight = cellSize * 2 + 'px';
     h3[i].style.fontSize = ~~(stackCanvas.width / 11) + 'px';
   }
 
-  // Borders n shit
+  if (settings.Grid[0] === 1)
+    bg(bgStackCtx);
 
-  //bg(bgStackCtx);
-  // TODO Do this only if game is started.
   if (gameState === 0) {
     draw(stack, 0, 0, stackCtx);
     draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
@@ -462,35 +452,34 @@ addEventListener('resize', resize, false);
  * Converts Lab colors to RGB and returns string.
  * Info: http://www.brucelindbloom.com/index.html
  */
-//TODO Cache colors.
-function lab(color, adjust) {
-  var e = 0.008856;
-  var k = 903.3;
-  var L = color[0] + adjust;
-  var A = color[1];
-  var B = color[2];
-  var y = (L + 16) / 116;
-  var x = A / 500 + y;
-  var z = y - B / 200;
-  var r,g,b;
-
-  x = Math.pow(x, 3) > e ? Math.pow(x, 3) : (116 * x - 16) / k;
-  y = Math.pow(y, 3) > e ? Math.pow(y, 3) : (116 * y - 16) / k;
-  z = Math.pow(z, 3) > e ? Math.pow(z, 3) : (116 * z - 16) / k;
-
-  x *= 0.95047;
-  z *= 1.08883;
-
-  r = x * 3.2405 + y * -1.5371 + z * -0.4985;
-  g = x * -0.9693 + y * 1.876 + z * 0.0416;
-  b = x * 0.0556 + y * -0.204 + z * 1.0572;
-
-  r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : r * 12.92;
-  g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : g * 12.92;
-  b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : b * 12.92;
-
-  return "rgb(" + ~~(255 * r) + "," + ~~(255 * g) + "," + ~~(255 * b) + ")"
-}
+//function lab(color, adjust) {
+//  var e = 0.008856;
+//  var k = 903.3;
+//  var L = color[0] + adjust;
+//  var A = color[1];
+//  var B = color[2];
+//  var y = (L + 16) / 116;
+//  var x = A / 500 + y;
+//  var z = y - B / 200;
+//  var r,g,b;
+//
+//  x = Math.pow(x, 3) > e ? Math.pow(x, 3) : (116 * x - 16) / k;
+//  y = Math.pow(y, 3) > e ? Math.pow(y, 3) : (116 * y - 16) / k;
+//  z = Math.pow(z, 3) > e ? Math.pow(z, 3) : (116 * z - 16) / k;
+//
+//  x *= 0.95047;
+//  z *= 1.08883;
+//
+//  r = x * 3.2405 + y * -1.5371 + z * -0.4985;
+//  g = x * -0.9693 + y * 1.876 + z * 0.0416;
+//  b = x * 0.0556 + y * -0.204 + z * 1.0572;
+//
+//  r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : r * 12.92;
+//  g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : g * 12.92;
+//  b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : b * 12.92;
+//
+//  return "rgb(" + ~~(255 * r) + "," + ~~(255 * g) + "," + ~~(255 * b) + ")"
+//}
 
 function range(start, end, inc) {
   inc = inc || 1;
@@ -508,6 +497,17 @@ function range(start, end, inc) {
 Number.prototype.mod = function(n) {
   return ((this % n) + n) % n;
 };
+
+// shim layer with setTimeout fallback
+window.requestAnimFrame = (function () {
+  return window.requestAnimationFrame       ||
+         window.mozRequestAnimationFrame    ||
+         window.webkitRequestAnimationFrame ||
+         function (callback) {
+           window.setTimeout(callback, 1000 / 60);
+         };
+})();
+
 
 /**
  * Creates a matrix for the playfield.
@@ -997,6 +997,7 @@ function bg(ctx) {
   }
   bgGrid('#1c1c1c');
 }
+
 /**
  * Draws a mino.
  */
@@ -1230,6 +1231,7 @@ function gameLoop() {
   }
 
   gLoop = setTimeout(gameLoop, 1000 / 60);
+  //requestAnimFrame(gameLoop);
 }
 
 function countDownLoop() {
@@ -1250,146 +1252,4 @@ function countDownLoop() {
     gameLoop();
     startTime = new Date().getTime();
   }
-}
-
-/**
- * Menu Buttons
- */
-var menus = document.getElementsByClassName('menu');
-function menu(menuIndex) {
-  for (var i = 0, len = menus.length; i < len; i++) {
-    menus[i].classList.remove('on');
-  }
-  if (menuIndex !== void 0)
-    menus[menuIndex].classList.add('on');
-}
-
-
-// ========================== Local Storage ===================================
-
-
-var newKey,
-  currCell,
-  tempKey,
-  controls = document.getElementById('controls'),
-  controlCells = controls.getElementsByTagName('td');
-// Give controls an event listener.
-for (var i = 0, len = controlCells.length; i < len; i++) {
-  controlCells[i].onclick = function() {
-    // First check if we're already waiting for an input.
-    if (currCell) {
-      // TODO DRY
-      // Make this into a function and call it when we press Esc.
-      binds[currCell.id] = tempKey;
-      currCell.innerHTML = key[tempKey];
-    }
-    tempKey = binds[this.id];
-    this.innerHTML = 'Press key';
-    currCell = this;
-  }
-}
-// Listen for key input if a control has been clicked on.
-addEventListener('keyup', function(e) {
-  // if click outside of cell or press esc clear currCell
-  // reset binds button.
-  if (currCell) {
-    // Checks if key already in use, and unbinds it.
-    for (var i in binds) {
-      if (e.keyCode === binds[i]) {
-        binds[i] = void 0;
-        document.getElementById(i).innerHTML = binds[i];
-      }
-    }
-    // Binds the key and saves the data.
-    binds[currCell.id] = e.keyCode;
-    currCell.innerHTML = key[e.keyCode];
-    localStorage.setItem('binds', JSON.stringify(binds));
-    currCell = 0;
-  }
-}, false);
-
-function loadLocalData() {
-  if (localStorage['binds']) {
-    binds = JSON.parse(localStorage.getItem('binds'));
-    for (var i = 0, len = controlCells.length; i < len; i++) {
-      controlCells[i].innerHTML = key[binds[controlCells[i].id]];
-    }
-  }
-  if (localStorage['version'] !== version)
-    localStorage.removeItem('settings');
-  if (localStorage['settings']) {
-    settings = JSON.parse(localStorage.getItem('settings'));
-  }
-}
-loadLocalData();
-resize();
-
-
-/**
- * Settings Menu
- */
-for (var s in settings) {
-  var div = document.createElement('div');
-  var b = document.createElement('b');
-  var iLeft = document.createElement('i');
-  var span = document.createElement('span');
-  var iRight = document.createElement('i');
-
-  div.id = s;
-  b.innerHTML = s + ':';
-  span.innerHTML = settings[s][1][settings[s][0]];
-  iLeft.className = 'left';
-  iRight.className = 'right';
-  iLeft.onmousedown = left;
-  iRight.onmousedown = right;
-
-  set.appendChild(div);
-  div.appendChild(b);
-  div.appendChild(iLeft);
-  div.appendChild(span);
-  div.appendChild(iRight);
-}
-function settingsLoop() {
-  if (arrowReleased || arrowDelay >= 6) {
-    if (settingsArrow)
-      settings[s][0] = (settings[s][0] === 0) ? settings[s][1].length - 1 : settings[s][0] - 1;
-    else
-      settings[s][0] = (settings[s][0] === settings[s][1].length - 1) ? 0 : settings[s][0] + 1;
-    saveSetting(s);
-    arrowReleased = false;
-  } else {
-    arrowDelay++;
-  }
-  setLoop = setTimeout(settingsLoop, 50);
-}
-var s;
-var settingsArrow;
-// TODO DRY this.
-function arrowRelease() {
-    arrowReleased = true;
-    arrowDelay = 0;
-    clearTimeout(setLoop)
-}
-function left() {
-  settingsArrow = 1;
-  s = this.parentNode.id;
-  this.onmouseup = arrowRelease;
-  this.onmouseleave = arrowRelease;
-  settingsLoop();
-}
-function right() {
-  settingsArrow = 0;
-  s = this.parentNode.id;
-  this.onmouseup = arrowRelease;
-  this.onmouseleave = arrowRelease;
-  settingsLoop();
-}
-function saveSetting(s) {
-  localStorage['version'] = version;
-
-  document.getElementById(s)
-  .getElementsByTagName('span')[0]
-  .innerHTML = settings[s][1][settings[s][0]];
-
-  localStorage['settings'] = JSON.stringify(settings);
 }
