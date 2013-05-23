@@ -921,7 +921,7 @@ var FallingPiece = function() {
     this.lockDelay = settings['Lock Delay'][0];
   }
   this.getDrop = function(distance) {
-    for (var i = 1; i < distance; i++) {
+    for (var i = 1; i <= distance; i++) {
       if (!moveValid(0, i, this.tetro)) {
         return i - 1;
       }
