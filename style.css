@@ -107,6 +107,9 @@ nav a {
 }
 
 /* Canvases */
+#sprite {
+  display: none;
+}
 #bg {
   position: fixed;
   top:0;
