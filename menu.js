@@ -79,7 +79,7 @@ for (var s in settings) {
 
   div.id = s;
   b.innerHTML = s + ':';
-  span.innerHTML = settings[s][1][settings[s][0]];
+  span.innerHTML = setting[s][settings[s]];
   iLeft.className = 'left';
   iRight.className = 'right';
   iLeft.onmousedown = left;
@@ -94,9 +94,9 @@ for (var s in settings) {
 function settingsLoop() {
   if (arrowReleased || arrowDelay >= 6) {
     if (settingsArrow)
-      settings[s][0] = (settings[s][0] === 0) ? settings[s][1].length - 1 : settings[s][0] - 1;
+      settings[s] = (settings[s] === 0) ? setting[s].length - 1 : settings[s] - 1;
     else
-      settings[s][0] = (settings[s][0] === settings[s][1].length - 1) ? 0 : settings[s][0] + 1;
+      settings[s] = (settings[s] === setting[s].length - 1) ? 0 : settings[s] + 1;
     saveSetting(s);
     arrowReleased = false;
   } else {
@@ -131,7 +131,7 @@ function saveSetting(s) {
 
   document.getElementById(s)
   .getElementsByTagName('span')[0]
-  .innerHTML = settings[s][1][settings[s][0]];
+  .innerHTML = setting[s][settings[s]];
 
   localStorage['settings'] = JSON.stringify(settings);
 }

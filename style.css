@@ -162,8 +162,6 @@ nav a {
     margin: 0;
     z-index: 4;
   }
-#preview {
-}
 
 #d {
   float: left;
@@ -204,12 +202,6 @@ nav a {
 }
 
 /* Menus */
-.cul {
-  display: inline-block;
-  float: left;
-  padding: 5%;
-  width: 40%;
-}
 .menu {
   text-align: center;
   width: 100%;
@@ -219,7 +211,7 @@ nav a {
   margin-top: -200%;
   position: absolute;
   background: #000;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0);
   top: 0;
   z-index: 50;
   opacity: 0;
@@ -227,9 +219,11 @@ nav a {
      -moz-transition: opacity .4s ease-in-out;
        -o-transition: opacity .4s ease-in-out;*/
           transition: opacity .8s ease-out,
+                      background .4s ease-out .3s,
                       margin .4s ease-out;
 }
 .on {
+  background: rgba(0,0,0,0.8);
   opacity: 1;
   margin: 0;
 }
