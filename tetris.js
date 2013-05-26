@@ -47,53 +47,6 @@ var spriteCtx = spriteCanvas.getContext('2d');
 /**
  * Piece data
  */
-var shaded = [
-  // 0         +10        -10        -20
-  ['#c1c1c1', '#dddddd', '#a6a6a6', '#8b8b8b'],
-  ['#25bb9b', '#4cd7b6', '#009f81', '#008568'],
-  ['#3397d9', '#57b1f6', '#007dbd', '#0064a2'],
-  ['#e67e23', '#ff993f', '#c86400', '#a94b00'],
-  ['#efc30f', '#ffdf3a', '#d1a800', '#b38e00'],
-  ['#9ccd38', '#b9e955', '#81b214', '#659700'],
-  ['#9c5ab8', '#b873d4', '#81409d', '#672782'],
-  ['#e64b3c', '#ff6853', '#c62c25', '#a70010'],
-  ['#898989', '#a3a3a3', '#6f6f6f', '#575757']
-];
-var glossy = [
-  // 0         25         37         52         -21        -45
-  ['#c1c1c1', 'rgb(263,263,263)', 'rgb(299,299,299)', 'rgb(344,344,344)', 'rgb(136,136,136)', 'rgb(77,77,77)'],
-  ['#25bb9b', 'rgb(123,257,223)', 'rgb(159,293,258)', 'rgb(204,339,302)', 'rgb(-116,129,101)', 'rgb(-94,68,46)'],
-  ['#3397d9', 'rgb(108,220,289)', 'rgb(147,254,325)', 'rgb(194,298,372)', 'rgb(-201,98,159)', 'rgb(-146,44,96)'],
-  ['#e67e23', 'rgb(316,193,102)', 'rgb(356,227,134)', 'rgb(406,271,176)', 'rgb(170,72,-26)', 'rgb(101,5,-82)'],
-  ['#efc30f', 'rgb(327,264,106)', 'rgb(366,299,140)', 'rgb(415,345,184)', 'rgb(182,138,-74)', 'rgb(113,79,-87)'],
-  ['#9ccd38', 'rgb(239,275,129)', 'rgb(275,311,162)', 'rgb(321,357,205)', 'rgb(107,146,-27)', 'rgb(44,86,-61)'],
-  ['#9c5ab8', 'rgb(220,157,254)', 'rgb(255,190,289)', 'rgb(300,233,334)', 'rgb(93,40,126)', 'rgb(33,-14,67)'],
-  ['#e64b3c', 'rgb(315,146,119)', 'rgb(355,180,151)', 'rgb(405,224,191)', 'rgb(167,-11,10)', 'rgb(96,-56,-65)'],
-  ['#898989', 'rgb(203,203,203)', 'rgb(237,237,237)', 'rgb(281,281,281)', 'rgb(84,84,84)', 'rgb(31,31,31)']
-];
-var tgm = [
-  ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
-  ['#f70808', '#ffa500', '#ffbd00', '#ff4210', '#ce0000', '#de0000'],
-  ['#0029f7', '#00b5ff', '#00d6ff', '#007bff', '#0000ce', '#0000de'],
-  ['#ff6b00', '#ffbd00', '#ffd600', '#ff9400', '#de4200', '#e75200'],
-  ['#b59400', '#ffff00', '#ffff00', '#e7d600', '#a56b00', '#ad8400'],
-  ['#ad00ad', '#ff29ff', '#ff31ff', '#f710f7', '#8c008c', '#940094'],
-  ['#00a5d6', '#00ffff', '#00ffff', '#00def7', '#007bce', '#008cce'],
-  ['#00ad00', '#6bff00', '#94ff00', '#18e700', '#008400', '#009400'],
-  ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121']
-];
-
-
-var cyan = [68, -45, 5];
-var blue = [59, -12, -43];
-var orange = [64, 37, 63];
-var yellow = [81, 6, 80];
-var green = [77, -32, 64];
-var purple = [49, 40, -39];
-var red = [55, 60, 44];
-var grey = [78, 0, 0];
-var dark = [57, 0, 0];
-var colors = [grey, cyan, blue, orange, yellow, green, purple, red, dark];
 
 // NOTE y values are inverted since our matrix counts from top to bottom.
 var kickData = [
@@ -193,11 +146,20 @@ var pieces = [PieceI, PieceJ, PieceL, PieceO, PieceS, PieceT, PieceZ];
 /**
  * Gameplay specific vars.
  */
-var holdPiece;
 var gravityUnit = 0.00390625;
 var gravity;
-var firstRun;
+var gravityArr = (function() {
+  var array = [];
+  array.push(0);
+  for (var i = 1; i < 64; i++)
+    array.push(i / 64);
+  for (var i = 1; i <= 20; i++)
+    array.push(i);
+  return array;
+})();
 
+var holdPiece;
+var firstRun;
 var shift;
 
 var settings = {
@@ -214,12 +176,11 @@ var settings = {
   Grid: 0,
 };
 
-var array = [];
 var setting = {
   DAS: range(0,31),
   ARR: range(0,11),
   Gravity: (function() {
-    array.length = 0;
+    var array = [];
     array.push('Auto');
     array.push('0G');
     for (var i = 1; i < 64; i++)
@@ -258,9 +219,10 @@ var cDown;
 var gameState;
 var paused = false;
 var lineLimit;
-var gametype;
 var grabBag;
+
 var toGreyRow;
+var gametype;
 
 // Stats
 var lines;
@@ -470,42 +432,9 @@ addEventListener('resize', resize, false);
  * ========================== Model ===========================================
  */
 
-/**
- * Converts Lab colors to RGB and returns string.
- * Info: http://www.brucelindbloom.com/index.html
- */
-//function lab(color, adjust) {
-//  var e = 0.008856;
-//  var k = 903.3;
-//  var L = color[0] + adjust;
-//  var A = color[1];
-//  var B = color[2];
-//  var y = (L + 16) / 116;
-//  var x = A / 500 + y;
-//  var z = y - B / 200;
-//  var r,g,b;
-//
-//  x = Math.pow(x, 3) > e ? Math.pow(x, 3) : (116 * x - 16) / k;
-//  y = Math.pow(y, 3) > e ? Math.pow(y, 3) : (116 * y - 16) / k;
-//  z = Math.pow(z, 3) > e ? Math.pow(z, 3) : (116 * z - 16) / k;
-//
-//  x *= 0.95047;
-//  z *= 1.08883;
-//
-//  r = x * 3.2405 + y * -1.5371 + z * -0.4985;
-//  g = x * -0.9693 + y * 1.876 + z * 0.0416;
-//  b = x * 0.0556 + y * -0.204 + z * 1.0572;
-//
-//  r = r > 0.0031308 ? 1.055 * Math.pow(r, 1 / 2.4) - 0.055 : r * 12.92;
-//  g = g > 0.0031308 ? 1.055 * Math.pow(g, 1 / 2.4) - 0.055 : g * 12.92;
-//  b = b > 0.0031308 ? 1.055 * Math.pow(b, 1 / 2.4) - 0.055 : b * 12.92;
-//
-//  return "rgb(" + ~~(255 * r) + "," + ~~(255 * g) + "," + ~~(255 * b) + ")"
-//}
-
 function range(start, end, inc) {
   inc = inc || 1;
-  array.length = 0;
+  var array = [];
   for (var i = start; i < end; i += inc) {
     array.push(i);
   }
@@ -922,7 +851,7 @@ var FallingPiece = function() {
       break;
     case 'down':
       if (moveValid(0, 1, this.tetro)) {
-        var grav = eval(setting['Soft Drop'][settings['Soft Drop']].slice(0, -1));
+        var grav = gravityArr[settings['Soft Drop'] + 1];
         if (grav > 1)
           this.y += this.getDrop(grav);
         else
@@ -973,7 +902,7 @@ var FallingPiece = function() {
     // Apply gravity.
     if (moveValid(0, 1, this.tetro)) {
       if (settings.Gravity) {
-        var grav = eval(setting.Gravity[settings.Gravity].slice(0, -1));
+        var grav = gravityArr[settings.Gravity - 1];
         if (grav > 1)
           this.y += this.getDrop(grav);
         else
@@ -1014,11 +943,11 @@ function bg(ctx) {
 }
 
 function makeSprite() {
-  var len = colors.length;
+  var len = 9; // ammount of colors.
   spriteCanvas.width = cellSize * len;
   spriteCanvas.height = cellSize;
   for (var i = 0; i < len; i++) {
-    drawMino(i, 2, i, spriteCtx);
+    drawMino(i, 0, i, spriteCtx);
   }
 }
 
@@ -1034,7 +963,45 @@ function drawCell(x, y, color, ctx) {
 function drawMino(x, y, color, ctx) {
   x = x * cellSize;
   x = ~~x
-  y = ~~y * cellSize - 2 * cellSize;
+  y = ~~y;
+
+  var shaded = [
+    // 0         +10        -10        -20
+    ['#c1c1c1', '#dddddd', '#a6a6a6', '#8b8b8b'],
+    ['#25bb9b', '#4cd7b6', '#009f81', '#008568'],
+    ['#3397d9', '#57b1f6', '#007dbd', '#0064a2'],
+    ['#e67e23', '#ff993f', '#c86400', '#a94b00'],
+    ['#efc30f', '#ffdf3a', '#d1a800', '#b38e00'],
+    ['#9ccd38', '#b9e955', '#81b214', '#659700'],
+    ['#9c5ab8', '#b873d4', '#81409d', '#672782'],
+    ['#e64b3c', '#ff6853', '#c62c25', '#a70010'],
+    ['#898989', '#a3a3a3', '#6f6f6f', '#575757']
+  ];
+  var glossy = [
+    // TODO hex these.
+    // 0         25         37         52         -21        -45
+    ['#c1c1c1', 'rgb(263,263,263)', 'rgb(299,299,299)', 'rgb(344,344,344)', 'rgb(136,136,136)', 'rgb(77,77,77)'],
+    ['#25bb9b', 'rgb(123,257,223)', 'rgb(159,293,258)', 'rgb(204,339,302)', 'rgb(-116,129,101)', 'rgb(-94,68,46)'],
+    ['#3397d9', 'rgb(108,220,289)', 'rgb(147,254,325)', 'rgb(194,298,372)', 'rgb(-201,98,159)', 'rgb(-146,44,96)'],
+    ['#e67e23', 'rgb(316,193,102)', 'rgb(356,227,134)', 'rgb(406,271,176)', 'rgb(170,72,-26)', 'rgb(101,5,-82)'],
+    ['#efc30f', 'rgb(327,264,106)', 'rgb(366,299,140)', 'rgb(415,345,184)', 'rgb(182,138,-74)', 'rgb(113,79,-87)'],
+    ['#9ccd38', 'rgb(239,275,129)', 'rgb(275,311,162)', 'rgb(321,357,205)', 'rgb(107,146,-27)', 'rgb(44,86,-61)'],
+    ['#9c5ab8', 'rgb(220,157,254)', 'rgb(255,190,289)', 'rgb(300,233,334)', 'rgb(93,40,126)', 'rgb(33,-14,67)'],
+    ['#e64b3c', 'rgb(315,146,119)', 'rgb(355,180,151)', 'rgb(405,224,191)', 'rgb(167,-11,10)', 'rgb(96,-56,-65)'],
+    ['#898989', 'rgb(203,203,203)', 'rgb(237,237,237)', 'rgb(281,281,281)', 'rgb(84,84,84)', 'rgb(31,31,31)']
+  ];
+  var tgm = [
+    ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
+    ['#f70808', '#ffa500', '#ffbd00', '#ff4210', '#ce0000', '#de0000'],
+    ['#0029f7', '#00b5ff', '#00d6ff', '#007bff', '#0000ce', '#0000de'],
+    ['#ff6b00', '#ffbd00', '#ffd600', '#ff9400', '#de4200', '#e75200'],
+    ['#b59400', '#ffff00', '#ffff00', '#e7d600', '#a56b00', '#ad8400'],
+    ['#ad00ad', '#ff29ff', '#ff31ff', '#f710f7', '#8c008c', '#940094'],
+    ['#00a5d6', '#00ffff', '#00ffff', '#00def7', '#007bce', '#008cce'],
+    ['#00ad00', '#6bff00', '#94ff00', '#18e700', '#008400', '#009400'],
+    ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121']
+  ];
+
   if (settings.Block === 0) {
     // Shaded
     ctx.fillStyle = shaded[color][1];
