@@ -217,12 +217,15 @@ var cDown;
  * 9 = loss
  */
 var gameState;
+
 var paused = false;
 var lineLimit;
 var grabBag;
 
 var toGreyRow;
 var gametype;
+//var toDraw;
+var lastX, lastY, lastPos;
 
 // Stats
 var lines;
@@ -1214,17 +1217,23 @@ function gameLoop() {
 
   if (!gameState) {
     update();
-    clear(activeCtx);
 
-    // TODO make prettier.
-    if (!settings.Ghost) {
-      draw(fallingPiece.tetro, fallingPiece.x,
-           fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0);
-    } else if (settings.Ghost === 1) {
-      draw(fallingPiece.tetro, fallingPiece.x,
-           fallingPiece.y + fallingPiece.getDrop(22), activeCtx);
+    if (~~fallingPiece.x !== lastX || ~~fallingPiece.y !== lastY || fallingPiece.pos !== lastPos) {
+      clear(activeCtx);
+      // TODO make prettier.
+      if (!settings.Ghost) {
+        draw(fallingPiece.tetro, fallingPiece.x,
+             fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0);
+      } else if (settings.Ghost === 1) {
+        draw(fallingPiece.tetro, fallingPiece.x,
+             fallingPiece.y + fallingPiece.getDrop(22), activeCtx);
+      }
+      console.log('DRAW!');
+      draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
     }
-    draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
+    lastX = ~~fallingPiece.x;
+    lastY = ~~fallingPiece.y;
+    lastPos = fallingPiece.pos;
   } else {
     gameOverAnimation();
   }
