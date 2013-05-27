@@ -528,7 +528,7 @@ function randomGenerator() {
   //TODO Get rid of this check, and put it in init or something.
   //TODO Don't make functions within a loop.
   if (firstRun) {
-    while (pieceList[0] == 3 || pieceList[0] == 4 || pieceList[0] == 6) {
+    while (pieceList[0] === 3 || pieceList[0] === 4 || pieceList[0] === 6) {
       pieceList.sort(function() {return 0.5 - Math.random()});
     }
     firstRun = false;
@@ -570,7 +570,7 @@ function addPiece(tetro) {
     for (var y = 0; y < tetro[x].length; y++) {
       if (tetro[x][y]) {
         stack[x + fallingPiece.x][y + fallingPiece.y] = tetro[x][y];
-        if (range.indexOf(y + fallingPiece.y) == -1) {
+        if (range.indexOf(y + fallingPiece.y) === -1) {
           range.push(y + fallingPiece.y);
           // This checks if any cell is in the play field. If there
           //  isn't any this is called a lock out and the game ends.
@@ -601,7 +601,7 @@ function addPiece(tetro) {
     }
     // Clear the line. This basically just moves down the stack.
     // TODO Ponder during the day and see if there is a more elegant solution.
-    if (count == 10) {
+    if (count === 10) {
       lines++; // NOTE stats
       for (var y = row; y >= -1; y--) {
         for (var x = 0; x < 10; x++) {
@@ -713,12 +713,12 @@ function update() {
     fallingPiece.shift(shift);
   // 3. Once the delay is complete, move over once.
   //     Inc delay so this doesn't run again.
-  } else if (fallingPiece.shiftDelay == settings.DAS && settings.DAS != 0) {
+  } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS != 0) {
     fallingPiece.shift(shift);
     if (settings.ARR != 0)
       fallingPiece.shiftDelay++;
   // 5. If ARR Delay is full, move piece, and reset delay and repeat.
-  } else if (fallingPiece.arrDelay == settings.ARR && settings.ARR != 0) {
+  } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR != 0) {
     fallingPiece.shift(shift);
   // 2. Apply DAS delay
   } else if (fallingPiece.shiftDelay < settings.DAS) {
@@ -820,7 +820,7 @@ var FallingPiece = function() {
     var counter = 0;
     switch(direction) {
     case 'left':
-      if (settings.ARR == 0 && this.shiftDelay == settings.DAS) {
+      if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(-i, 0, this.tetro)) {
             continue;
@@ -835,7 +835,7 @@ var FallingPiece = function() {
       }
       break;
     case 'right':
-      if (settings.ARR == 0 && this.shiftDelay == settings.DAS) {
+      if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(i, 0, this.tetro)) {
             continue;
@@ -1134,14 +1134,14 @@ addEventListener('keydown', function(e) {
   if ([32,37,38,39,40].indexOf(e.keyCode) != -1) {
     e.preventDefault();
   }
-  if (e.keyCode == binds.moveLeft && !keysDown[e.keyCode]) {
+  if (e.keyCode === binds.moveLeft && !keysDown[e.keyCode]) {
     // Reset key
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
     shift = 'left';
   }
-  if (e.keyCode == binds.moveRight && !keysDown[e.keyCode]) {
+  if (e.keyCode === binds.moveRight && !keysDown[e.keyCode]) {
     // Reset key
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
@@ -1151,7 +1151,7 @@ addEventListener('keydown', function(e) {
   //if (bindsArr.indexOf(e.keyCode) != -1) {
   //  e.preventDefault();
   //}
-  if (e.keyCode == binds.pause) {
+  if (e.keyCode === binds.pause) {
     // TODO Pause game function
     if (paused) {
       paused = false;
@@ -1163,7 +1163,7 @@ addEventListener('keydown', function(e) {
       menu(4);
     }
   }
-  if (e.keyCode == binds.retry) {
+  if (e.keyCode === binds.retry) {
     init(gametype);
   }
   keysDown[e.keyCode] = true;
@@ -1172,21 +1172,21 @@ addEventListener('keyup', function(e) {
   delete keysDown[e.keyCode];
 
   //if shift == right and moveright: shift released
-  if (shift == 'right' && e.keyCode == binds.moveRight && keysDown[binds.moveLeft]) {
+  if (shift === 'right' && e.keyCode === binds.moveRight && keysDown[binds.moveLeft]) {
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
     shift = 'left';
-  } else if (shift == 'left' && e.keyCode == binds.moveLeft && keysDown[binds.moveRight]) {
+  } else if (shift === 'left' && e.keyCode === binds.moveLeft && keysDown[binds.moveRight]) {
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
     shift = 'right';
-  } else if (e.keyCode == binds.moveRight && keysDown[binds.moveLeft]) {
+  } else if (e.keyCode === binds.moveRight && keysDown[binds.moveLeft]) {
     shift = 'left';
-  } else if (e.keyCode == binds.moveLeft && keysDown[binds.moveRight]) {
+  } else if (e.keyCode === binds.moveLeft && keysDown[binds.moveRight]) {
     shift = 'right';
-  } else if (e.keyCode == binds.moveLeft || e.keyCode == binds.moveRight) {
+  } else if (e.keyCode === binds.moveLeft || e.keyCode === binds.moveRight) {
     // Reset key
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
@@ -1194,11 +1194,11 @@ addEventListener('keyup', function(e) {
     shift = 0;
   }
   // Prevent repeating.
-  if (e.keyCode == binds.rot180 || e.keyCode == binds.rotLeft || e.keyCode == binds.rotRight)
+  if (e.keyCode === binds.rot180 || e.keyCode === binds.rotLeft || e.keyCode === binds.rotRight)
     rotateReleased = true;
-  if (e.keyCode == binds.hardDrop)
+  if (e.keyCode === binds.hardDrop)
     hardDropReleased = true;
-  if (e.keyCode == binds.holdPiece)
+  if (e.keyCode === binds.holdPiece)
     holdReleased = true;
 
 }, false);
