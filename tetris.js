@@ -996,15 +996,15 @@ function drawMino(x, y, color, ctx) {
     ['#cbcbcb', '#ededed', '#ffffff', '#545454', '#1f1f1f']
   ];
   var tgm = [
-    ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
-    ['#f70808', '#ffa500', '#ffbd00', '#ff4210', '#ce0000', '#de0000'],
-    ['#0029f7', '#00b5ff', '#00d6ff', '#007bff', '#0000ce', '#0000de'],
-    ['#ff6b00', '#ffbd00', '#ffd600', '#ff9400', '#de4200', '#e75200'],
-    ['#b59400', '#ffff00', '#ffff00', '#e7d600', '#a56b00', '#ad8400'],
-    ['#ad00ad', '#ff29ff', '#ff31ff', '#f710f7', '#8c008c', '#940094'],
-    ['#00a5d6', '#00ffff', '#00ffff', '#00def7', '#007bce', '#008cce'],
-    ['#00ad00', '#6bff00', '#94ff00', '#18e700', '#008400', '#009400'],
-    ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121']
+    ['#d8d7d1', '#4f4e4b', '#474747', '#2c2c2c', '#f7f6e9', '#83817d'],
+    ['#ff8112', '#990200', '#a44d01', '#750000', '#ffae67', '#c53b37'],
+    ['#2b98fd', '#0e0283', '#005bae', '#090055', '#7bbffd', '#4134c5'],
+    ['#fea616', '#9b4901', '#a56701', '#773801', '#fec66b', '#c67c3b'],
+    ['#e3d919', '#745a0e', '#878110', '#57420a', '#fef654', '#c69b27'],
+    ['#f414fe', '#76007f', '#9e00a6', '#520059', '#f669ff', '#ba29c6'],
+    ['#1ad1e5', '#015e83', '#107b88', '#014461', '#57eeff', '#2898c5'],
+    ['#72e419', '#2b6501', '#43860e', '#1c4100', '#9ffe57', '#5ec70f'],
+    ['#d8d7d1', '#4f4e4b', '#474747', '#2c2c2c', '#f7f6e9', '#83817d']
   ];
 
   if (settings.Block === 0) {
@@ -1037,22 +1037,22 @@ function drawMino(x, y, color, ctx) {
     var k = Math.max(~~(cellSize * 0.083), 1);
 
     var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-    grad.addColorStop(0.5, glossy[color][4]);
-    grad.addColorStop(1, glossy[color][5]);
+    grad.addColorStop(0.5, glossy[color][3]);
+    grad.addColorStop(1, glossy[color][4]);
     ctx.fillStyle = grad;
     ctx.fillRect(x, y, cellSize, cellSize);
 
     var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-    grad.addColorStop(0, glossy[color][3]);
-    grad.addColorStop(0.5, glossy[color][2]);
+    grad.addColorStop(0, glossy[color][2]);
+    grad.addColorStop(0.5, glossy[color][1]);
     ctx.fillStyle = grad;
     ctx.fillRect(x, y, cellSize - k, cellSize - k);
 
     var grad = ctx.createLinearGradient(x + k, y + k, x + cellSize - k, y + cellSize - k);
     grad.addColorStop(0, shaded[color][0]);
-    grad.addColorStop(0.5, glossy[color][1]);
+    grad.addColorStop(0.5, glossy[color][0]);
     grad.addColorStop(0.5, shaded[color][0]);
-    grad.addColorStop(1, glossy[color][1]);
+    grad.addColorStop(1, glossy[color][0]);
     ctx.fillStyle = grad;
     ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
 
@@ -1060,35 +1060,24 @@ function drawMino(x, y, color, ctx) {
     // Arika
     var k = Math.max(~~(cellSize * 0.125), 1);
 
-    ctx.fillStyle = tgm[color][0];
+    var grad = ctx.createLinearGradient(x, y, x + cellSize + k * 4, y + cellSize);
+    grad.addColorStop(0.5, tgm[color][2]);
+    grad.addColorStop(1, tgm[color][3]);
+    ctx.fillStyle = grad;
     ctx.fillRect(x, y, cellSize, cellSize);
 
+    var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize + k * 4);
+    grad.addColorStop(0, tgm[color][4]);
+    grad.addColorStop(0.5, tgm[color][5]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, cellSize - k, cellSize - k);
+
     var grad = ctx.createLinearGradient(x, y + k, x, y + cellSize - k * 2);
-    grad.addColorStop(0, tgm[color][1]);
-    grad.addColorStop(1, tgm[color][0]);
+    grad.addColorStop(0, tgm[color][0]);
+    grad.addColorStop(1, tgm[color][1]);
     ctx.fillStyle = grad;
     ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
 
-    var grad = ctx.createLinearGradient(x, y + k, x, y + cellSize - k * 2);
-    grad.addColorStop(0, tgm[color][2]);
-    grad.addColorStop(1, tgm[color][3]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, y + k, k, cellSize - k * 2);
-
-    ctx.fillStyle = tgm[color][4];
-    ctx.fillRect(x + cellSize - k, y + k, k, cellSize - k * 2);
-
-    ctx.fillStyle = tgm[color][1];
-    ctx.fillRect(x, y, cellSize - k, k);
-
-    ctx.fillStyle = tgm[color][2];
-    ctx.fillRect(x, y, cellSize / 2, k);
-
-    ctx.fillStyle = tgm[color][4];
-    ctx.fillRect(x + k, y + cellSize - k, cellSize - k, k);
-
-    ctx.fillStyle = tgm[color][5];
-    ctx.fillRect(x + cellSize / 2, y + cellSize - k, cellSize / 2, k);
   }
 }
 
