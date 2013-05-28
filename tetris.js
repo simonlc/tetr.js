@@ -647,6 +647,7 @@ function statistics() {
  */
 var skip = false;
 function gameOverAnimation() {
+  clear(activeCtx);
   if (toGreyRow >= 2 && skip) {
     for (var x = 0; x < 10; x++) {
       if (stack[x][toGreyRow]) {
