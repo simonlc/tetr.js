@@ -658,8 +658,9 @@ function gameOverAnimation() {
     draw(stack, 0, 0, stackCtx);
     toGreyRow--;
     skip = false;
+    console.log('test');
     return;
-  } else {
+  } else if (skip) {
     clearTimeout(gLoop);
   }
   skip = true;
