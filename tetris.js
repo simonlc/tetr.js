@@ -225,7 +225,7 @@ var grabBag;
 var toGreyRow;
 var gametype;
 //var toDraw;
-var lastX, lastY, lastPos;
+var lastX, lastY, lastPos, landed, newPiece;
 
 // Stats
 var lines;
@@ -486,6 +486,7 @@ function unpause() {
 function init(gt) {
   menu();
   toGreyRow = 21;
+  lastPos = 'reset';
   clearTimeout(gLoop);
   fallingPiece.reset();
   inc = 0;
@@ -670,6 +671,7 @@ function update() {
   if (!fallingPiece.active) {
 
     // TODO Do this better.
+    //for property in pieces, fallingpiece.prop = piece.prop
     fallingPiece.tetro = pieces[grabBag[inc]].tetro;
     fallingPiece.kickData = pieces[grabBag[inc]].kickData;
     fallingPiece.x = pieces[grabBag[inc]].x;
@@ -677,6 +679,7 @@ function update() {
     fallingPiece.index = pieces[grabBag[inc]].index;
 
     fallingPiece.active = true;
+    newPiece = true;
 
     // Determine if we need another grab bag.
     if (inc < 6) {
@@ -773,6 +776,7 @@ var FallingPiece = function() {
     this.tetro = [];
     this.active = false;
     this.held = false;
+    landed = false;
   }
   this.rotate = function(direction) {
 
@@ -820,7 +824,6 @@ var FallingPiece = function() {
   this.shift = function(direction) {
     fallingPiece.arrDelay = 0;
     shiftReleased = false;
-    var counter = 0;
     switch(direction) {
     case 'left':
       if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
@@ -864,7 +867,7 @@ var FallingPiece = function() {
     }
   }
   this.hardDrop = function() {
-    this.y += this.getDrop(22);
+    this.y += this.getDrop(20);
     this.lockDelay = settings['Lock Delay'];
   }
   this.getDrop = function(distance) {
@@ -886,6 +889,7 @@ var FallingPiece = function() {
         this.kickData = pieces[holdPiece].kickData;
         holdPiece = this.index;
         this.index = temp;
+        newPiece = true;
       } else {
         holdPiece = this.index;
         this.reset();
@@ -902,8 +906,8 @@ var FallingPiece = function() {
     }
   }
   this.update = function() {
-    // Apply gravity.
     if (moveValid(0, 1, this.tetro)) {
+      landed = false;
       if (settings.Gravity) {
         var grav = gravityArr[settings.Gravity - 1];
         if (grav > 1)
@@ -914,12 +918,10 @@ var FallingPiece = function() {
         this.y += gravity;
       }
     } else {
-      // We've landed.
+      landed = true;
       this.y = ~~this.y;
       if (this.lockDelay >= settings['Lock Delay']) {
-        // Set piece.
         addPiece(this.tetro);
-        this.held = false;
         this.reset();
       } else {
         this.lockDelay++;
@@ -1218,22 +1220,26 @@ function gameLoop() {
   if (!gameState) {
     update();
 
-    if (~~fallingPiece.x !== lastX || ~~fallingPiece.y !== lastY || fallingPiece.pos !== lastPos) {
+    if ((fallingPiece.x !== lastX ||
+    ~~fallingPiece.y !== lastY ||
+    fallingPiece.pos !== lastPos ||
+    newPiece) &&
+    fallingPiece.active) {
       clear(activeCtx);
       // TODO make prettier.
-      if (!settings.Ghost) {
+      if (!settings.Ghost && !landed) {
         draw(fallingPiece.tetro, fallingPiece.x,
              fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0);
-      } else if (settings.Ghost === 1) {
+      } else if (settings.Ghost === 1 && !landed) {
         draw(fallingPiece.tetro, fallingPiece.x,
              fallingPiece.y + fallingPiece.getDrop(22), activeCtx);
       }
-      console.log('DRAW!');
       draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
     }
-    lastX = ~~fallingPiece.x;
+    lastX = fallingPiece.x;
     lastY = ~~fallingPiece.y;
     lastPos = fallingPiece.pos;
+    newPiece = false;
   } else {
     gameOverAnimation();
   }
