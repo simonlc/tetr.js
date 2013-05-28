@@ -984,16 +984,16 @@ function drawMino(x, y, color, ctx) {
     ['#898989', '#a3a3a3', '#6f6f6f', '#575757']
   ];
   var glossy = [
-    // 0         25         37         52         -21        -45
-    ['#c1c1c1', '#ffffff', '#ffffff', '#ffffff', '#888888', '#4d4d4d'],
-    ['#25bb9b', '#7bffdf', '#9fffff', '#ccffff', '#008165', '#00442e'],
-    ['#3397d9', '#6cdcff', '#93feff', '#c2ffff', '#00629f', '#002c60'],
-    ['#e67e23', '#ffc166', '#ffe386', '#ffffb0', '#aa4800', '#650500'],
-    ['#efc30f', '#ffff6a', '#ffff8c', '#ffffb8', '#b68a00', '#714f00'],
-    ['#9ccd38', '#efff81', '#ffffa2', '#ffffcd', '#6b9200', '#2c5600'],
-    ['#9c5ab8', '#dc9dfe', '#ffbeff', '#ffe9ff', '#5d287e', '#210043'],
-    ['#e64b3c', '#ff9277', '#ffb497', '#ffe0bf', '#a7000a', '#600000'],
-    ['#898989', '#cbcbcb', '#ededed', '#ffffff', '#545454', '#1f1f1f']
+    //25         37         52         -21        -45
+    ['#ffffff', '#ffffff', '#ffffff', '#888888', '#4d4d4d'],
+    ['#7bffdf', '#9fffff', '#ccffff', '#008165', '#00442e'],
+    ['#6cdcff', '#93feff', '#c2ffff', '#00629f', '#002c60'],
+    ['#ffc166', '#ffe386', '#ffffb0', '#aa4800', '#650500'],
+    ['#ffff6a', '#ffff8c', '#ffffb8', '#b68a00', '#714f00'],
+    ['#efff81', '#ffffa2', '#ffffcd', '#6b9200', '#2c5600'],
+    ['#dc9dfe', '#ffbeff', '#ffe9ff', '#5d287e', '#210043'],
+    ['#ff9277', '#ffb497', '#ffe0bf', '#a7000a', '#600000'],
+    ['#cbcbcb', '#ededed', '#ffffff', '#545454', '#1f1f1f']
   ];
   var tgm = [
     ['#313131', '#737373', '#848484', '#5a5a5a', '#181818', '#212121'],
@@ -1049,9 +1049,9 @@ function drawMino(x, y, color, ctx) {
     ctx.fillRect(x, y, cellSize - k, cellSize - k);
 
     var grad = ctx.createLinearGradient(x + k, y + k, x + cellSize - k, y + cellSize - k);
-    grad.addColorStop(0, glossy[color][0]);
+    grad.addColorStop(0, shaded[color][0]);
     grad.addColorStop(0.5, glossy[color][1]);
-    grad.addColorStop(0.5, glossy[color][0]);
+    grad.addColorStop(0.5, shaded[color][0]);
     grad.addColorStop(1, glossy[color][1]);
     ctx.fillStyle = grad;
     ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
