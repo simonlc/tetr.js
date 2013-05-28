@@ -236,7 +236,9 @@ var startTime;
 var keysDown = {};
 var arrowReleased = true;
 var arrowDelay = 0;
-var rotateReleased = true;
+var rot180Released = true;
+var rotLeftReleased = true;
+var rotRightReleased = true;
 var hardDropReleased = true;
 var shiftReleased = true;
 var holdReleased = true;
@@ -701,18 +703,16 @@ function update() {
     }
   }
 
-  if (rotateReleased) {
-    if (binds.rotLeft in keysDown) {
-      fallingPiece.rotate(-1);
-      rotateReleased = false;
-    } else if (binds.rotRight in keysDown) {
-      fallingPiece.rotate(1);
-      rotateReleased = false;
-    } else if (binds.rot180 in keysDown) {
-      fallingPiece.rotate(1);
-      fallingPiece.rotate(1);
-      rotateReleased = false;
-    }
+  if (binds.rotLeft in keysDown && rotLeftReleased) {
+    fallingPiece.rotate(-1);
+    rotLeftReleased = false;
+  } else if (binds.rotRight in keysDown && rotRightReleased) {
+    fallingPiece.rotate(1);
+    rotRightReleased = false;
+  } else if (binds.rot180 in keysDown && rot180Released) {
+    fallingPiece.rotate(1);
+    fallingPiece.rotate(1);
+    rot180Released = false;
   }
 
   // 1. When key pressed instantly move over once.
@@ -1188,8 +1188,12 @@ addEventListener('keyup', function(e) {
     shift = 0;
   }
   // Prevent repeating.
-  if (e.keyCode === binds.rot180 || e.keyCode === binds.rotLeft || e.keyCode === binds.rotRight)
-    rotateReleased = true;
+  if (e.keyCode === binds.rot180)
+    rot180Released = true;
+  if (e.keyCode === binds.rotLeft)
+    rotLeftReleased = true;
+  if (e.keyCode === binds.rotRight)
+    rotRightReleased = true;
   if (e.keyCode === binds.hardDrop)
     hardDropReleased = true;
   if (e.keyCode === binds.holdPiece)
