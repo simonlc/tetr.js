@@ -159,7 +159,6 @@ var gravityArr = (function() {
 })();
 
 var holdPiece;
-var firstRun;
 var shift;
 
 var settings = {
@@ -503,8 +502,12 @@ function init(gt) {
   startTime = new Date().getTime();
 
   //XXX fix ugly code lolwut
-  firstRun = true;
-  grabBag = randomGenerator();
+  while (1) {
+    grabBag = randomGenerator();
+    if ([3,4,6].indexOf(grabBag[0]) === -1) {
+      break;
+    }
+  }
   grabBag.push.apply(grabBag, randomGenerator());
 
   // Stats
@@ -528,18 +531,7 @@ function init(gt) {
  */
 function randomGenerator() {
   var pieceList = [0, 1, 2, 3, 4, 5, 6];
-  // NOTE Probably a better way of doing this (without a while loop.)
-    // look into filter method.
-  pieceList.sort(function() {return 0.5 - Math.random()});
-  //TODO Get rid of this check, and put it in init or something.
-  //TODO Don't make functions within a loop.
-  if (firstRun) {
-    while (pieceList[0] === 3 || pieceList[0] === 4 || pieceList[0] === 6) {
-      pieceList.sort(function() {return 0.5 - Math.random()});
-    }
-    firstRun = false;
-  }
-  return pieceList;
+  return pieceList.sort(function() {return 0.5 - Math.random()});
 }
 
 /**
@@ -622,9 +614,13 @@ function addPiece(tetro) {
   statsPiece.innerHTML = piecesSet;
   statsLines.innerHTML = lineLimit - lines;
 
-  // Move the stack down.
+  // Redraw the stack.
+  stackCtx.globalCompositeOperation = 'source-over';
   clear(stackCtx);
   draw(stack, 0, 0, stackCtx);
+  stackCtx.globalCompositeOperation = 'source-atop';
+  stackCtx.fillStyle = 'rgba(0,0,0,0.2)';
+  stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
 }
 
 /**
