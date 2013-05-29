@@ -22,8 +22,6 @@ var stats = document.getElementById('stats');
 var statsTime = document.getElementById('time');
 var statsLines = document.getElementById('line');
 var statsPiece = document.getElementById('piece');
-var nav = document.getElementsByTagName('nav')[0];
-var footer = document.getElementsByTagName('footer')[0];
 var h3 = document.getElementsByTagName('h3');
 var set = document.getElementById('settings');
 
@@ -61,11 +59,12 @@ var kickDataI = [
   [[-1, -1], [1, -1], [-2, -1], [1, 0], [-2, 0]],
   [[0, -1], [0, -1], [0, -1], [0, 1], [0, -2]]
 ];
+// TODO get rid of this lol.
 var kickDataO = [
   [[0, 0]],
-  [[0, 1]],
-  [[-1, 1]],
-  [[-1, 0]]
+  [[0, 0]],
+  [[0, 0]],
+  [[0, 0]]
 ];
 
 // Define shapes and spawns.
@@ -103,13 +102,12 @@ var PieceL = {
 };
 var PieceO = {
   index: 3,
-  x: 3,
+  x: 4,
   y: 0,
   kickData: kickDataO,
   tetro: [
-    [0, 0, 0],
-    [4, 4, 0],
-    [4, 4, 0]]
+    [4, 4],
+    [4, 4]]
 };
 var PieceS = {
   index: 4,
@@ -354,7 +352,6 @@ var key = {
 }
 
 function resize() {
-  // TODO make function to append 'px' to a thing.
   var a = document.getElementById('a');
   var b = document.getElementById('b');
   var c = document.getElementById('c');
@@ -377,20 +374,14 @@ function resize() {
     cellSize = Math.max(~~(screenHeight / 20), 10);
 
   var pad = (window.innerHeight - (cellSize * 20 + 2)) / 2 + 'px';
-  content.style.padding = pad + ' 0 ' + pad;
+  content.style.padding = pad + ' 0';
   stats.style.bottom = pad;
 
-  //TODO Combine all margins into one;
-
-  // TODO em size body font.
+  // Size elements
   a.style.padding = '0 0.5rem ' + ~~(cellSize / 2) + 'px';
 
-  stackCanvas.width = cellSize * 10;
-  stackCanvas.height = cellSize * 20;
-  activeCanvas.width = stackCanvas.width;
-  activeCanvas.height = stackCanvas.height;
-  bgStackCanvas.width = stackCanvas.width;
-  bgStackCanvas.height = stackCanvas.height;
+  stackCanvas.width = activeCanvas.width = bgStackCanvas.width = cellSize * 10;
+  stackCanvas.height = activeCanvas.height = bgStackCanvas.height = cellSize * 20;
   b.style.width = stackCanvas.width + 'px';
   b.style.height = stackCanvas.height + 'px';
 
@@ -402,20 +393,22 @@ function resize() {
   previewCanvas.width = cellSize * 4;
   previewCanvas.height = stackCanvas.height;
   c.style.width = previewCanvas.width + 'px';
-  c.style.height = previewCanvas.height + 'px';
+  c.style.height = b.style.height;
 
   // Scale the text so it fits in the thing.
-  msg.style.lineHeight = stackCanvas.height + 'px';
+  // TODO get rid of extra font sizes here.
+  msg.style.lineHeight = b.style.height;
   msg.style.fontSize = ~~(stackCanvas.width / 6) + 'px';
   stats.style.fontSize = ~~(stackCanvas.width / 11) + 'px';
   document.documentElement.style.fontSize = ~~(stackCanvas.width / 16) + 'px';
 
-  stats.style.width = holdCanvas.width + 'px';
+  stats.style.width = a.style.width;
   for (var i = 0, len = h3.length; i < len; i++) {
-    h3[i].style.lineHeight = cellSize * 2 + 'px';
-    h3[i].style.fontSize = ~~(stackCanvas.width / 11) + 'px';
+    h3[i].style.lineHeight = a.style.height;
+    h3[i].style.fontSize = stats.style.fontSize;
   }
 
+  // Redraw graphics
   makeSprite();
 
   if (settings.Grid === 1)
@@ -716,12 +709,12 @@ function update() {
     fallingPiece.shift(shift);
   // 3. Once the delay is complete, move over once.
   //     Inc delay so this doesn't run again.
-  } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS != 0) {
+  } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS !== 0) {
     fallingPiece.shift(shift);
-    if (settings.ARR != 0)
+    if (settings.ARR !== 0)
       fallingPiece.shiftDelay++;
   // 5. If ARR Delay is full, move piece, and reset delay and repeat.
-  } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR != 0) {
+  } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR !== 0) {
     fallingPiece.shift(shift);
   // 2. Apply DAS delay
   } else if (fallingPiece.shiftDelay < settings.DAS) {
@@ -1121,7 +1114,7 @@ function drawPreview() {
 
 //document.onkeydown = function(e) {
 addEventListener('keydown', function(e) {
-  if ([32,37,38,39,40].indexOf(e.keyCode) != -1) {
+  if ([32,37,38,39,40].indexOf(e.keyCode) !== -1) {
     e.preventDefault();
   }
   if (e.keyCode === binds.moveLeft && !keysDown[e.keyCode]) {
@@ -1138,11 +1131,10 @@ addEventListener('keydown', function(e) {
     shiftReleased = true;
     shift = 'right';
   }
-  //if (bindsArr.indexOf(e.keyCode) != -1) {
+  //if (bindsArr.indexOf(e.keyCode) !== -1) {
   //  e.preventDefault();
   //}
   if (e.keyCode === binds.pause) {
-    // TODO Pause game function
     if (paused) {
       paused = false;
       msg.innerHTML = '';

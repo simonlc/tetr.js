@@ -1,5 +1,5 @@
 /**
- * Menu Buttons
+ * Show and hide menus.
  */
 var menus = document.getElementsByClassName('menu');
 function menu(menuIndex) {
@@ -10,6 +10,9 @@ function menu(menuIndex) {
     menus[menuIndex].classList.add('on');
 }
 
+/**
+ * Controls Menu
+ */
 var newKey,
   currCell,
   tempKey,
@@ -49,23 +52,6 @@ addEventListener('keyup', function(e) {
     currCell = 0;
   }
 }, false);
-
-function loadLocalData() {
-  if (localStorage['binds']) {
-    binds = JSON.parse(localStorage.getItem('binds'));
-    for (var i = 0, len = controlCells.length; i < len; i++) {
-      controlCells[i].innerHTML = key[binds[controlCells[i].id]];
-    }
-  }
-  if (localStorage['version'] !== version)
-    localStorage.removeItem('settings');
-  if (localStorage['settings']) {
-    settings = JSON.parse(localStorage.getItem('settings'));
-  }
-}
-loadLocalData();
-resize();
-
 
 /**
  * Settings Menu
@@ -126,6 +112,10 @@ function right() {
   this.onmouseleave = arrowRelease;
   settingsLoop();
 }
+
+/**
+ * LocalStorage functions
+ */
 function saveSetting(s) {
   localStorage['version'] = version;
 
@@ -135,3 +125,18 @@ function saveSetting(s) {
 
   localStorage['settings'] = JSON.stringify(settings);
 }
+function loadLocalData() {
+  if (localStorage['binds']) {
+    binds = JSON.parse(localStorage.getItem('binds'));
+    for (var i = 0, len = controlCells.length; i < len; i++) {
+      controlCells[i].innerHTML = key[binds[controlCells[i].id]];
+    }
+  }
+  if (localStorage['version'] !== version)
+    localStorage.removeItem('settings');
+  if (localStorage['settings']) {
+    settings = JSON.parse(localStorage.getItem('settings'));
+  }
+}
+loadLocalData();
+resize();
