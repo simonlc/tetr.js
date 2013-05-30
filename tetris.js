@@ -364,14 +364,10 @@ function resize() {
   if (screenWidth > window.innerWidth)
     screenHeight = ~~(window.innerWidth / 1.024);
 
-  if (settings.Size === 1 && screenHeight > 602)
-    cellSize = 15;
-  else if (settings.Size === 2 && screenHeight > 602)
-    cellSize = 30;
-  else if (settings.Size === 3 && screenHeight > 902)
-    cellSize = 45;
-  else
-    cellSize = Math.max(~~(screenHeight / 20), 10);
+  if (settings.Size === 1 && screenHeight > 602) cellSize = 15;
+  else if (settings.Size === 2 && screenHeight > 602) cellSize = 30;
+  else if (settings.Size === 3 && screenHeight > 902) cellSize = 45;
+  else cellSize = Math.max(~~(screenHeight / 20), 10);
 
   var pad = (window.innerHeight - (cellSize * 20 + 2)) / 2 + 'px';
   content.style.padding = pad + ' 0';
@@ -415,6 +411,14 @@ function resize() {
     bg(bgStackCtx);
 
   if (gameState === 0) {
+    if (!settings.Ghost) {
+      draw(fallingPiece.tetro, fallingPiece.x,
+           fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0);
+    } else if (settings.Ghost === 1) {
+      draw(fallingPiece.tetro, fallingPiece.x,
+           fallingPiece.y + fallingPiece.getDrop(22), activeCtx);
+    }
+    draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
     drawStack();
     drawPreview();
     if (holdPiece) {
@@ -488,16 +492,13 @@ function init(gt) {
   inc = 0;
   stack = newGrid(10, 22);
   holdPiece = void 0;
-  if (settings.Gravity === 0)
-    gravity = gravityUnit * 4;
+  if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = new Date().getTime();
 
   //XXX fix ugly code lolwut
   while (1) {
     grabBag = randomGenerator();
-    if ([3,4,6].indexOf(grabBag[0]) === -1) {
-      break;
-    }
+    if ([3,4,6].indexOf(grabBag[0]) === -1) break;
   }
   grabBag.push.apply(grabBag, randomGenerator());
 
@@ -569,9 +570,7 @@ function addPiece(tetro) {
           range.push(y + fallingPiece.y);
           // This checks if any cell is in the play field. If there
           //  isn't any this is called a lock out and the game ends.
-          if (y + fallingPiece.y > 1) {
-            valid = true;
-          }
+          if (y + fallingPiece.y > 1) valid = true;
         }
       }
     }
@@ -590,9 +589,7 @@ function addPiece(tetro) {
   for (var row = range[0], len = row + range.length; row < len; row++) {
     var count = 0;
     for (var x = 0; x < 10; x++) { // 10 is the stack width
-      if (stack[x][row]) {
-        count++;
-      }
+      if (stack[x][row]) count++;
     }
     // Clear the line. This basically just moves down the stack.
     // TODO Ponder during the day and see if there is a more elegant solution.
@@ -640,9 +637,7 @@ function gameOverAnimation() {
   clear(activeCtx);
   if (toGreyRow >= 2 && skip) {
     for (var x = 0; x < 10; x++) {
-      if (stack[x][toGreyRow]) {
-        stack[x][toGreyRow] = gameState - 1;
-      }
+      if (stack[x][toGreyRow]) stack[x][toGreyRow] = gameState - 1;
     }
     drawStack();
     toGreyRow--;
@@ -712,8 +707,7 @@ function update() {
   //     Inc delay so this doesn't run again.
   } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS !== 0) {
     fallingPiece.shift(shift);
-    if (settings.ARR !== 0)
-      fallingPiece.shiftDelay++;
+    if (settings.ARR !== 0) fallingPiece.shiftDelay++;
   // 4. Apply ARR delay
   } else if (fallingPiece.arrDelay < settings.ARR) {
     fallingPiece.arrDelay++;
@@ -851,9 +845,8 @@ var fallingPiece = new (function() {
   }
   this.getDrop = function(distance) {
     for (var i = 1; i <= distance; i++) {
-      if (!moveValid(0, i, this.tetro)) {
+      if (!moveValid(0, i, this.tetro))
         return i - 1;
-      }
     }
     return i - 1;
   }
@@ -922,29 +915,20 @@ function bg(ctx) {
   }
 }
 
-function makeSprite() {
-  var len = 9; // ammount of colors.
-  spriteCanvas.width = cellSize * len;
-  spriteCanvas.height = cellSize;
-  for (var i = 0; i < len; i++) {
-    drawMino(i, 0, i, spriteCtx);
-  }
-}
-
+/**
+ * Draws a pre-rendered mino.
+ */
 function drawCell(x, y, color, ctx) {
   x = x * cellSize;
   x = ~~x;
   y = ~~y * cellSize - 2 * cellSize;
   ctx.drawImage(spriteCanvas, color * cellSize, 0, cellSize, cellSize, x, y, cellSize, cellSize);
 }
-/**
- * Draws a mino.
- */
-function drawMino(x, y, color, ctx) {
-  x = x * cellSize;
-  x = ~~x
-  y = ~~y;
 
+/**
+ * Pre-renders all mino colors.
+ */
+function makeSprite() {
   var shaded = [
     // 0         +10        -10        -20
     ['#c1c1c1', '#dddddd', '#a6a6a6', '#8b8b8b'],
@@ -981,77 +965,81 @@ function drawMino(x, y, color, ctx) {
     ['#d8d7d1', '#4f4e4b', '#474747', '#2c2c2c', '#f7f6e9', '#83817d']
   ];
 
-  if (settings.Block === 0) {
-    // Shaded
-    ctx.fillStyle = shaded[color][1];
-    ctx.fillRect(x, y, cellSize, cellSize);
+  spriteCanvas.width = cellSize * 9;
+  spriteCanvas.height = cellSize;
+  for (var i = 0; i < 9; i++) {
+    var x = i * cellSize;
+    if (settings.Block === 0) {
+      // Shaded
+      spriteCtx.fillStyle = shaded[i][1];
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-    ctx.fillStyle = shaded[color][3];
-    ctx.fillRect(x, y + cellSize / 2, cellSize, cellSize / 2);
+      spriteCtx.fillStyle = shaded[i][3];
+      spriteCtx.fillRect(x, 0 + cellSize / 2, cellSize, cellSize / 2);
 
-    ctx.fillStyle = shaded[color][0];
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + cellSize / 2, y + cellSize / 2);
-    ctx.lineTo(x, y + cellSize);
-    ctx.fill();
+      spriteCtx.fillStyle = shaded[i][0];
+      spriteCtx.beginPath();
+      spriteCtx.moveTo(x, 0);
+      spriteCtx.lineTo(x + cellSize / 2, 0 + cellSize / 2);
+      spriteCtx.lineTo(x, 0 + cellSize);
+      spriteCtx.fill();
 
-    ctx.fillStyle = shaded[color][2];
-    ctx.beginPath();
-    ctx.moveTo(x + cellSize, y);
-    ctx.lineTo(x + cellSize / 2, y + cellSize / 2);
-    ctx.lineTo(x + cellSize, y + cellSize);
-    ctx.fill();
-  } else if (settings.Block === 1) {
-    // Flat
-    ctx.fillStyle = shaded[color][0];
-    ctx.fillRect(x, y, cellSize, cellSize);
-  } else if (settings.Block === 2) {
-    // Glossy
-    var k = Math.max(~~(cellSize * 0.083), 1);
+      spriteCtx.fillStyle = shaded[i][2];
+      spriteCtx.beginPath();
+      spriteCtx.moveTo(x + cellSize, 0);
+      spriteCtx.lineTo(x + cellSize / 2, 0 + cellSize / 2);
+      spriteCtx.lineTo(x + cellSize, 0 + cellSize);
+      spriteCtx.fill();
+    } else if (settings.Block === 1) {
+      // Flat
+      spriteCtx.fillStyle = shaded[i][0];
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
+    } else if (settings.Block === 2) {
+      // Glossy
+      var k = Math.max(~~(cellSize * 0.083), 1);
 
-    var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-    grad.addColorStop(0.5, glossy[color][3]);
-    grad.addColorStop(1, glossy[color][4]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, y, cellSize, cellSize);
+      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, 0 + cellSize);
+      grad.addColorStop(0.5, glossy[i][3]);
+      grad.addColorStop(1, glossy[i][4]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-    var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize);
-    grad.addColorStop(0, glossy[color][2]);
-    grad.addColorStop(0.5, glossy[color][1]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, y, cellSize - k, cellSize - k);
+      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, 0 + cellSize);
+      grad.addColorStop(0, glossy[i][2]);
+      grad.addColorStop(0.5, glossy[i][1]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
 
-    var grad = ctx.createLinearGradient(x + k, y + k, x + cellSize - k, y + cellSize - k);
-    grad.addColorStop(0, shaded[color][0]);
-    grad.addColorStop(0.5, glossy[color][0]);
-    grad.addColorStop(0.5, shaded[color][0]);
-    grad.addColorStop(1, glossy[color][0]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
+      var grad = spriteCtx.createLinearGradient(x + k, 0 + k, x + cellSize - k, 0 + cellSize - k);
+      grad.addColorStop(0, shaded[i][0]);
+      grad.addColorStop(0.5, glossy[i][0]);
+      grad.addColorStop(0.5, shaded[i][0]);
+      grad.addColorStop(1, glossy[i][0]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x + k, 0 + k, cellSize - k * 2, cellSize - k * 2);
 
-  } else if (settings.Block === 3) {
-    // Arika
-    var k = Math.max(~~(cellSize * 0.125), 1);
+    } else if (settings.Block === 3) {
+      // Arika
+      var k = Math.max(~~(cellSize * 0.125), 1);
 
-    var grad = ctx.createLinearGradient(x, y, x + cellSize + k * 4, y + cellSize);
-    grad.addColorStop(0.5, tgm[color][2]);
-    grad.addColorStop(1, tgm[color][3]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, y, cellSize, cellSize);
+      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize + k * 4, 0 + cellSize);
+      grad.addColorStop(0.5, tgm[i][2]);
+      grad.addColorStop(1, tgm[i][3]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-    var grad = ctx.createLinearGradient(x, y, x + cellSize, y + cellSize + k * 4);
-    grad.addColorStop(0, tgm[color][4]);
-    grad.addColorStop(0.5, tgm[color][5]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, y, cellSize - k, cellSize - k);
+      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, 0 + cellSize + k * 4);
+      grad.addColorStop(0, tgm[i][4]);
+      grad.addColorStop(0.5, tgm[i][5]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
 
-    var grad = ctx.createLinearGradient(x, y + k, x, y + cellSize - k * 2);
-    grad.addColorStop(0, tgm[color][0]);
-    grad.addColorStop(1, tgm[color][1]);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x + k, y + k, cellSize - k * 2, cellSize - k * 2);
-
+      var grad = spriteCtx.createLinearGradient(x, 0 + k, x, 0 + cellSize - k * 2);
+      grad.addColorStop(0, tgm[i][0]);
+      grad.addColorStop(1, tgm[i][1]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x + k, 0 + k, cellSize - k * 2, cellSize - k * 2);
+    }
   }
 }
 
@@ -1068,13 +1056,7 @@ function clear(ctx) {
 function draw(tetro, cx, cy, ctx, color) {
   for (var x = 0, len = tetro.length; x < len; x++) {
     for (var y = 0, wid = tetro[x].length; y < wid; y++) {
-      if (tetro[x][y]) {
-        if (color === void 0) {
-          drawCell(x + cx, y + cy, tetro[x][y], ctx);
-        } else {
-          drawCell(x + cx, y + cy, color, ctx);
-        }
-      }
+      if (tetro[x][y]) drawCell(x + cx, y + cy, color !== void 0 ? color : tetro[x][y], ctx);
     }
   }
 }
@@ -1094,8 +1076,9 @@ function drawPreview() {
     }
   }
 }
+
 /**
- * Draws the grabbag for the piece preview.
+ * Draws the stack.
  */
 function drawStack() {
   clear(stackCtx);
@@ -1111,9 +1094,10 @@ function drawStack() {
 
 //document.onkeydown = function(e) {
 addEventListener('keydown', function(e) {
-  if ([32,37,38,39,40].indexOf(e.keyCode) !== -1) {
+  if ([32,37,38,39,40].indexOf(e.keyCode) !== -1)
     e.preventDefault();
-  }
+  //if (bindsArr.indexOf(e.keyCode) !== -1)
+  //  e.preventDefault();
   if (e.keyCode === binds.moveLeft && !keysDown[e.keyCode]) {
     // Reset key
     fallingPiece.shiftDelay = 0;
@@ -1128,9 +1112,6 @@ addEventListener('keydown', function(e) {
     shiftReleased = true;
     shift = 'right';
   }
-  //if (bindsArr.indexOf(e.keyCode) !== -1) {
-  //  e.preventDefault();
-  //}
   if (e.keyCode === binds.pause) {
     if (paused) {
       paused = false;
@@ -1173,16 +1154,11 @@ addEventListener('keyup', function(e) {
     shift = 0;
   }
   // Prevent repeating.
-  if (e.keyCode === binds.rot180)
-    rot180Released = true;
-  if (e.keyCode === binds.rotLeft)
-    rotLeftReleased = true;
-  if (e.keyCode === binds.rotRight)
-    rotRightReleased = true;
-  if (e.keyCode === binds.hardDrop)
-    hardDropReleased = true;
-  if (e.keyCode === binds.holdPiece)
-    holdReleased = true;
+  if (e.keyCode === binds.rot180) rot180Released = true;
+  if (e.keyCode === binds.rotLeft) rotLeftReleased = true;
+  if (e.keyCode === binds.rotRight) rotRightReleased = true;
+  if (e.keyCode === binds.hardDrop) hardDropReleased = true;
+  if (e.keyCode === binds.holdPiece) holdReleased = true;
 
 }, false);
 
