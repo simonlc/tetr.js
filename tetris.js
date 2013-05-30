@@ -770,23 +770,20 @@ var fallingPiece = new (function() {
 
     // Rotates the tetromino's matrix.
     var rotated = [];
-    switch (direction) {
-    case -1:
+    if (direction === 1) {
       for (var i = this.tetro.length - 1; i >= 0; i--) {
         rotated[i] = [];
         for (var row = 0; row < this.tetro.length; row++) {
           rotated[i][this.tetro.length - 1 - row] = this.tetro[row][i];
         }
       }
-      break;
-    case 1:
+    } else {
       for (var i = 0; i < this.tetro.length; i++) {
         rotated[i] = [];
         for (var row = this.tetro.length - 1; row >= 0; row--) {
           rotated[i][row] = this.tetro[row][this.tetro.length - 1 - i];
         }
       }
-      break;
     }
 
     // Goes thorugh kick data until it finds a valid move.
@@ -812,8 +809,7 @@ var fallingPiece = new (function() {
   this.shift = function(direction) {
     fallingPiece.arrDelay = 0;
     shiftReleased = false;
-    switch(direction) {
-    case 'left':
+    if (direction === 'left') {
       if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(-i, 0, this.tetro)) {
@@ -826,8 +822,7 @@ var fallingPiece = new (function() {
       } else if (moveValid(-1, 0, this.tetro)) {
         this.x -= 1;
       }
-      break;
-    case 'right':
+    } else if (direction === 'right') {
       if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(i, 0, this.tetro)) {
@@ -840,8 +835,7 @@ var fallingPiece = new (function() {
       } else if (moveValid(1, 0, this.tetro)) {
         this.x += 1;
       }
-      break;
-    case 'down':
+    } else if (direction === 'down') {
       if (moveValid(0, 1, this.tetro)) {
         var grav = gravityArr[settings['Soft Drop'] + 1];
         if (grav > 1)
@@ -849,7 +843,6 @@ var fallingPiece = new (function() {
         else
           this.y += grav;
       }
-      break;
     }
   }
   this.hardDrop = function() {
