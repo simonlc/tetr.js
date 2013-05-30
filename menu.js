@@ -56,27 +56,6 @@ addEventListener('keyup', function(e) {
 /**
  * Settings Menu
  */
-for (var s in settings) {
-  var div = document.createElement('div');
-  var b = document.createElement('b');
-  var iLeft = document.createElement('i');
-  var span = document.createElement('span');
-  var iRight = document.createElement('i');
-
-  div.id = s;
-  b.innerHTML = s + ':';
-  span.innerHTML = setting[s][settings[s]];
-  iLeft.className = 'left';
-  iRight.className = 'right';
-  iLeft.onmousedown = left;
-  iRight.onmousedown = right;
-
-  set.appendChild(div);
-  div.appendChild(b);
-  div.appendChild(iLeft);
-  div.appendChild(span);
-  div.appendChild(iRight);
-}
 function settingsLoop() {
   if (arrowReleased || arrowDelay >= 6) {
     if (settingsArrow)
@@ -102,14 +81,14 @@ function left() {
   settingsArrow = 1;
   s = this.parentNode.id;
   this.onmouseup = arrowRelease;
-  this.onmouseleave = arrowRelease;
+  this.onmouseout = arrowRelease;
   settingsLoop();
 }
 function right() {
   settingsArrow = 0;
   s = this.parentNode.id;
   this.onmouseup = arrowRelease;
-  this.onmouseleave = arrowRelease;
+  this.onmouseout = arrowRelease;
   settingsLoop();
 }
 
@@ -138,5 +117,27 @@ function loadLocalData() {
     settings = JSON.parse(localStorage.getItem('settings'));
   }
 }
+
 loadLocalData();
+for (var s in settings) {
+  var div = document.createElement('div');
+  var b = document.createElement('b');
+  var iLeft = document.createElement('i');
+  var span = document.createElement('span');
+  var iRight = document.createElement('i');
+
+  div.id = s;
+  b.innerHTML = s + ':';
+  span.innerHTML = setting[s][settings[s]];
+  iLeft.className = 'left';
+  iRight.className = 'right';
+  iLeft.onmousedown = left;
+  iRight.onmousedown = right;
+
+  set.appendChild(div);
+  div.appendChild(b);
+  div.appendChild(iLeft);
+  div.appendChild(span);
+  div.appendChild(iRight);
+}
 resize();

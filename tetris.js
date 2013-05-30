@@ -221,7 +221,6 @@ var grabBag;
 
 var toGreyRow;
 var gametype;
-//var toDraw;
 var lastX, lastY, lastPos, landed, newPiece;
 
 // Stats
@@ -415,7 +414,7 @@ function resize() {
     bg(bgStackCtx);
 
   if (gameState === 0) {
-    draw(stack, 0, 0, stackCtx);
+    drawStack();
     drawPreview();
     if (holdPiece) {
       draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
@@ -446,7 +445,9 @@ Number.prototype.mod = function(n) {
   return ((this % n) + n) % n;
 };
 
-// shim layer with setTimeout fallback
+/**
+ * Shim layer with setTimeout fallback.
+ */
 window.requestAnimFrame = (function () {
   return window.requestAnimationFrame       ||
          window.mozRequestAnimationFrame    ||
@@ -485,11 +486,7 @@ function init(gt) {
   fallingPiece.reset();
   inc = 0;
   stack = newGrid(10, 22);
-  clear(stackCtx);
-  clear(activeCtx);
-  clear(holdCtx);
   holdPiece = void 0;
-  gametype = gt;
   if (settings.Gravity === 0)
     gravity = gravityUnit * 4;
   startTime = new Date().getTime();
@@ -503,7 +500,7 @@ function init(gt) {
   }
   grabBag.push.apply(grabBag, randomGenerator());
 
-  // Stats
+  gametype = gt;
   if (gametype === 0) {
     lineLimit = 40;
   } else {
@@ -512,6 +509,12 @@ function init(gt) {
   lines = 0;
   piecesSet = 0;
 
+  statsPiece.innerHTML = piecesSet;
+  statsLines.innerHTML = lineLimit - lines;
+  statistics();
+  clear(stackCtx);
+  clear(activeCtx);
+  clear(holdCtx);
   drawPreview();
 
   clearTimeout(cDown);
@@ -529,12 +532,12 @@ function randomGenerator() {
 
 /**
  * Checks if position and orientation passed is valid.
- *  We call it for every action instead of only once in case one of the actions
- *  is still valid, we don't want to block it.
+ *  We call it for every action instead of only once a frame in case one
+ *  of the actions is still valid, we don't want to block it.
  */
 function moveValid(cx, cy, tetro) {
   cx = cx + fallingPiece.x;
-  cy = ~~(cy + fallingPiece.y);
+  cy = cy + ~~fallingPiece.y;
 
   for (var x = 0; x < tetro.length; x++) {
     for (var y = 0; y < tetro[x].length; y++) {
@@ -608,12 +611,7 @@ function addPiece(tetro) {
   statsLines.innerHTML = lineLimit - lines;
 
   // Redraw the stack.
-  stackCtx.globalCompositeOperation = 'source-over';
-  clear(stackCtx);
-  draw(stack, 0, 0, stackCtx);
-  stackCtx.globalCompositeOperation = 'source-atop';
-  stackCtx.fillStyle = 'rgba(0,0,0,0.2)';
-  stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
+  drawStack();
 }
 
 /**
@@ -626,7 +624,7 @@ function statistics() {
   // Seconds and minutes for displaying clock.
   var seconds = (time / 1000 % 60).toFixed(2);
   var minutes = ~~(time / 60000);
-  time = ((minutes < 10 ? '0' : '') + minutes).slice(-2) +
+  time = ((minutes < 10 ? '0' : '') + minutes) +
           (seconds < 10 ? ':0' : ':') + seconds;
 
   statsTime.innerHTML = time;
@@ -645,8 +643,7 @@ function gameOverAnimation() {
         stack[x][toGreyRow] = gameState - 1;
       }
     }
-    clear(stackCtx);
-    draw(stack, 0, 0, stackCtx);
+    drawStack();
     toGreyRow--;
     skip = false;
     return;
@@ -707,33 +704,33 @@ function update() {
   // 1. When key pressed instantly move over once.
   if (shiftReleased) {
     fallingPiece.shift(shift);
+  // 2. Apply DAS delay
+  } else if (fallingPiece.shiftDelay < settings.DAS) {
+    fallingPiece.shiftDelay++;
   // 3. Once the delay is complete, move over once.
   //     Inc delay so this doesn't run again.
   } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS !== 0) {
     fallingPiece.shift(shift);
     if (settings.ARR !== 0)
       fallingPiece.shiftDelay++;
+  // 4. Apply ARR delay
+  } else if (fallingPiece.arrDelay < settings.ARR) {
+    fallingPiece.arrDelay++;
   // 5. If ARR Delay is full, move piece, and reset delay and repeat.
   } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR !== 0) {
     fallingPiece.shift(shift);
-  // 2. Apply DAS delay
-  } else if (fallingPiece.shiftDelay < settings.DAS) {
-    fallingPiece.shiftDelay++;
-  // 4. Apply DAS delay
-  } else if (fallingPiece.arrDelay < settings.ARR) {
-    fallingPiece.arrDelay++;
   }
 
   if (binds.moveDown in keysDown) {
     fallingPiece.shift('down');
   }
-  if (holdReleased && binds.holdPiece in keysDown) {
-    fallingPiece.hold();
-    holdReleased = false;
-  }
   if (hardDropReleased && binds.hardDrop in keysDown) {
     fallingPiece.hardDrop();
     hardDropReleased = false;
+  }
+  if (holdReleased && binds.holdPiece in keysDown) {
+    fallingPiece.hold();
+    holdReleased = false;
   }
 
   fallingPiece.update();
@@ -748,7 +745,7 @@ function update() {
   statistics();
 }
 
-var FallingPiece = function() {
+var fallingPiece = new (function() {
   this.x;
   this.y;
   this.pos = 0;
@@ -918,8 +915,7 @@ var FallingPiece = function() {
       }
     }
   }
-}
-var fallingPiece = new FallingPiece();
+})();
 
 // ========================== View ============================================
 
@@ -1108,6 +1104,18 @@ function drawPreview() {
            pieces[grabBag[inc + i]].y + 2 + i * 3, previewCtx);
     }
   }
+}
+/**
+ * Draws the grabbag for the piece preview.
+ */
+function drawStack() {
+  clear(stackCtx);
+  draw(stack, 0, 0, stackCtx);
+  // TODO wrap this with an option.
+  stackCtx.globalCompositeOperation = 'source-atop';
+  stackCtx.fillStyle = 'rgba(0,0,0,0.2)';
+  stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
+  stackCtx.globalCompositeOperation = 'source-over';
 }
 
 // ========================== Controller ======================================
