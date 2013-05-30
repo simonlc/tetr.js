@@ -5,6 +5,7 @@ Site: http://simon.lc/
 Note: Before looking at this code, it would be wise to do a bit of reading about
 the game so you know why some things are done a certain way.
 */
+'use strict';
 
 var version = '0.1.6';
 
@@ -537,7 +538,7 @@ function randomGenerator() {
  */
 function moveValid(cx, cy, tetro) {
   cx = cx + fallingPiece.x;
-  cy = cy + ~~fallingPiece.y;
+  cy = Math.floor(cy + fallingPiece.y);
 
   for (var x = 0; x < tetro.length; x++) {
     for (var y = 0; y < tetro[x].length; y++) {
@@ -822,9 +823,8 @@ var fallingPiece = new (function() {
             break;
           }
         }
-      } else {
-        if (moveValid(-1, 0, this.tetro))
-          this.x -= 1;
+      } else if (moveValid(-1, 0, this.tetro)) {
+        this.x -= 1;
       }
       break;
     case 'right':
@@ -837,9 +837,8 @@ var fallingPiece = new (function() {
             break;
           }
         }
-      } else {
-        if (moveValid(1, 0, this.tetro))
-          this.x += 1;
+      } else if (moveValid(1, 0, this.tetro)) {
+        this.x += 1;
       }
       break;
     case 'down':
@@ -906,7 +905,7 @@ var fallingPiece = new (function() {
       }
     } else {
       landed = true;
-      this.y = ~~this.y;
+      this.y = Math.floor(this.y);
       if (this.lockDelay >= settings['Lock Delay']) {
         addPiece(this.tetro);
         this.reset();
@@ -944,7 +943,7 @@ function makeSprite() {
 
 function drawCell(x, y, color, ctx) {
   x = x * cellSize;
-  x = ~~x
+  x = ~~x;
   y = ~~y * cellSize - 2 * cellSize;
   ctx.drawImage(spriteCanvas, color * cellSize, 0, cellSize, cellSize, x, y, cellSize, cellSize);
 }
@@ -1210,7 +1209,7 @@ function gameLoop() {
     update();
 
     if ((fallingPiece.x !== lastX ||
-    ~~fallingPiece.y !== lastY ||
+    Math.floor(fallingPiece.y) !== lastY ||
     fallingPiece.pos !== lastPos ||
     newPiece) &&
     fallingPiece.active) {
@@ -1226,7 +1225,7 @@ function gameLoop() {
       draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
     }
     lastX = fallingPiece.x;
-    lastY = ~~fallingPiece.y;
+    lastY = Math.floor(fallingPiece.y);
     lastPos = fallingPiece.pos;
     newPiece = false;
   } else {

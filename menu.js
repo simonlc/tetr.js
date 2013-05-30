@@ -73,6 +73,7 @@ var s;
 var settingsArrow;
 // TODO DRY this.
 function arrowRelease() {
+    resize();
     arrowReleased = true;
     arrowDelay = 0;
     clearTimeout(setLoop)
