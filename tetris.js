@@ -770,7 +770,7 @@ var fallingPiece = new (function() {
 
     // Rotates the tetromino's matrix.
     var rotated = [];
-    if (direction === 1) {
+    if (direction === -1) {
       for (var i = this.tetro.length - 1; i >= 0; i--) {
         rotated[i] = [];
         for (var row = 0; row < this.tetro.length; row++) {
@@ -913,16 +913,13 @@ var fallingPiece = new (function() {
 
 function bg(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  function bgGrid(color) {
-    ctx.fillStyle = color;
-    for (var x = -1; x < ctx.canvas.width + 1; x += cellSize) {
-      ctx.fillRect(x, 0, 2, ctx.canvas.height);
-    }
-    for (var y = -1; y < ctx.canvas.height + 1; y += cellSize) {
-      ctx.fillRect(0, y, ctx.canvas.width, 2);
-    }
+  ctx.fillStyle = '#1c1c1c';
+  for (var x = -1; x < ctx.canvas.width + 1; x += cellSize) {
+    ctx.fillRect(x, 0, 2, ctx.canvas.height);
   }
-  bgGrid('#1c1c1c');
+  for (var y = -1; y < ctx.canvas.height + 1; y += cellSize) {
+    ctx.fillRect(0, y, ctx.canvas.width, 2);
+  }
 }
 
 function makeSprite() {
