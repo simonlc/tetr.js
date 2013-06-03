@@ -204,6 +204,7 @@ var setting = {
   Grid: ['Off', 'On']
 };
 
+var frame;
 var inc;
 var gLoop;
 var setLoop;
@@ -230,15 +231,16 @@ var piecesSet;
 var startTime;
 
 // Keys
-var keysDown = {};
+var keysDown = 0;
+var released = 255;
 var arrowReleased = true;
 var arrowDelay = 0;
-var rot180Released = true;
-var rotLeftReleased = true;
-var rotRightReleased = true;
-var hardDropReleased = true;
+//var rot180Released = true;
+//var rotLeftReleased = true;
+//var rotRightReleased = true;
+//var hardDropReleased = true;
 var shiftReleased = true;
-var holdReleased = true;
+//var holdReleased = true;
 
 var binds = {
   pause: 27,
@@ -251,6 +253,16 @@ var binds = {
   rotLeft: 90,
   rot180: 16,
   retry: 82
+};
+var flags = {
+  hardDrop: 1,
+  moveRight: 2,
+  moveLeft: 4,
+  moveDown: 8,
+  holdPiece: 16,
+  rotRight: 32,
+  rotLeft: 64,
+  rot180: 128,
 };
 
 var key = {
@@ -486,6 +498,7 @@ function unpause() {
 function init(gt) {
   menu();
   toGreyRow = 21;
+  frame = 0;
   lastPos = 'reset';
   clearTimeout(gLoop);
   fallingPiece.reset();
@@ -493,7 +506,7 @@ function init(gt) {
   stack = newGrid(10, 22);
   holdPiece = void 0;
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
-  startTime = new Date().getTime();
+  startTime = Date.now();
 
   //XXX fix ugly code lolwut
   while (1) {
@@ -685,19 +698,20 @@ function update() {
     }
   }
 
-  if (binds.rotLeft in keysDown && rotLeftReleased) {
+  if (flags.rotLeft & keysDown && released & flags.rotLeft) {
     fallingPiece.rotate(-1);
-    rotLeftReleased = false;
-  } else if (binds.rotRight in keysDown && rotRightReleased) {
+    released ^= flags.rotLeft;
+  } else if (flags.rotRight & keysDown && released & flags.rotRight) {
     fallingPiece.rotate(1);
-    rotRightReleased = false;
-  } else if (binds.rot180 in keysDown && rot180Released) {
+    released ^= flags.rotRight;
+  } else if (flags.rot180 & keysDown && released & flags.rot180) {
     fallingPiece.rotate(1);
     fallingPiece.rotate(1);
-    rot180Released = false;
+    released ^= flags.rot180;
   }
 
   // 1. When key pressed instantly move over once.
+  //if ((released & flags.moveLeft) && (released & flags.moveRight)) {
   if (shiftReleased) {
     fallingPiece.shift(shift);
   // 2. Apply DAS delay
@@ -716,16 +730,16 @@ function update() {
     fallingPiece.shift(shift);
   }
 
-  if (binds.moveDown in keysDown) {
+  if (flags.moveDown & keysDown) {
     fallingPiece.shift('down');
   }
-  if (hardDropReleased && binds.hardDrop in keysDown) {
+  if (released & flags.hardDrop && flags.hardDrop & keysDown) {
     fallingPiece.hardDrop();
-    hardDropReleased = false;
+    released ^= flags.hardDrop;
   }
-  if (holdReleased && binds.holdPiece in keysDown) {
+  if (released & flags.holdPiece && flags.holdPiece & keysDown) {
     fallingPiece.hold();
-    holdReleased = false;
+    released ^= flags.holdPiece;
   }
 
   fallingPiece.update();
@@ -804,6 +818,7 @@ var fallingPiece = new (function() {
     fallingPiece.arrDelay = 0;
     shiftReleased = false;
     if (direction === 'left') {
+      released ^= flags.moveLeft;
       if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(-i, 0, this.tetro)) {
@@ -817,6 +832,7 @@ var fallingPiece = new (function() {
         this.x -= 1;
       }
     } else if (direction === 'right') {
+      released ^= flags.moveRight;
       if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
         for (var i = 1; i < 10; i++) {
           if (moveValid(i, 0, this.tetro)) {
@@ -830,6 +846,7 @@ var fallingPiece = new (function() {
         this.x += 1;
       }
     } else if (direction === 'down') {
+      released ^= flags.moveDown;
       if (moveValid(0, 1, this.tetro)) {
         var grav = gravityArr[settings['Soft Drop'] + 1];
         if (grav > 1)
@@ -1098,14 +1115,14 @@ addEventListener('keydown', function(e) {
     e.preventDefault();
   //if (bindsArr.indexOf(e.keyCode) !== -1)
   //  e.preventDefault();
-  if (e.keyCode === binds.moveLeft && !keysDown[e.keyCode]) {
+  if (e.keyCode === binds.moveLeft && !(keysDown & flags.moveLeft)) {
     // Reset key
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
     shift = 'left';
   }
-  if (e.keyCode === binds.moveRight && !keysDown[e.keyCode]) {
+  if (e.keyCode === binds.moveRight && !(keysDown & flags.moveRight)) {
     // Reset key
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
@@ -1126,25 +1143,43 @@ addEventListener('keydown', function(e) {
   if (e.keyCode === binds.retry) {
     init(gametype);
   }
-  keysDown[e.keyCode] = true;
+  //keysDown[e.keyCode] = true;
+  if (e.keyCode === binds.moveLeft) {
+    keysDown |= flags.moveLeft;
+  } else if (e.keyCode === binds.moveRight) {
+    keysDown |= flags.moveRight;
+  } else if (e.keyCode === binds.moveDown) {
+    keysDown |= flags.moveDown;
+  } else if (e.keyCode === binds.hardDrop) {
+    keysDown |= flags.hardDrop;
+  } else if (e.keyCode === binds.rotRight) {
+    keysDown |= flags.rotRight;
+  } else if (e.keyCode === binds.rotLeft) {
+    keysDown |= flags.rotLeft;
+  } else if (e.keyCode === binds.rot180) {
+    keysDown |= flags.rot180;
+  } else if (e.keyCode === binds.holdPiece) {
+    keysDown |= flags.holdPiece;
+  //} else if (e.keyCode === binds.pause) {
+  }
 }, false);
 addEventListener('keyup', function(e) {
-  delete keysDown[e.keyCode];
+  //delete keysDown[e.keyCode];
 
   //if shift == right and moveright: shift released
-  if (shift === 'right' && e.keyCode === binds.moveRight && keysDown[binds.moveLeft]) {
+  if (shift === 'right' && e.keyCode === binds.moveRight && keysDown & flags.moveLeft) {
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
     shift = 'left';
-  } else if (shift === 'left' && e.keyCode === binds.moveLeft && keysDown[binds.moveRight]) {
+  } else if (shift === 'left' && e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
     shift = 'right';
-  } else if (e.keyCode === binds.moveRight && keysDown[binds.moveLeft]) {
+  } else if (e.keyCode === binds.moveRight && keysDown & flags.moveLeft) {
     shift = 'left';
-  } else if (e.keyCode === binds.moveLeft && keysDown[binds.moveRight]) {
+  } else if (e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
     shift = 'right';
   } else if (e.keyCode === binds.moveLeft || e.keyCode === binds.moveRight) {
     // Reset key
@@ -1153,12 +1188,33 @@ addEventListener('keyup', function(e) {
     shiftReleased = true;
     shift = 0;
   }
-  // Prevent repeating.
-  if (e.keyCode === binds.rot180) rot180Released = true;
-  if (e.keyCode === binds.rotLeft) rotLeftReleased = true;
-  if (e.keyCode === binds.rotRight) rotRightReleased = true;
-  if (e.keyCode === binds.hardDrop) hardDropReleased = true;
-  if (e.keyCode === binds.holdPiece) holdReleased = true;
+  if (e.keyCode === binds.moveLeft) {
+    keysDown ^= flags.moveLeft;
+    released ^= flags.moveLeft;
+  } else if (e.keyCode === binds.moveRight) {
+    keysDown ^= flags.moveRight;
+    released ^= flags.moveRight;
+  } else if (e.keyCode === binds.moveDown) {
+    keysDown ^= flags.moveDown;
+    released ^= flags.moveDown;
+  } else if (e.keyCode === binds.hardDrop) {
+    keysDown ^= flags.hardDrop;
+    released ^= flags.hardDrop;
+  } else if (e.keyCode === binds.rotRight) {
+    keysDown ^= flags.rotRight;
+    released ^= flags.rotRight;
+  } else if (e.keyCode === binds.rotLeft) {
+    keysDown ^= flags.rotLeft;
+    released ^= flags.rotLeft;
+  } else if (e.keyCode === binds.rot180) {
+    keysDown ^= flags.rot180;
+    released ^= flags.rot180;
+  } else if (e.keyCode === binds.holdPiece) {
+    keysDown ^= flags.holdPiece;
+    released ^= flags.holdPiece;
+  //} else if (e.keyCode === binds.pause) {
+  //  released ^= flags.pause;
+  }
 
 }, false);
 
@@ -1170,6 +1226,8 @@ function gameLoop() {
   // TODO upgrade to request animation frame.
   gLoop = setTimeout(gameLoop, 1000 / 60);
   //requestAnimFrame(gameLoop);
+
+  frame++;
 
   if (!gameState) {
     update();
@@ -1215,6 +1273,6 @@ function countDownLoop() {
     msg.innerHTML = '';
     gameState = 0;
     gameLoop();
-    startTime = new Date().getTime();
+    startTime = Date.now();
   }
 }
