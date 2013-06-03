@@ -110,7 +110,7 @@ nav a {
 #sprite {
   display: none;
 }
-#bg {
+/*#bg {
   position: fixed;
   top:0;
   left:0;
@@ -119,6 +119,14 @@ nav a {
   z-index: -1;
   opacity: 0;
   transition: opacity .5s ease-in;
+}*/
+#bg {
+  position: fixed;
+  top:0;
+  left:0;
+  height:100%;
+  width:100%;
+  z-index: -1;
 }
 #a {
   position: relative;

@@ -27,7 +27,7 @@ var h3 = document.getElementsByTagName('h3');
 var set = document.getElementById('settings');
 
 // Get canvases and contexts
-var bgCanvas = document.getElementById('bg');
+//var bgCanvas = document.getElementById('bg');
 var holdCanvas = document.getElementById('hold');
 var bgStackCanvas = document.getElementById('bgStack');
 var stackCanvas = document.getElementById('stack');
@@ -35,7 +35,7 @@ var activeCanvas = document.getElementById('active');
 var previewCanvas = document.getElementById('preview');
 var spriteCanvas = document.getElementById('sprite');
 
-var bgCtx = bgCanvas.getContext('2d');
+//var bgCtx = bgCanvas.getContext('2d');
 var holdCtx = holdCanvas.getContext('2d');
 var bgStackCtx = bgStackCanvas.getContext('2d');
 var stackCtx = stackCanvas.getContext('2d');
@@ -232,6 +232,7 @@ var startTime;
 
 // Keys
 var keysDown = 0;
+var lastKeys;
 var released = 255;
 var arrowReleased = true;
 var arrowDelay = 0;
@@ -434,8 +435,13 @@ function resize() {
     drawStack();
     drawPreview();
     if (holdPiece) {
-      draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
-           2 + pieces[holdPiece].y, holdCtx);
+      if (holdPiece === 0 || holdPiece === 3) {
+        draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
+             2 + pieces[holdPiece].y, holdCtx);
+      } else {
+        draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 2.5,
+             2 + pieces[holdPiece].y, holdCtx);
+      }
     }
   }
 }
@@ -462,9 +468,6 @@ Number.prototype.mod = function(n) {
   return ((this % n) + n) % n;
 };
 
-/**
- * Shim layer with setTimeout fallback.
- */
 window.requestAnimFrame = (function () {
   return window.requestAnimationFrame       ||
          window.mozRequestAnimationFrame    ||
@@ -666,6 +669,11 @@ function gameOverAnimation() {
  * Main update function that runs every frame.
  */
 function update() {
+  if (lastKeys !== keysDown) {
+    lastKeys = keysDown;
+    console.log(keysDown);
+  }
+
   if (!fallingPiece.active) {
 
     // TODO Do this better.
@@ -710,28 +718,31 @@ function update() {
     released ^= flags.rot180;
   }
 
-  // 1. When key pressed instantly move over once.
-  //if ((released & flags.moveLeft) && (released & flags.moveRight)) {
-  if (shiftReleased) {
-    fallingPiece.shift(shift);
-  // 2. Apply DAS delay
-  } else if (fallingPiece.shiftDelay < settings.DAS) {
-    fallingPiece.shiftDelay++;
-  // 3. Once the delay is complete, move over once.
-  //     Inc delay so this doesn't run again.
-  } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS !== 0) {
-    fallingPiece.shift(shift);
-    if (settings.ARR !== 0) fallingPiece.shiftDelay++;
-  // 4. Apply ARR delay
-  } else if (fallingPiece.arrDelay < settings.ARR) {
-    fallingPiece.arrDelay++;
-  // 5. If ARR Delay is full, move piece, and reset delay and repeat.
-  } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR !== 0) {
-    fallingPiece.shift(shift);
+  if (shift) {
+    // 1. When key pressed instantly move over once.
+    if (shiftReleased) {
+      fallingPiece.shift(shift);
+      fallingPiece.shiftDelay++;
+      shiftReleased = false;
+    // 2. Apply DAS delay
+    } else if (fallingPiece.shiftDelay < settings.DAS) {
+      fallingPiece.shiftDelay++;
+    // 3. Once the delay is complete, move over once.
+    //     Inc delay so this doesn't run again.
+    } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS !== 0) {
+      fallingPiece.shift(shift);
+      if (settings.ARR !== 0) fallingPiece.shiftDelay++;
+    // 4. Apply ARR delay
+    } else if (fallingPiece.arrDelay < settings.ARR) {
+      fallingPiece.arrDelay++;
+    // 5. If ARR Delay is full, move piece, and reset delay and repeat.
+    } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR !== 0) {
+      fallingPiece.shift(shift);
+    }
   }
 
   if (flags.moveDown & keysDown) {
-    fallingPiece.shift('down');
+    fallingPiece.shiftDown();
   }
   if (released & flags.hardDrop && flags.hardDrop & keysDown) {
     fallingPiece.hardDrop();
@@ -816,44 +827,24 @@ var fallingPiece = new (function() {
   }
   this.shift = function(direction) {
     fallingPiece.arrDelay = 0;
-    shiftReleased = false;
-    if (direction === 'left') {
-      released ^= flags.moveLeft;
-      if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
-        for (var i = 1; i < 10; i++) {
-          if (moveValid(-i, 0, this.tetro)) {
-            continue;
-          } else {
-            this.x += -i + 1;
-            break;
-          }
+    if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
+      for (var i = 1; i < 10; i++) {
+        if (!moveValid(i * direction, 0, this.tetro)) {
+          this.x += i * direction - direction;
+          break;
         }
-      } else if (moveValid(-1, 0, this.tetro)) {
-        this.x -= 1;
       }
-    } else if (direction === 'right') {
-      released ^= flags.moveRight;
-      if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
-        for (var i = 1; i < 10; i++) {
-          if (moveValid(i, 0, this.tetro)) {
-            continue;
-          } else {
-            this.x += i - 1;
-            break;
-          }
-        }
-      } else if (moveValid(1, 0, this.tetro)) {
-        this.x += 1;
-      }
-    } else if (direction === 'down') {
-      released ^= flags.moveDown;
-      if (moveValid(0, 1, this.tetro)) {
-        var grav = gravityArr[settings['Soft Drop'] + 1];
-        if (grav > 1)
-          this.y += this.getDrop(grav);
-        else
-          this.y += grav;
-      }
+    } else if (moveValid(direction, 0, this.tetro)) {
+      this.x += direction;
+    }
+  }
+  this.shiftDown = function() {
+    if (moveValid(0, 1, this.tetro)) {
+      var grav = gravityArr[settings['Soft Drop'] + 1];
+      if (grav > 1)
+        this.y += this.getDrop(grav);
+      else
+        this.y += grav;
     }
   }
   this.hardDrop = function() {
@@ -1120,14 +1111,14 @@ addEventListener('keydown', function(e) {
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
-    shift = 'left';
+    shift = -1;
   }
   if (e.keyCode === binds.moveRight && !(keysDown & flags.moveRight)) {
     // Reset key
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
-    shift = 'right';
+    shift = 1;
   }
   if (e.keyCode === binds.pause) {
     if (paused) {
@@ -1167,20 +1158,20 @@ addEventListener('keyup', function(e) {
   //delete keysDown[e.keyCode];
 
   //if shift == right and moveright: shift released
-  if (shift === 'right' && e.keyCode === binds.moveRight && keysDown & flags.moveLeft) {
+  if (shift === 1 && e.keyCode === binds.moveRight && keysDown & flags.moveLeft) {
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
-    shift = 'left';
-  } else if (shift === 'left' && e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
+    shift = -1;
+  } else if (shift === -1 && e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
     fallingPiece.shiftDelay = 0;
     fallingPiece.arrDelay = 0;
     shiftReleased = true;
-    shift = 'right';
+    shift = 1;
   } else if (e.keyCode === binds.moveRight && keysDown & flags.moveLeft) {
-    shift = 'left';
+    shift = -1;
   } else if (e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
-    shift = 'right';
+    shift = 1;
   } else if (e.keyCode === binds.moveLeft || e.keyCode === binds.moveRight) {
     // Reset key
     fallingPiece.shiftDelay = 0;
