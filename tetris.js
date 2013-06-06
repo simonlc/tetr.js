@@ -172,6 +172,7 @@ var settings = {
   Block: 0,
   Ghost: 0,
   Grid: 0,
+  Outline: 0
 };
 
 var setting = {
@@ -201,7 +202,8 @@ var setting = {
   Volume: range(0, 101),
   Block: ['Shaded', 'Solid', 'Glossy', 'Arika'],
   Ghost: ['Normal', 'Colored', 'Off'],
-  Grid: ['Off', 'On']
+  Grid: ['Off', 'On'],
+  Outline: ['Off', 'On']
 };
 
 var frame;
@@ -234,14 +236,9 @@ var startTime;
 var keysDown = 0;
 var lastKeys;
 var released = 255;
+var shiftReleased = true;
 var arrowReleased = true;
 var arrowDelay = 0;
-//var rot180Released = true;
-//var rotLeftReleased = true;
-//var rotRightReleased = true;
-//var hardDropReleased = true;
-var shiftReleased = true;
-//var holdReleased = true;
 
 var binds = {
   pause: 27,
@@ -670,8 +667,6 @@ function gameOverAnimation() {
  */
 function update() {
   if (lastKeys !== keysDown) {
-    lastKeys = keysDown;
-    console.log(keysDown);
   }
 
   if (!fallingPiece.active) {
@@ -706,16 +701,13 @@ function update() {
     }
   }
 
-  if (flags.rotLeft & keysDown && released & flags.rotLeft) {
+  if (flags.rotLeft & keysDown && !(lastKeys & flags.rotLeft)) {
     fallingPiece.rotate(-1);
-    released ^= flags.rotLeft;
-  } else if (flags.rotRight & keysDown && released & flags.rotRight) {
+  } else if (flags.rotRight & keysDown && !(lastKeys & flags.rotRight)) {
     fallingPiece.rotate(1);
-    released ^= flags.rotRight;
-  } else if (flags.rot180 & keysDown && released & flags.rot180) {
+  } else if (flags.rot180 & keysDown && !(lastKeys & flags.rot180)) {
     fallingPiece.rotate(1);
     fallingPiece.rotate(1);
-    released ^= flags.rot180;
   }
 
   if (shift) {
@@ -744,13 +736,11 @@ function update() {
   if (flags.moveDown & keysDown) {
     fallingPiece.shiftDown();
   }
-  if (released & flags.hardDrop && flags.hardDrop & keysDown) {
+  if (!(lastKeys & flags.hardDrop) && flags.hardDrop & keysDown) {
     fallingPiece.hardDrop();
-    released ^= flags.hardDrop;
   }
-  if (released & flags.holdPiece && flags.holdPiece & keysDown) {
+  if (!(lastKeys & flags.holdPiece) && flags.holdPiece & keysDown) {
     fallingPiece.hold();
-    released ^= flags.holdPiece;
   }
 
   fallingPiece.update();
@@ -763,6 +753,10 @@ function update() {
   }
 
   statistics();
+
+  if (lastKeys !== keysDown) {
+    lastKeys = keysDown;
+  }
 }
 
 var fallingPiece = new (function() {
@@ -962,15 +956,15 @@ function makeSprite() {
     ['#cbcbcb', '#ededed', '#ffffff', '#545454', '#1f1f1f']
   ];
   var tgm = [
-    ['#d8d7d1', '#4f4e4b', '#474747', '#2c2c2c', '#f7f6e9', '#83817d'],
-    ['#ff8112', '#990200', '#a44d01', '#750000', '#ffae67', '#c53b37'],
-    ['#2b98fd', '#0e0283', '#005bae', '#090055', '#7bbffd', '#4134c5'],
-    ['#fea616', '#9b4901', '#a56701', '#773801', '#fec66b', '#c67c3b'],
-    ['#e3d919', '#745a0e', '#878110', '#57420a', '#fef654', '#c69b27'],
-    ['#f414fe', '#76007f', '#9e00a6', '#520059', '#f669ff', '#ba29c6'],
-    ['#1ad1e5', '#015e83', '#107b88', '#014461', '#57eeff', '#2898c5'],
-    ['#72e419', '#2b6501', '#43860e', '#1c4100', '#9ffe57', '#5ec70f'],
-    ['#d8d7d1', '#4f4e4b', '#474747', '#2c2c2c', '#f7f6e9', '#83817d']
+    ['#7b7b7b', '#303030', '#6b6b6b', '#363636'],
+    ['#f08000', '#a00000', '#e86008', '#b00000'],
+    ['#00a8f8', '#0000b0', '#0090e8', '#0020c0'],
+    ['#f8a800', '#b84000', '#e89800', '#c85800'],
+    ['#e8e000', '#886800', '#d8c800', '#907800'],
+    ['#f828f8', '#780078', '#e020e0', '#880088'],
+    ['#00e8f0', '#0070a0', '#00d0e0', '#0080a8'],
+    ['#78f800', '#007800', '#58e000', '#008800'],
+    ['#7b7b7b', '#303030', '#6b6b6b', '#363636'],
   ];
 
   spriteCanvas.width = cellSize * 9;
@@ -983,20 +977,20 @@ function makeSprite() {
       spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
       spriteCtx.fillStyle = shaded[i][3];
-      spriteCtx.fillRect(x, 0 + cellSize / 2, cellSize, cellSize / 2);
+      spriteCtx.fillRect(x, cellSize / 2, cellSize, cellSize / 2);
 
       spriteCtx.fillStyle = shaded[i][0];
       spriteCtx.beginPath();
       spriteCtx.moveTo(x, 0);
-      spriteCtx.lineTo(x + cellSize / 2, 0 + cellSize / 2);
-      spriteCtx.lineTo(x, 0 + cellSize);
+      spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
+      spriteCtx.lineTo(x, cellSize);
       spriteCtx.fill();
 
       spriteCtx.fillStyle = shaded[i][2];
       spriteCtx.beginPath();
       spriteCtx.moveTo(x + cellSize, 0);
-      spriteCtx.lineTo(x + cellSize / 2, 0 + cellSize / 2);
-      spriteCtx.lineTo(x + cellSize, 0 + cellSize);
+      spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
+      spriteCtx.lineTo(x + cellSize, cellSize);
       spriteCtx.fill();
     } else if (settings.Block === 1) {
       // Flat
@@ -1006,47 +1000,52 @@ function makeSprite() {
       // Glossy
       var k = Math.max(~~(cellSize * 0.083), 1);
 
-      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, 0 + cellSize);
+      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
       grad.addColorStop(0.5, glossy[i][3]);
       grad.addColorStop(1, glossy[i][4]);
       spriteCtx.fillStyle = grad;
       spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, 0 + cellSize);
+      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
       grad.addColorStop(0, glossy[i][2]);
       grad.addColorStop(0.5, glossy[i][1]);
       spriteCtx.fillStyle = grad;
       spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
 
-      var grad = spriteCtx.createLinearGradient(x + k, 0 + k, x + cellSize - k, 0 + cellSize - k);
+      var grad = spriteCtx.createLinearGradient(x + k, k, x + cellSize - k, cellSize - k);
       grad.addColorStop(0, shaded[i][0]);
       grad.addColorStop(0.5, glossy[i][0]);
       grad.addColorStop(0.5, shaded[i][0]);
       grad.addColorStop(1, glossy[i][0]);
       spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x + k, 0 + k, cellSize - k * 2, cellSize - k * 2);
+      spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
 
     } else if (settings.Block === 3) {
       // Arika
       var k = Math.max(~~(cellSize * 0.125), 1);
 
-      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize + k * 4, 0 + cellSize);
-      grad.addColorStop(0.5, tgm[i][2]);
+      spriteCtx.fillStyle = tgm[i][1];
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
+      spriteCtx.fillStyle = tgm[i][0];
+      spriteCtx.fillRect(x, 0, cellSize, ~~(cellSize / 2));
+
+      var grad = spriteCtx.createLinearGradient(x, k, x, cellSize - k);
+      grad.addColorStop(0, tgm[i][2]);
       grad.addColorStop(1, tgm[i][3]);
       spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x, 0, cellSize, cellSize);
+      spriteCtx.fillRect(x + k, k, cellSize - k*2, cellSize - k*2);
 
-      var grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, 0 + cellSize + k * 4);
-      grad.addColorStop(0, tgm[i][4]);
-      grad.addColorStop(0.5, tgm[i][5]);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
-
-      var grad = spriteCtx.createLinearGradient(x, 0 + k, x, 0 + cellSize - k * 2);
+      var grad = spriteCtx.createLinearGradient(x, k, x, cellSize);
       grad.addColorStop(0, tgm[i][0]);
+      grad.addColorStop(1, tgm[i][3]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, k, k, cellSize - k);
+
+      var grad = spriteCtx.createLinearGradient(x, 0, x, cellSize - k);
+      grad.addColorStop(0, tgm[i][2]);
       grad.addColorStop(1, tgm[i][1]);
       spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x + k, 0 + k, cellSize - k * 2, cellSize - k * 2);
+      spriteCtx.fillRect(x + cellSize - k, 0, k, cellSize - k);
     }
   }
 }
@@ -1096,6 +1095,82 @@ function drawStack() {
   stackCtx.fillStyle = 'rgba(0,0,0,0.2)';
   stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
   stackCtx.globalCompositeOperation = 'source-over';
+
+  if (settings.Outline) {
+    var b = ~~(cellSize / 8);
+    var c = cellSize;
+    var lineCanvas = document.createElement('canvas');
+    lineCanvas.width = stackCanvas.width;
+    lineCanvas.height = stackCanvas.height;
+    var lineCtx = lineCanvas.getContext('2d');
+    lineCtx.fillStyle = 'rgba(255,255,255,0.5)';
+    lineCtx.beginPath();
+    for (var x = 0, len = stack.length; x < len; x++) {
+      for (var y = 0, wid = stack[x].length; y < wid; y++) {
+        if (stack[x][y]) {
+          if (x < 9 && !stack[x + 1][y]) {
+            lineCtx.fillRect(x * c + c - b, y * c - (2 * c), b, c);
+          }
+          if (x > 0 && !stack[x - 1][y]) {
+            lineCtx.fillRect(x * c, y * c - (2 * c), b, c);
+          }
+          if (y < 21 && !stack[x][y + 1]) {
+            lineCtx.fillRect(x * c, y * c - (2 * c) + c - b, c, b);
+          }
+          if (!stack[x][y - 1]) {
+            lineCtx.fillRect(x * c, y * c - (2 * c), c, b);
+          }
+          // Diags
+          if (x < 9 && y < 21 && !stack[x + 1][y + 1]) {
+            if (!stack[x + 1][y] || !stack[x][y + 1]) {
+              lineCtx.clearRect(x * c + c - b, y * c - (2 * c) + c - b, b, b);
+              lineCtx.fillRect(x * c + c - b, y * c - (2 * c) + c - b, b, b);
+            } else {
+              lineCtx.moveTo(x * c + c, y * c - (2 * c) + c - b);
+              lineCtx.lineTo(x * c + c, y * c - (2 * c) + c);
+              lineCtx.lineTo(x * c + c - b, y * c - (2 * c) + c);
+              lineCtx.arc(x * c + c, y * c - (2 * c) + c, b, 3 * Math.PI / 2, Math.PI, true);
+            }
+          }
+          if (x < 9 && !stack[x + 1][y - 1]) {
+            if (!stack[x + 1][y] || !stack[x][y - 1]) {
+              lineCtx.clearRect(x * c + c - b, y * c - (2 * c), b, b);
+              lineCtx.fillRect(x * c + c - b, y * c - (2 * c), b, b);
+            } else {
+              lineCtx.moveTo(x * c + c - b, y * c - (2 * c));
+              lineCtx.lineTo(x * c + c, y * c - (2 * c));
+              lineCtx.lineTo(x * c + c, y * c - (2 * c) + b);
+              lineCtx.arc(x * c + c, y * c - (2 * c), b, Math.PI / 2, Math.PI, false);
+            }
+          }
+          if (x > 0 && y < 21 && !stack[x - 1][y + 1]) {
+            if (!stack[x - 1][y] || !stack[x][y + 1]) {
+              lineCtx.clearRect(x * c, y * c - (2 * c) + c - b, b, b);
+              lineCtx.fillRect(x * c, y * c - (2 * c) + c - b, b, b);
+            } else {
+              lineCtx.moveTo(x * c, y * c - (2 * c) + c - b);
+              lineCtx.lineTo(x * c, y * c - (2 * c) + c);
+              lineCtx.lineTo(x * c + b, y * c - (2 * c) + c);
+              lineCtx.arc(x * c, y * c - (2 * c) + c, b, Math.PI * 2, 3 * Math.PI / 2, true);
+            }
+          }
+          if (x > 0 && !stack[x - 1][y - 1]) {
+            if (!stack[x - 1][y] || !stack[x][y - 1]) {
+              lineCtx.clearRect(x * c, y * c - (2 * c), b, b);
+              lineCtx.fillRect(x * c, y * c - (2 * c), b, b);
+            } else {
+              lineCtx.moveTo(x * c + b, y * c - (2 * c));
+              lineCtx.lineTo(x * c, y * c - (2 * c));
+              lineCtx.lineTo(x * c, y * c - (2 * c) + b);
+              lineCtx.arc(x * c, y * c - (2 * c), b, Math.PI / 2, Math.PI * 2, true);
+            }
+          }
+        }
+      }
+    }
+    lineCtx.fill();
+    stackCtx.drawImage(lineCanvas, 0, 0);
+  }
 }
 
 // ========================== Controller ======================================
@@ -1181,30 +1256,22 @@ addEventListener('keyup', function(e) {
   }
   if (e.keyCode === binds.moveLeft) {
     keysDown ^= flags.moveLeft;
-    released ^= flags.moveLeft;
   } else if (e.keyCode === binds.moveRight) {
     keysDown ^= flags.moveRight;
-    released ^= flags.moveRight;
   } else if (e.keyCode === binds.moveDown) {
     keysDown ^= flags.moveDown;
-    released ^= flags.moveDown;
   } else if (e.keyCode === binds.hardDrop) {
     keysDown ^= flags.hardDrop;
-    released ^= flags.hardDrop;
   } else if (e.keyCode === binds.rotRight) {
     keysDown ^= flags.rotRight;
-    released ^= flags.rotRight;
   } else if (e.keyCode === binds.rotLeft) {
     keysDown ^= flags.rotLeft;
-    released ^= flags.rotLeft;
   } else if (e.keyCode === binds.rot180) {
     keysDown ^= flags.rot180;
-    released ^= flags.rot180;
   } else if (e.keyCode === binds.holdPiece) {
     keysDown ^= flags.holdPiece;
-    released ^= flags.holdPiece;
   //} else if (e.keyCode === binds.pause) {
-  //  released ^= flags.pause;
+  //  keysDown ^= flags.pause;
   }
 
 }, false);
