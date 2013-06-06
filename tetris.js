@@ -10,7 +10,7 @@ the game so you know why some things are done a certain way.
 var version = '0.1.7';
 
 /**
- * Define playfield size.
+ * Playfield.
  */
 var cellSize;
 var stack;
@@ -1312,8 +1312,10 @@ function gameLoop() {
         draw(fallingPiece.tetro, fallingPiece.x,
              fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0);
       } else if (settings.Ghost === 1 && !landed) {
+        activeCtx.globalAlpha = 0.3;
         draw(fallingPiece.tetro, fallingPiece.x,
              fallingPiece.y + fallingPiece.getDrop(22), activeCtx);
+        activeCtx.globalAlpha = 1;
       }
       draw(fallingPiece.tetro, fallingPiece.x, fallingPiece.y, activeCtx);
     }
@@ -1327,6 +1329,7 @@ function gameLoop() {
 }
 
 function countDownLoop() {
+  // count 100 frames
   var end = startTime + 1999;
   var thisFrame = Date.now();
   var time = end - thisFrame;
