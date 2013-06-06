@@ -497,6 +497,7 @@ function unpause() {
  */
 function init(gt) {
   menu();
+  gameState = 2;
   toGreyRow = 21;
   frame = 0;
   lastPos = 'reset';
@@ -532,8 +533,7 @@ function init(gt) {
   clear(holdCtx);
   drawPreview();
 
-  clearTimeout(cDown);
-  countDownLoop();
+  gameLoop();
 }
 
 /**
@@ -641,26 +641,6 @@ function statistics() {
   statsTime.innerHTML = time;
 }
 
-/**
- * Fade to grey animation played when player loses. Skip is used to slow down
- *  the animation.
- */
-var skip = false;
-function gameOverAnimation() {
-  clear(activeCtx);
-  if (toGreyRow >= 2 && skip) {
-    for (var x = 0; x < 10; x++) {
-      if (stack[x][toGreyRow]) stack[x][toGreyRow] = gameState - 1;
-    }
-    drawStack();
-    toGreyRow--;
-    skip = false;
-    return;
-  } else if (skip) {
-    clearTimeout(gLoop);
-  }
-  skip = true;
-}
 
 /**
  * Main update function that runs every frame.
@@ -1101,6 +1081,7 @@ function drawPreview() {
 function drawStack() {
   clear(stackCtx);
   draw(stack, 0, 0, stackCtx);
+
   // TODO wrap this with an option.
   stackCtx.globalCompositeOperation = 'source-atop';
   stackCtx.fillStyle = 'rgba(0,0,0,0.2)';
@@ -1292,13 +1273,13 @@ addEventListener('keyup', function(e) {
 
 
 function gameLoop() {
-  // TODO upgrade to request animation frame.
   gLoop = setTimeout(gameLoop, 1000 / 60);
   //requestAnimFrame(gameLoop);
 
   frame++;
 
-  if (!gameState) {
+  // Countdown
+  if (gameState === 0) {
     update();
 
     if ((fallingPiece.x !== lastX ||
@@ -1323,28 +1304,34 @@ function gameLoop() {
     lastY = Math.floor(fallingPiece.y);
     lastPos = fallingPiece.pos;
     newPiece = false;
+  } else if (gameState === 2) {
+    if (frame < 50) {
+      if (msg.innerHTML !== 'READY') msg.innerHTML = 'READY';
+    } else if (frame < 100) {
+      if (msg.innerHTML !== 'GO!') msg.innerHTML = 'GO!';
+    } else {
+      msg.innerHTML = '';
+      gameState = 0;
+      startTime = Date.now();
+    }
+  } else if (toGreyRow >= 2){
+    /**
+     * Fade to grey animation played when player loses.
+     */
+    clear(activeCtx); // TODO Move this.
+    if (frame % 2) {
+      for (var x = 0; x < 10; x++) {
+        if (stack[x][toGreyRow]) stack[x][toGreyRow] = gameState - 1;
+      }
+      drawStack();
+      toGreyRow--;
+    }
   } else {
-    gameOverAnimation();
+    //gamestate over
+    clearTimeout(gLoop);
   }
+
 }
 
 function countDownLoop() {
-  // count 100 frames
-  var end = startTime + 1999;
-  var thisFrame = Date.now();
-  var time = end - thisFrame;
-  if (time > 1000) {
-    msg.innerHTML = 'READY';
-  } else {
-    msg.innerHTML = 'GO!';
-  }
-  if (time >= 0) {
-    cDown = setTimeout(countDownLoop, 1000 / 10);
-  } else {
-    clearTimeout(cDown);
-    msg.innerHTML = '';
-    gameState = 0;
-    gameLoop();
-    startTime = Date.now();
-  }
 }
