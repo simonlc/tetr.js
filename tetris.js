@@ -7,7 +7,7 @@ the game so you know why some things are done a certain way.
 */
 'use strict';
 
-var version = '0.1.6';
+var version = '0.1.7';
 
 /**
  * Define playfield size.
@@ -200,7 +200,7 @@ var setting = {
   Size: ['Auto', 'Small', 'Medium', 'Large'],
   Sound: ['Off', 'On'],
   Volume: range(0, 101),
-  Block: ['Shaded', 'Solid', 'Glossy', 'Arika'],
+  Block: ['Shaded', 'Solid', 'Glossy', 'Arika', 'World'],
   Ghost: ['Normal', 'Colored', 'Off'],
   Grid: ['Off', 'On'],
   Outline: ['Off', 'On']
@@ -966,6 +966,16 @@ function makeSprite() {
     ['#78f800', '#007800', '#58e000', '#008800'],
     ['#7b7b7b', '#303030', '#6b6b6b', '#363636'],
   ];
+  var world = [];
+  world[0] = tgm[0];
+  world[1] = tgm[6];
+  world[2] = tgm[2];
+  world[3] = tgm[3];
+  world[4] = tgm[4];
+  world[5] = tgm[7];
+  world[6] = tgm[5];
+  world[7] = tgm[1];
+  world[8] = tgm[8];
 
   spriteCanvas.width = cellSize * 9;
   spriteCanvas.height = cellSize;
@@ -1020,8 +1030,9 @@ function makeSprite() {
       spriteCtx.fillStyle = grad;
       spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
 
-    } else if (settings.Block === 3) {
+    } else if (settings.Block === 3 || settings.Block === 4) {
       // Arika
+      if (settings.Block === 4) tgm = world;
       var k = Math.max(~~(cellSize * 0.125), 1);
 
       spriteCtx.fillStyle = tgm[i][1];
