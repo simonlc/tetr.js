@@ -208,16 +208,16 @@ var setting = {
 
 var frame;
 var inc;
-var gLoop;
 var setLoop;
-var cDown;
 
 /**
  * 0 = Normal
  * 1 = win
+ * 2 = countdown
+ * 3 = game not played
  * 9 = loss
  */
-var gameState;
+var gameState = 3;
 
 var paused = false;
 var lineLimit;
@@ -424,13 +424,12 @@ function unpause() {
 /**
  * Resets all the settings and starts the game.
  */
+var gameRun = false;
 function init(gt) {
   menu();
-  gameState = 2;
   toGreyRow = 21;
   frame = 0;
   lastPos = 'reset';
-  clearTimeout(gLoop);
   fallingPiece.reset();
   inc = 0;
   stack = newGrid(10, 22);
@@ -462,7 +461,12 @@ function init(gt) {
   clear(holdCtx);
   drawPreview();
 
-  gameLoop();
+  if (gameState === 3) {
+    gameState = 2;
+    gameLoop();
+  } else {
+    gameState = 2;
+  }
 }
 
 /**
@@ -558,16 +562,11 @@ function addPiece(tetro) {
  * Draws the stats next to the tetrion.
  */
 function statistics() {
-  var thisFrame = Date.now();
-  var time = thisFrame - startTime;
-
-  // Seconds and minutes for displaying clock.
+  var time = Date.now() - startTime;
   var seconds = (time / 1000 % 60).toFixed(2);
   var minutes = ~~(time / 60000);
-  time = ((minutes < 10 ? '0' : '') + minutes) +
-          (seconds < 10 ? ':0' : ':') + seconds;
-
-  statsTime.innerHTML = time;
+  statsTime.innerHTML = (minutes < 10 ? '0' : '') + minutes +
+                        (seconds < 10 ? ':0' : ':') + seconds;
 }
 
 
@@ -1013,7 +1012,7 @@ function drawStack() {
 
   // TODO wrap this with an option.
   stackCtx.globalCompositeOperation = 'source-atop';
-  stackCtx.fillStyle = 'rgba(0,0,0,0.2)';
+  stackCtx.fillStyle = 'rgba(0,0,0,0.3)';
   stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
   stackCtx.globalCompositeOperation = 'source-over';
 
@@ -1202,10 +1201,7 @@ addEventListener('keyup', function(e) {
 
 
 function gameLoop() {
-  if (gameState !== 3) {
-    gLoop = setTimeout(gameLoop, 1000 / 60);
-    //requestAnimFrame(gameLoop);
-  }
+  requestAnimFrame(gameLoop);
 
   frame++;
 
@@ -1257,8 +1253,5 @@ function gameLoop() {
       drawStack();
       toGreyRow--;
     }
-  } else {
-    //gamestate over
-    clearTimeout(gLoop);
   }
 }
