@@ -145,6 +145,8 @@ var pieces = [PieceI, PieceJ, PieceL, PieceO, PieceS, PieceT, PieceZ];
 /**
  * Gameplay specific vars.
  */
+var holdPiece;
+var shift;
 var gravityUnit = 0.00390625;
 var gravity;
 var gravityArr = (function() {
@@ -156,9 +158,6 @@ var gravityArr = (function() {
     array.push(i);
   return array;
 })();
-
-var holdPiece;
-var shift;
 
 var settings = {
   DAS: 10,
@@ -223,6 +222,8 @@ var paused = false;
 var lineLimit;
 var grabBag;
 
+var replayKeys;
+var watchingReplay = false;
 var toGreyRow;
 var gametype;
 var lastX, lastY, lastPos, landed, newPiece;
@@ -424,14 +425,32 @@ function unpause() {
 /**
  * Resets all the settings and starts the game.
  */
-var gameRun = false;
 function init(gt) {
-  menu();
+  if (gt === 'replay') {
+    watchingReplay = true;
+  } else {
+    watchingReplay = false;
+    replayKeys = {};
+    replayKeys.seed = ~~(Math.random() * 2147483645) + 1;
+    gametype = gt;
+  }
+  if (gametype === 0) {
+    lineLimit = 40;
+  } else if (gametype === 1) {
+    lineLimit = 150;
+  }
+
+  //Reset
+  rng.seed = replayKeys.seed;
+  keysDown = 0;
+  lastKeys = 0;
+  released = 255;
+  shiftReleased = true;
   toGreyRow = 21;
   frame = 0;
+  inc = 0;
   lastPos = 'reset';
   fallingPiece.reset();
-  inc = 0;
   stack = newGrid(10, 22);
   holdPiece = void 0;
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
@@ -444,12 +463,6 @@ function init(gt) {
   }
   grabBag.push.apply(grabBag, randomGenerator());
 
-  gametype = gt;
-  if (gametype === 0) {
-    lineLimit = 40;
-  } else {
-    lineLimit = 150;
-  }
   lines = 0;
   piecesSet = 0;
 
@@ -460,6 +473,8 @@ function init(gt) {
   clear(activeCtx);
   clear(holdCtx);
   drawPreview();
+
+  menu();
 
   if (gameState === 3) {
     gameState = 2;
@@ -475,8 +490,22 @@ function init(gt) {
  */
 function randomGenerator() {
   var pieceList = [0, 1, 2, 3, 4, 5, 6];
-  return pieceList.sort(function() {return 0.5 - Math.random()});
+  return pieceList.sort(function() {return 0.5 - rng.next()});
 }
+
+/**
+ * Park Miller "Minimal Standard" PRNG.
+ */
+//TODO put random seed method in here.
+var rng = new (function() {
+  this.seed = 1;
+  this.next = function() {
+    return (this.gen() / 2147483647);
+  }
+  this.gen = function() {
+    return this.seed = (this.seed * 16807) % 2147483647;
+  }
+})();
 
 /**
  * Checks if position and orientation passed is valid.
@@ -575,22 +604,15 @@ function statistics() {
  */
 function update() {
   if (lastKeys !== keysDown) {
+    replayKeys[frame] = keysDown;
   }
 
   if (!fallingPiece.active) {
 
-    // TODO Do this better.
-    //for property in pieces, fallingpiece.prop = piece.prop
-    fallingPiece.tetro = pieces[grabBag[inc]].tetro;
-    fallingPiece.kickData = pieces[grabBag[inc]].kickData;
-    fallingPiece.x = pieces[grabBag[inc]].x;
-    fallingPiece.y = pieces[grabBag[inc]].y;
-    fallingPiece.index = pieces[grabBag[inc]].index;
-
-    fallingPiece.active = true;
-    newPiece = true;
+    fallingPiece.newPiece();
 
     // Determine if we need another grab bag.
+    //TODO Do this better. (make grabbag object)
     if (inc < 6) {
       inc++;
     } else {
@@ -598,14 +620,13 @@ function update() {
       grabBag.push.apply(grabBag, randomGenerator());
       inc = 0;
     }
+    drawPreview();
 
     // Check for blockout.
     if (!moveValid(0, 0, fallingPiece.tetro)) {
       gameState = 9;
       msg.innerHTML = 'BLOCK OUT!';
       menu(3);
-    } else {
-      drawPreview();
     }
   }
 
@@ -616,6 +637,45 @@ function update() {
   } else if (flags.rot180 & keysDown && !(lastKeys & flags.rot180)) {
     fallingPiece.rotate(1);
     fallingPiece.rotate(1);
+  }
+
+  // shift pressed
+  if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = -1;
+  } else if (keysDown & flags.moveRight && !(lastKeys & flags.moveRight)) {
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = 1;
+  }
+  //shift released
+  if (shift === 1 &&
+  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = -1;
+  } else if (shift === -1 &&
+  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = 1;
+  } else if (
+  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+    shift = -1;
+  } else if (
+  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+    shift = 1;
+  } else if ((!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
+             (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)) {
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = 0;
   }
 
   if (shift) {
@@ -667,6 +727,145 @@ function update() {
   }
 }
 
+function replayUpdate() {
+  if (lastKeys !== keysDown) {
+    lastKeys = keysDown;
+  }
+  if (frame in replayKeys) {
+    keysDown = replayKeys[frame];
+  }
+
+  if (!fallingPiece.active) {
+
+    // TODO Do this better.
+    //for property in pieces, fallingpiece.prop = piece.prop
+    fallingPiece.tetro = pieces[grabBag[inc]].tetro;
+    fallingPiece.kickData = pieces[grabBag[inc]].kickData;
+    fallingPiece.x = pieces[grabBag[inc]].x;
+    fallingPiece.y = pieces[grabBag[inc]].y;
+    fallingPiece.index = pieces[grabBag[inc]].index;
+
+    fallingPiece.active = true;
+    newPiece = true;
+
+    // Determine if we need another grab bag.
+    if (inc < 6) {
+      inc++;
+    } else {
+      grabBag = grabBag.slice(-7);
+      grabBag.push.apply(grabBag, randomGenerator());
+      inc = 0;
+    }
+
+    // Check for blockout.
+    if (!moveValid(0, 0, fallingPiece.tetro)) {
+      gameState = 9;
+      msg.innerHTML = 'BLOCK OUT!';
+      menu(3);
+    } else {
+      drawPreview();
+    }
+  }
+
+  if (flags.rotLeft & keysDown && !(lastKeys & flags.rotLeft)) {
+    fallingPiece.rotate(-1);
+  } else if (flags.rotRight & keysDown && !(lastKeys & flags.rotRight)) {
+    fallingPiece.rotate(1);
+  } else if (flags.rot180 & keysDown && !(lastKeys & flags.rot180)) {
+    fallingPiece.rotate(1);
+    fallingPiece.rotate(1);
+  }
+
+  // shift pressed
+  if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
+    // Reset key
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = -1;
+  } else if (keysDown & flags.moveRight && !(lastKeys & flags.moveRight)) {
+    // Reset key
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = 1;
+  }
+  //shift released
+  if (shift === 1 &&
+  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = -1;
+  //} else if (shift === -1 && e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
+  } else if (shift === -1 &&
+  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = 1;
+  } else if (
+  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+    shift = -1;
+  } else if (
+  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+    shift = 1;
+  } else if (
+  (!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
+  (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)
+  ) {
+    // Reset key
+    fallingPiece.shiftDelay = 0;
+    fallingPiece.arrDelay = 0;
+    shiftReleased = true;
+    shift = 0;
+  }
+
+  if (shift) {
+    // 1. When key pressed instantly move over once.
+    if (shiftReleased) {
+      fallingPiece.shift(shift);
+      fallingPiece.shiftDelay++;
+      shiftReleased = false;
+    // 2. Apply DAS delay
+    } else if (fallingPiece.shiftDelay < settings.DAS) {
+      fallingPiece.shiftDelay++;
+    // 3. Once the delay is complete, move over once.
+    //     Inc delay so this doesn't run again.
+    } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS !== 0) {
+      fallingPiece.shift(shift);
+      if (settings.ARR !== 0) fallingPiece.shiftDelay++;
+    // 4. Apply ARR delay
+    } else if (fallingPiece.arrDelay < settings.ARR) {
+      fallingPiece.arrDelay++;
+    // 5. If ARR Delay is full, move piece, and reset delay and repeat.
+    } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR !== 0) {
+      fallingPiece.shift(shift);
+    }
+  }
+
+  if (flags.moveDown & keysDown) {
+    fallingPiece.shiftDown();
+  }
+  if (!(lastKeys & flags.hardDrop) && flags.hardDrop & keysDown) {
+    fallingPiece.hardDrop();
+  }
+  if (!(lastKeys & flags.holdPiece) && flags.holdPiece & keysDown) {
+    fallingPiece.hold();
+  }
+
+  fallingPiece.update();
+
+  // Win
+  if (lines >= lineLimit) {
+    gameState = 1;
+    msg.innerHTML = 'GREAT!';
+    menu(3);
+  }
+
+  statistics();
+}
+
 var fallingPiece = new (function() {
   this.x;
   this.y;
@@ -686,6 +885,18 @@ var fallingPiece = new (function() {
     this.active = false;
     this.held = false;
     landed = false;
+  }
+  this.newPiece = function() {
+    // TODO Do this better.
+    //for property in pieces, this.prop = piece.prop
+    this.tetro = pieces[grabBag[inc]].tetro;
+    this.kickData = pieces[grabBag[inc]].kickData;
+    this.x = pieces[grabBag[inc]].x;
+    this.y = pieces[grabBag[inc]].y;
+    this.index = pieces[grabBag[inc]].index;
+
+    this.active = true;
+    newPiece = true;
   }
   this.rotate = function(direction) {
 
@@ -1101,20 +1312,6 @@ addEventListener('keydown', function(e) {
     e.preventDefault();
   //if (bindsArr.indexOf(e.keyCode) !== -1)
   //  e.preventDefault();
-  if (e.keyCode === binds.moveLeft && !(keysDown & flags.moveLeft)) {
-    // Reset key
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
-  }
-  if (e.keyCode === binds.moveRight && !(keysDown & flags.moveRight)) {
-    // Reset key
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
-  }
   if (e.keyCode === binds.pause) {
     if (paused) {
       paused = false;
@@ -1129,7 +1326,6 @@ addEventListener('keydown', function(e) {
   if (e.keyCode === binds.retry) {
     init(gametype);
   }
-  //keysDown[e.keyCode] = true;
   if (e.keyCode === binds.moveLeft) {
     keysDown |= flags.moveLeft;
   } else if (e.keyCode === binds.moveRight) {
@@ -1146,34 +1342,9 @@ addEventListener('keydown', function(e) {
     keysDown |= flags.rot180;
   } else if (e.keyCode === binds.holdPiece) {
     keysDown |= flags.holdPiece;
-  //} else if (e.keyCode === binds.pause) {
   }
 }, false);
 addEventListener('keyup', function(e) {
-  //delete keysDown[e.keyCode];
-
-  //if shift == right and moveright: shift released
-  if (shift === 1 && e.keyCode === binds.moveRight && keysDown & flags.moveLeft) {
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
-  } else if (shift === -1 && e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
-  } else if (e.keyCode === binds.moveRight && keysDown & flags.moveLeft) {
-    shift = -1;
-  } else if (e.keyCode === binds.moveLeft && keysDown & flags.moveRight) {
-    shift = 1;
-  } else if (e.keyCode === binds.moveLeft || e.keyCode === binds.moveRight) {
-    // Reset key
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = 0;
-  }
   if (e.keyCode === binds.moveLeft) {
     keysDown ^= flags.moveLeft;
   } else if (e.keyCode === binds.moveRight) {
@@ -1190,10 +1361,7 @@ addEventListener('keyup', function(e) {
     keysDown ^= flags.rot180;
   } else if (e.keyCode === binds.holdPiece) {
     keysDown ^= flags.holdPiece;
-  //} else if (e.keyCode === binds.pause) {
-  //  keysDown ^= flags.pause;
   }
-
 }, false);
 
 
@@ -1207,7 +1375,11 @@ function gameLoop() {
 
   // Countdown
   if (gameState === 0) {
-    update();
+    if (!watchingReplay) {
+      update();
+    } else {
+      replayUpdate();
+    }
 
     if ((fallingPiece.x !== lastX ||
     Math.floor(fallingPiece.y) !== lastY ||
