@@ -881,6 +881,11 @@ var fallingPiece = new (function() {
         addPiece(this.tetro);
         this.reset();
       } else {
+        var a = 1 / setting['Lock Delay'][settings['Lock Delay']];
+        activeCtx.globalCompositeOperation = 'source-atop';
+        activeCtx.fillStyle = 'rgba(0,0,0,' + a + ')';
+        activeCtx.fillRect(0, 0, activeCanvas.width, activeCanvas.height);
+        activeCtx.globalCompositeOperation = 'source-over';
         this.lockDelay++;
       }
     }
