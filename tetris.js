@@ -1114,44 +1114,44 @@ function drawStack() {
             lineCtx.fillRect(x * c, y * c - (2 * c), c, b);
           }
           // Diags
-          if (x < 9 && y < 21 && !stack[x + 1][y + 1]) {
-            if (!stack[x + 1][y] || !stack[x][y + 1]) {
+          if (x < 9 && y < 21) {
+            if (!stack[x + 1][y] && !stack[x][y + 1]) {
               lineCtx.clearRect(x * c + c - b, y * c - (2 * c) + c - b, b, b);
               lineCtx.fillRect(x * c + c - b, y * c - (2 * c) + c - b, b, b);
-            } else {
+            } else if (!stack[x + 1][y + 1] && stack[x + 1][y] && stack[x][y + 1]) {
               lineCtx.moveTo(x * c + c, y * c - (2 * c) + c - b);
               lineCtx.lineTo(x * c + c, y * c - (2 * c) + c);
               lineCtx.lineTo(x * c + c - b, y * c - (2 * c) + c);
               lineCtx.arc(x * c + c, y * c - (2 * c) + c, b, 3 * Math.PI / 2, Math.PI, true);
             }
           }
-          if (x < 9 && !stack[x + 1][y - 1]) {
-            if (!stack[x + 1][y] || !stack[x][y - 1]) {
+          if (x < 9) {
+            if (!stack[x + 1][y] && !stack[x][y - 1]) {
               lineCtx.clearRect(x * c + c - b, y * c - (2 * c), b, b);
               lineCtx.fillRect(x * c + c - b, y * c - (2 * c), b, b);
-            } else {
+            } else if (!stack[x + 1][y - 1] && stack[x + 1][y] && stack[x][y - 1]) {
               lineCtx.moveTo(x * c + c - b, y * c - (2 * c));
               lineCtx.lineTo(x * c + c, y * c - (2 * c));
               lineCtx.lineTo(x * c + c, y * c - (2 * c) + b);
               lineCtx.arc(x * c + c, y * c - (2 * c), b, Math.PI / 2, Math.PI, false);
             }
           }
-          if (x > 0 && y < 21 && !stack[x - 1][y + 1]) {
-            if (!stack[x - 1][y] || !stack[x][y + 1]) {
+          if (x > 0 && y < 21) {
+            if (!stack[x - 1][y] && !stack[x][y + 1]) {
               lineCtx.clearRect(x * c, y * c - (2 * c) + c - b, b, b);
               lineCtx.fillRect(x * c, y * c - (2 * c) + c - b, b, b);
-            } else {
+            } else if (!stack[x - 1][y + 1] && stack[x - 1][y] && stack[x][y + 1]) {
               lineCtx.moveTo(x * c, y * c - (2 * c) + c - b);
               lineCtx.lineTo(x * c, y * c - (2 * c) + c);
               lineCtx.lineTo(x * c + b, y * c - (2 * c) + c);
               lineCtx.arc(x * c, y * c - (2 * c) + c, b, Math.PI * 2, 3 * Math.PI / 2, true);
             }
           }
-          if (x > 0 && !stack[x - 1][y - 1]) {
-            if (!stack[x - 1][y] || !stack[x][y - 1]) {
+          if (x > 0) {
+            if (!stack[x - 1][y] && !stack[x][y - 1]) {
               lineCtx.clearRect(x * c, y * c - (2 * c), b, b);
               lineCtx.fillRect(x * c, y * c - (2 * c), b, b);
-            } else {
+            } else if (!stack[x - 1][y - 1] && stack[x - 1][y] && stack[x][y - 1]) {
               lineCtx.moveTo(x * c + b, y * c - (2 * c));
               lineCtx.lineTo(x * c, y * c - (2 * c));
               lineCtx.lineTo(x * c, y * c - (2 * c) + b);
