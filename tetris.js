@@ -395,10 +395,10 @@ function init(gt) {
   }
 
   //Reset
-  keysDown = 'cats';
-  console.log(keysDown + ' lol');
+  keysDown = 0;
   lastKeys = 0;
   released = 255;
+  shift = 0;
   shiftReleased = true;
 
   rng.seed = replayKeys.seed;
@@ -1088,21 +1088,21 @@ addEventListener('keydown', function(e) {
 }, false);
 addEventListener('keyup', function(e) {
   if (!watchingReplay) {
-    if (e.keyCode === binds.moveLeft) {
+    if (e.keyCode === binds.moveLeft && keysDown & flags.moveLeft) {
       keysDown ^= flags.moveLeft;
-    } else if (e.keyCode === binds.moveRight) {
+    } else if (e.keyCode === binds.moveRight && keysDown & flags.moveRight) {
       keysDown ^= flags.moveRight;
-    } else if (e.keyCode === binds.moveDown) {
+    } else if (e.keyCode === binds.moveDown && keysDown & flags.moveDown) {
       keysDown ^= flags.moveDown;
-    } else if (e.keyCode === binds.hardDrop) {
+    } else if (e.keyCode === binds.hardDrop && keysDown & flags.hardDrop) {
       keysDown ^= flags.hardDrop;
-    } else if (e.keyCode === binds.rotRight) {
+    } else if (e.keyCode === binds.rotRight && keysDown & flags.rotRight) {
       keysDown ^= flags.rotRight;
-    } else if (e.keyCode === binds.rotLeft) {
+    } else if (e.keyCode === binds.rotLeft && keysDown & flags.rotLeft) {
       keysDown ^= flags.rotLeft;
-    } else if (e.keyCode === binds.rot180) {
+    } else if (e.keyCode === binds.rot180 && keysDown & flags.rot180) {
       keysDown ^= flags.rot180;
-    } else if (e.keyCode === binds.holdPiece) {
+    } else if (e.keyCode === binds.holdPiece && keysDown & flags.holdPiece) {
       keysDown ^= flags.holdPiece;
     }
   }
@@ -1112,12 +1112,11 @@ addEventListener('keyup', function(e) {
 // ========================== Loop ============================================
 
 /**
- * Main update function that runs every frame.
+ * Runs every frame.
  */
 function update() {
   if (lastKeys !== keysDown && !watchingReplay) {
     replayKeys[frame] = keysDown;
-    console.log(keysDown);
   } else if (frame in replayKeys) {
     keysDown = replayKeys[frame];
   }
