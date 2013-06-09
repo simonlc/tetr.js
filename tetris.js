@@ -608,6 +608,10 @@ function update() {
     keysDown = replayKeys[frame];
   }
 
+  if (!(lastKeys & flags.holdPiece) && flags.holdPiece & keysDown) {
+    fallingPiece.hold();
+  }
+
   if (!fallingPiece.active) {
 
     fallingPiece.newPiece();
@@ -707,9 +711,6 @@ function update() {
   }
   if (!(lastKeys & flags.hardDrop) && flags.hardDrop & keysDown) {
     fallingPiece.hardDrop();
-  }
-  if (!(lastKeys & flags.holdPiece) && flags.holdPiece & keysDown) {
-    fallingPiece.hold();
   }
 
   fallingPiece.update();
@@ -850,6 +851,7 @@ var fallingPiece = new (function() {
         this.reset();
       }
       this.held = true;
+      //Draw Hold
       clear(holdCtx);
       if (holdPiece === 0 || holdPiece === 3) {
         draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
