@@ -234,10 +234,10 @@ var piecesSet;
 var startTime;
 
 // Keys
-var keysDown = 0;
+var keysDown;
 var lastKeys;
-var released = 255;
-var shiftReleased = true;
+var released;
+var shiftReleased;
 var arrowReleased = true;
 var arrowDelay = 0;
 
@@ -441,11 +441,12 @@ function init(gt) {
   }
 
   //Reset
-  rng.seed = replayKeys.seed;
   keysDown = 0;
   lastKeys = 0;
   released = 255;
   shiftReleased = true;
+
+  rng.seed = replayKeys.seed;
   toGreyRow = 21;
   frame = 0;
   inc = 0;
@@ -603,6 +604,7 @@ function statistics() {
  */
 function update() {
   if (lastKeys !== keysDown && !watchingReplay) {
+    console.log(keysDown);
     replayKeys[frame] = keysDown;
   } else if (frame in replayKeys) {
     keysDown = replayKeys[frame];
@@ -1195,41 +1197,45 @@ addEventListener('keydown', function(e) {
   if (e.keyCode === binds.retry) {
     init(gametype);
   }
-  if (e.keyCode === binds.moveLeft) {
-    keysDown |= flags.moveLeft;
-  } else if (e.keyCode === binds.moveRight) {
-    keysDown |= flags.moveRight;
-  } else if (e.keyCode === binds.moveDown) {
-    keysDown |= flags.moveDown;
-  } else if (e.keyCode === binds.hardDrop) {
-    keysDown |= flags.hardDrop;
-  } else if (e.keyCode === binds.rotRight) {
-    keysDown |= flags.rotRight;
-  } else if (e.keyCode === binds.rotLeft) {
-    keysDown |= flags.rotLeft;
-  } else if (e.keyCode === binds.rot180) {
-    keysDown |= flags.rot180;
-  } else if (e.keyCode === binds.holdPiece) {
-    keysDown |= flags.holdPiece;
+  if (!watchingReplay) {
+    if (e.keyCode === binds.moveLeft) {
+      keysDown |= flags.moveLeft;
+    } else if (e.keyCode === binds.moveRight) {
+      keysDown |= flags.moveRight;
+    } else if (e.keyCode === binds.moveDown) {
+      keysDown |= flags.moveDown;
+    } else if (e.keyCode === binds.hardDrop) {
+      keysDown |= flags.hardDrop;
+    } else if (e.keyCode === binds.rotRight) {
+      keysDown |= flags.rotRight;
+    } else if (e.keyCode === binds.rotLeft) {
+      keysDown |= flags.rotLeft;
+    } else if (e.keyCode === binds.rot180) {
+      keysDown |= flags.rot180;
+    } else if (e.keyCode === binds.holdPiece) {
+      keysDown |= flags.holdPiece;
+    }
   }
 }, false);
 addEventListener('keyup', function(e) {
-  if (e.keyCode === binds.moveLeft) {
-    keysDown ^= flags.moveLeft;
-  } else if (e.keyCode === binds.moveRight) {
-    keysDown ^= flags.moveRight;
-  } else if (e.keyCode === binds.moveDown) {
-    keysDown ^= flags.moveDown;
-  } else if (e.keyCode === binds.hardDrop) {
-    keysDown ^= flags.hardDrop;
-  } else if (e.keyCode === binds.rotRight) {
-    keysDown ^= flags.rotRight;
-  } else if (e.keyCode === binds.rotLeft) {
-    keysDown ^= flags.rotLeft;
-  } else if (e.keyCode === binds.rot180) {
-    keysDown ^= flags.rot180;
-  } else if (e.keyCode === binds.holdPiece) {
-    keysDown ^= flags.holdPiece;
+  if (!watchingReplay) {
+    if (e.keyCode === binds.moveLeft) {
+      keysDown ^= flags.moveLeft;
+    } else if (e.keyCode === binds.moveRight) {
+      keysDown ^= flags.moveRight;
+    } else if (e.keyCode === binds.moveDown) {
+      keysDown ^= flags.moveDown;
+    } else if (e.keyCode === binds.hardDrop) {
+      keysDown ^= flags.hardDrop;
+    } else if (e.keyCode === binds.rotRight) {
+      keysDown ^= flags.rotRight;
+    } else if (e.keyCode === binds.rotLeft) {
+      keysDown ^= flags.rotLeft;
+    } else if (e.keyCode === binds.rot180) {
+      keysDown ^= flags.rot180;
+    } else if (e.keyCode === binds.holdPiece) {
+      keysDown ^= flags.holdPiece;
+    }
   }
 }, false);
 
