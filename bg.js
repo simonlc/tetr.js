@@ -1,3 +1,5 @@
+//var bgCanvas = document.getElementById('bg');
+//var bgCtx = bgCanvas.getContext('2d');
 //var img = new Image();
 //img.src = 'bg.jpg';
 //
