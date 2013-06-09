@@ -621,16 +621,37 @@ var fallingPiece = new (function() {
     landed = false;
   }
   this.newPiece = function() {
-    // TODO Do this better.
-    //for property in pieces, this.prop = piece.prop
-    this.tetro = pieces[grabBag[inc]].tetro;
-    this.kickData = pieces[grabBag[inc]].kickData;
-    this.x = pieces[grabBag[inc]].x;
-    this.y = pieces[grabBag[inc]].y;
-    this.index = pieces[grabBag[inc]].index;
+    if (!this.active) {
 
-    this.active = true;
-    newPiece = true;
+      // TODO Do this better.
+      //for property in pieces, this.prop = piece.prop
+      this.tetro = pieces[grabBag[inc]].tetro;
+      this.kickData = pieces[grabBag[inc]].kickData;
+      this.x = pieces[grabBag[inc]].x;
+      this.y = pieces[grabBag[inc]].y;
+      this.index = pieces[grabBag[inc]].index;
+
+      this.active = true;
+      newPiece = true;
+
+      // Determine if we need another grab bag.
+      //TODO Do this better. (make grabbag object)
+      if (inc < 6) {
+        inc++;
+      } else {
+        grabBag = grabBag.slice(-7);
+        grabBag.push.apply(grabBag, randomGenerator());
+        inc = 0;
+      }
+      drawPreview();
+
+      // Check for blockout.
+      if (!moveValid(0, 0, this.tetro)) {
+        gameState = 9;
+        msg.innerHTML = 'BLOCK OUT!';
+        menu(3);
+      }
+    }
   }
   this.rotate = function(direction) {
 
@@ -672,8 +693,69 @@ var fallingPiece = new (function() {
       }
     }
   }
+  this.checkShift = function() {
+    if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
+      this.shiftDelay = 0;
+      this.arrDelay = 0;
+      shiftReleased = true;
+      shift = -1;
+    } else if (keysDown & flags.moveRight && !(lastKeys & flags.moveRight)) {
+      this.shiftDelay = 0;
+      this.arrDelay = 0;
+      shiftReleased = true;
+      shift = 1;
+    }
+    //shift released
+    if (shift === 1 &&
+    !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+      this.shiftDelay = 0;
+      this.arrDelay = 0;
+      shiftReleased = true;
+      shift = -1;
+    } else if (shift === -1 &&
+    !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+      this.shiftDelay = 0;
+      this.arrDelay = 0;
+      shiftReleased = true;
+      shift = 1;
+    } else if (
+    !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+      shift = -1;
+    } else if (
+    !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+      shift = 1;
+    } else if ((!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
+               (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)) {
+      this.shiftDelay = 0;
+      this.arrDelay = 0;
+      shiftReleased = true;
+      shift = 0;
+    }
+    if (shift) {
+      // 1. When key pressed instantly move over once.
+      if (shiftReleased) {
+        this.shift(shift);
+        this.shiftDelay++;
+        shiftReleased = false;
+      // 2. Apply DAS delay
+      } else if (this.shiftDelay < settings.DAS) {
+        this.shiftDelay++;
+      // 3. Once the delay is complete, move over once.
+      //     Inc delay so this doesn't run again.
+      } else if (this.shiftDelay === settings.DAS && settings.DAS !== 0) {
+        this.shift(shift);
+        if (settings.ARR !== 0) this.shiftDelay++;
+      // 4. Apply ARR delay
+      } else if (this.arrDelay < settings.ARR) {
+        this.arrDelay++;
+      // 5. If ARR Delay is full, move piece, and reset delay and repeat.
+      } else if (this.arrDelay === settings.ARR && settings.ARR !== 0) {
+        this.shift(shift);
+      }
+    }
+  }
   this.shift = function(direction) {
-    fallingPiece.arrDelay = 0;
+    this.arrDelay = 0;
     if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
       for (var i = 1; i < 10; i++) {
         if (!moveValid(i * direction, 0, this.tetro)) {
@@ -1125,28 +1207,7 @@ function update() {
     fallingPiece.hold();
   }
 
-  if (!fallingPiece.active) {
-
-    fallingPiece.newPiece();
-
-    // Determine if we need another grab bag.
-    //TODO Do this better. (make grabbag object)
-    if (inc < 6) {
-      inc++;
-    } else {
-      grabBag = grabBag.slice(-7);
-      grabBag.push.apply(grabBag, randomGenerator());
-      inc = 0;
-    }
-    drawPreview();
-
-    // Check for blockout.
-    if (!moveValid(0, 0, fallingPiece.tetro)) {
-      gameState = 9;
-      msg.innerHTML = 'BLOCK OUT!';
-      menu(3);
-    }
-  }
+  fallingPiece.newPiece();
 
   if (flags.rotLeft & keysDown && !(lastKeys & flags.rotLeft)) {
     fallingPiece.rotate(-1);
@@ -1157,67 +1218,7 @@ function update() {
     fallingPiece.rotate(1);
   }
 
-  // shift pressed
-  if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
-  } else if (keysDown & flags.moveRight && !(lastKeys & flags.moveRight)) {
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
-  }
-  //shift released
-  if (shift === 1 &&
-  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
-  } else if (shift === -1 &&
-  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
-  } else if (
-  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
-    shift = -1;
-  } else if (
-  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
-    shift = 1;
-  } else if ((!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
-             (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)) {
-    fallingPiece.shiftDelay = 0;
-    fallingPiece.arrDelay = 0;
-    shiftReleased = true;
-    shift = 0;
-  }
-
-  if (shift) {
-    // 1. When key pressed instantly move over once.
-    if (shiftReleased) {
-      fallingPiece.shift(shift);
-      fallingPiece.shiftDelay++;
-      shiftReleased = false;
-    // 2. Apply DAS delay
-    } else if (fallingPiece.shiftDelay < settings.DAS) {
-      fallingPiece.shiftDelay++;
-    // 3. Once the delay is complete, move over once.
-    //     Inc delay so this doesn't run again.
-    } else if (fallingPiece.shiftDelay === settings.DAS && settings.DAS !== 0) {
-      fallingPiece.shift(shift);
-      if (settings.ARR !== 0) fallingPiece.shiftDelay++;
-    // 4. Apply ARR delay
-    } else if (fallingPiece.arrDelay < settings.ARR) {
-      fallingPiece.arrDelay++;
-    // 5. If ARR Delay is full, move piece, and reset delay and repeat.
-    } else if (fallingPiece.arrDelay === settings.ARR && settings.ARR !== 0) {
-      fallingPiece.shift(shift);
-    }
-  }
+  fallingPiece.checkShift();
 
   if (flags.moveDown & keysDown) {
     fallingPiece.shiftDown();
@@ -1275,6 +1276,7 @@ function gameLoop() {
     lastPos = fallingPiece.pos;
     newPiece = false;
   } else if (gameState === 2) {
+    // Count Down
     if (frame < 50) {
       if (msg.innerHTML !== 'READY') msg.innerHTML = 'READY';
     } else if (frame < 100) {
@@ -1283,6 +1285,23 @@ function gameLoop() {
       msg.innerHTML = '';
       gameState = 0;
       startTime = Date.now();
+    }
+    // DAS Preload TODO
+    if (lastKeys !== keysDown && !watchingReplay) {
+      replayKeys[frame] = keysDown;
+    } else if (frame in replayKeys) {
+      keysDown = replayKeys[frame];
+    }
+    if (keysDown & flags.moveLeft) {
+      lastKeys = keysDown;
+      fallingPiece.shiftDelay = settings.DAS;
+      shiftReleased = false;
+      shift = -1;
+    } else if (keysDown & flags.moveRight) {
+      lastKeys = keysDown;
+      fallingPiece.shiftDelay = settings.DAS;
+      shiftReleased = false;
+      shift = 1;
     }
   } else if (toGreyRow >= 2){
     /**
