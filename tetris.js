@@ -388,11 +388,8 @@ function init(gt) {
     replayKeys.seed = ~~(Math.random() * 2147483645) + 1;
     gametype = gt;
   }
-  if (gametype === 0) {
-    lineLimit = 40;
-  } else if (gametype === 1) {
-    lineLimit = 150;
-  }
+
+  lineLimit = 40;
 
   //Reset
   keysDown = 0;
