@@ -42,6 +42,13 @@ var previewCtx = previewCanvas.getContext('2d');
 var spriteCtx = spriteCanvas.getContext('2d');
 
 /**
+*Pausing variables
+*/
+
+var startPauseTime = 0;
+var pauseTime = 0;
+
+/**
  * Piece data
  */
 
@@ -478,9 +485,19 @@ function newGrid(x, y) {
 }
 
 function unpause() {
-  paused = false;
+  paused = !paused;
+  pauseTime += (Date.now() - startPauseTime);
   msg.innerHTML = '';
   menu();
+}
+
+function pause() {
+  if (gameState != 3) {
+  paused = !paused;
+  startPauseTime = Date.now();
+  msg.innerHTML = "Paused";
+  menu(4);    
+  }
 }
 
 /**
@@ -510,7 +527,7 @@ var rng = new (function() {
  * Draws the stats next to the tetrion.
  */
 function statistics() {
-  var time = Date.now() - startTime;
+  var time = Date.now() - startTime - pauseTime;
   var seconds = (time / 1000 % 60).toFixed(2);
   var minutes = ~~(time / 60000);
   statsTime.innerHTML = (minutes < 10 ? '0' : '') + minutes +
@@ -1133,13 +1150,9 @@ addEventListener('keydown', function(e) {
   //  e.preventDefault();
   if (e.keyCode === binds.pause) {
     if (paused) {
-      paused = false;
-      msg.innerHTML = '';
-      menu();
+      unpause();
     } else {
-      paused = true;
-      msg.innerHTML = 'Paused';
-      menu(4);
+      pause();
     }
   }
   if (e.keyCode === binds.retry) {
@@ -1248,7 +1261,10 @@ function gameLoop() {
 
   // Countdown
   if (gameState === 0) {
-    update();
+    
+    if (!paused) {
+      update();
+    }
 
     if ((fallingPiece.x !== lastX ||
     Math.floor(fallingPiece.y) !== lastY ||

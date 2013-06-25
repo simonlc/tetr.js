@@ -47,4 +47,3 @@
 - Help page
 - Feedback button
 - Include license
-- Pause, and pause game while in menu
