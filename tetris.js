@@ -1263,8 +1263,11 @@ function gameLoop() {
 
   // Countdown
   if (gameState === 0) {
-    update();
-
+    
+    if (!paused) {
+      update();
+    }
+    
     if ((fallingPiece.x !== lastX ||
     Math.floor(fallingPiece.y) !== lastY ||
     fallingPiece.pos !== lastPos ||
