@@ -489,15 +489,15 @@ function unpause() {
   pauseTime += (Date.now() - startPauseTime);
   msg.innerHTML = '';
   menu();
-  //restart timer
-  //actually unpasue the paused game eh
 }
 
 function pause() {
+  if (gameState != 3) {
   paused = !paused;
   startPauseTime = Date.now();
   msg.innerHTML = "Paused";
-  menu(4);
+  menu(4);    
+  }
 }
 
 /**
@@ -1246,9 +1246,7 @@ function update() {
     menu(3);
   }
 
-  if (!paused) {
   statistics();
-  }
 
   if (lastKeys !== keysDown) {
     lastKeys = keysDown;
@@ -1267,7 +1265,7 @@ function gameLoop() {
     if (!paused) {
       update();
     }
-    
+
     if ((fallingPiece.x !== lastX ||
     Math.floor(fallingPiece.y) !== lastY ||
     fallingPiece.pos !== lastPos ||
