@@ -399,6 +399,10 @@ function init(gt) {
   shift = 0;
   shiftReleased = true;
 
+  startPauseTime = 0;
+  pauseTime = 0;
+  paused = false;
+
   rng.seed = replayKeys.seed;
   toGreyRow = 21;
   frame = 0;
@@ -479,7 +483,7 @@ function newGrid(x, y) {
 }
 
 function unpause() {
-  paused = !paused;
+  paused = false;
   pauseTime += (Date.now() - startPauseTime);
   msg.innerHTML = '';
   menu();
@@ -487,7 +491,7 @@ function unpause() {
 
 function pause() {
   if (gameState != 3) {
-  paused = !paused;
+  paused = true;
   startPauseTime = Date.now();
   msg.innerHTML = "Paused";
   menu(4);    
