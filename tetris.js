@@ -492,7 +492,7 @@ function unpause() {
 }
 
 function pause() {
-  if (gameState != 3) {
+  if (gameState == 0) {
   paused = !paused;
   startPauseTime = Date.now();
   msg.innerHTML = "Paused";
