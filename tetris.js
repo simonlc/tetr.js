@@ -45,8 +45,8 @@ var spriteCtx = spriteCanvas.getContext('2d');
 *Pausing variables
 */
 
-var startPauseTime = 0;
-var pauseTime = 0;
+var startPauseTime;
+var pauseTime;
 
 /**
  * Piece data
@@ -490,11 +490,11 @@ function unpause() {
 }
 
 function pause() {
-  if (gameState != 3) {
-  paused = true;
-  startPauseTime = Date.now();
-  msg.innerHTML = "Paused";
-  menu(4);    
+  if (gameState === 0) {
+    paused = true;
+    startPauseTime = Date.now();
+    msg.innerHTML = "Paused";
+    menu(4);    
   }
 }
 
