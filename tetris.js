@@ -229,6 +229,8 @@ var replayKeys;
 var watchingReplay = false;
 var toGreyRow;
 var gametype;
+//TODO Make dirty flags for each canvas, draw them all at once during frame call.
+// var dirtyHold, dirtyActive, dirtyStack, dirtyPreview;
 var lastX, lastY, lastPos, landed, newPiece;
 
 // Stats
