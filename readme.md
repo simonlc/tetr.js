@@ -31,6 +31,7 @@
 - Adjustable game size
 - Ghost piece color and transparency
 - Responsive design
+- Preload das preservation during countdown
 
 ## Planned future mechanics and features
 
@@ -46,7 +47,6 @@
 
 ## TODO misc
 
-- Preload das preservation during countdown
 - Help page
 - Feedback button
 - Include license

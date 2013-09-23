@@ -1312,7 +1312,7 @@ function gameLoop() {
       gameState = 0;
       startTime = Date.now();
     }
-    // DAS Preload TODO
+    // DAS Preload
     if (lastKeys !== keysDown && !watchingReplay) {
       replayKeys[frame] = keysDown;
     } else if (frame in replayKeys) {
@@ -1333,7 +1333,7 @@ function gameLoop() {
     /**
      * Fade to grey animation played when player loses.
      */
-    clear(activeCtx); // TODO Move this.
+    clear(activeCtx); // TODO Move this. (why?)
     if (frame % 2) {
       for (var x = 0; x < 10; x++) {
         if (stack[x][toGreyRow]) stack[x][toGreyRow] = gameState - 1;
