@@ -21,6 +21,8 @@
     - Hold
     - Piece preview
 - Game statistics like PPM, Time, etc.
+- Multiple mino skins
+- Stack outline
 - Configurable gravity
 - 60 FPS
 - Fast code and drawing
@@ -28,10 +30,11 @@
 - Configurable controls
 - Adjustable game size
 - Ghost piece color and transparency
+- Responsive design
 
 ## Planned future mechanics and features
 
-- Responsive and mobile design
+- Mobile design
 - More game modes (ultra, etc)
 - Training mode, 2step trainer, patterns, etc
 - Replays

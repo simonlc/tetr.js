@@ -1281,8 +1281,8 @@ function gameLoop() {
 
   frame++;
 
-  // Countdown
   if (gameState === 0) {
+    // Playing
     
     if (!paused) {
       update();
