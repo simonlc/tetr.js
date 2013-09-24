@@ -385,6 +385,22 @@ function init(gt) {
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = Date.now();
 
+  if (gametype === 3) {
+    // make ten random numbers, make sure next isn't the same as last?
+    //TODO make into function or own file.
+    //TODO Use seed
+    var randomNums = [];
+    for (var i = 0; i < 10; i++)
+      randomNums.push(~~(Math.random() * 10));
+    console.log(randomNums);
+    for (var y = 21; y > 11; y--) {
+      for (var x = 0; x < 10; x++) {
+        if (randomNums[y - 12] !== x)
+          stack[x][y] = 8;
+      }
+    }
+  }
+
   //XXX fix ugly code lolwut
   while (1) {
     grabBag = randomGenerator();
