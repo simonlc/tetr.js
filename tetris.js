@@ -237,6 +237,7 @@ var lastX, lastY, lastPos, landed, newPiece;
 var lines;
 var piecesSet;
 var startTime;
+var digLines;
 
 // Keys
 var keysDown;
@@ -385,22 +386,6 @@ function init(gt) {
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = Date.now();
 
-  if (gametype === 3) {
-    // make ten random numbers, make sure next isn't the same as last?
-    //TODO make into function or own file.
-    //TODO Use seed
-    var randomNums = [];
-    for (var i = 0; i < 10; i++)
-      randomNums.push(~~(Math.random() * 10));
-    console.log(randomNums);
-    for (var y = 21; y > 11; y--) {
-      for (var x = 0; x < 10; x++) {
-        if (randomNums[y - 12] !== x)
-          stack[x][y] = 8;
-      }
-    }
-  }
-
   //XXX fix ugly code lolwut
   while (1) {
     grabBag = randomGenerator();
@@ -418,6 +403,27 @@ function init(gt) {
   clear(activeCtx);
   clear(holdCtx);
   drawPreview();
+
+  if (gametype === 3) {
+    // Dig Race
+    // make ten random numbers, make sure next isn't the same as last?
+    //TODO make into function or own file.
+
+    digLines = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+
+    statsLines.innerHTML = 10;
+    //TODO Use seed
+    var randomNums = [];
+    for (var i = 0; i < 10; i++)
+      randomNums.push(~~(Math.random() * 10));
+    console.log(randomNums);
+    for (var y = 21; y > 11; y--) {
+      for (var x = 0; x < 10; x++) {
+        if (randomNums[y - 12] !== x)
+          stack[x][y] = 8;
+      }
+    }
+  }
 
   menu();
 
@@ -554,13 +560,18 @@ function addPiece(tetro) {
   range = range.sort(function(a,b){return a-b});
   for (var row = range[0], len = row + range.length; row < len; row++) {
     var count = 0;
-    for (var x = 0; x < 10; x++) { // 10 is the stack width
+    for (var x = 0; x < 10; x++) {
       if (stack[x][row]) count++;
     }
     // Clear the line. This basically just moves down the stack.
     // TODO Ponder during the day and see if there is a more elegant solution.
     if (count === 10) {
       lines++; // NOTE stats
+      if (gametype === 3) {
+        if (digLines.indexOf(row) !== -1) {
+          digLines.splice(digLines.indexOf(row), 1);
+        }
+      }
       for (var y = row; y >= -1; y--) {
         for (var x = 0; x < 10; x++) {
           stack[x][y] = stack[x][y - 1];
@@ -572,7 +583,11 @@ function addPiece(tetro) {
   piecesSet++; // NOTE Stats
 
   statsPiece.innerHTML = piecesSet;
-  statsLines.innerHTML = lineLimit - lines;
+
+  if (gametype !== 3)
+    statsLines.innerHTML = lineLimit - lines;
+  else
+    statsLines.innerHTML = digLines.length;
 
   // Redraw the stack.
   drawStack();
@@ -1242,10 +1257,19 @@ function update() {
   fallingPiece.update();
 
   // Win
-  if (lines >= lineLimit) {
-    gameState = 1;
-    msg.innerHTML = 'GREAT!';
-    menu(3);
+  // TODO
+  if (gametype !== 3) {
+    if (lines >= lineLimit) {
+      gameState = 1;
+      msg.innerHTML = 'GREAT!';
+      menu(3);
+    }
+  } else {
+    if (digLines.length === 0) {
+      gameState = 1;
+      msg.innerHTML = 'GREAT!';
+      menu(3);
+    }
   }
 
   statistics();
