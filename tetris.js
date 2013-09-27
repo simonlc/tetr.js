@@ -409,20 +409,23 @@ function init(gt) {
     // make ten random numbers, make sure next isn't the same as last?
     //TODO make into function or own file.
 
-    digLines = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+    digLines = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
     statsLines.innerHTML = 10;
     //TODO Use seed
-    var randomNums = [];
+    //TODO Shuffle 1-10
+    var randomNums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    // Doesn't look random enough
+    randomNums.sort(function() {return 0.5 - rng.next()});
     for (var i = 0; i < 10; i++)
       randomNums.push(~~(Math.random() * 10));
-    console.log(randomNums);
     for (var y = 21; y > 11; y--) {
       for (var x = 0; x < 10; x++) {
         if (randomNums[y - 12] !== x)
           stack[x][y] = 8;
       }
     }
+    drawStack();
   }
 
   menu();
@@ -589,7 +592,6 @@ function addPiece(tetro) {
   else
     statsLines.innerHTML = digLines.length;
 
-  // Redraw the stack.
   drawStack();
 }
 
