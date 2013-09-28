@@ -412,13 +412,11 @@ function init(gt) {
     digLines = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
     statsLines.innerHTML = 10;
+    statsLines.innerHTML = 10;
     //TODO Use seed
-    //TODO Shuffle 1-10
-    var randomNums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    // Doesn't look random enough
-    randomNums.sort(function() {return 0.5 - rng.next()});
+    var randomNums = [];
     for (var i = 0; i < 10; i++)
-      randomNums.push(~~(Math.random() * 10));
+      randomNums.push(~~(rng.next() * 10));
     for (var y = 21; y > 11; y--) {
       for (var x = 0; x < 10; x++) {
         if (randomNums[y - 12] !== x)
