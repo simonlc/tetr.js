@@ -358,6 +358,7 @@ function init(gt) {
   } else {
     watchingReplay = false;
     replayKeys = {};
+    // TODO make new seed an rng method
     replayKeys.seed = ~~(Math.random() * 2147483645) + 1;
     gametype = gt;
   }
@@ -415,8 +416,13 @@ function init(gt) {
     statsLines.innerHTML = 10;
     //TODO Use seed
     var randomNums = [];
-    for (var i = 0; i < 10; i++)
-      randomNums.push(~~(rng.next() * 10));
+    for (var i = 0; i < 10; i++) {
+      var random = ~~(rng.next() * 10);
+      if (random !== randomNums[i - 1])
+        randomNums.push(random);
+      else
+        i--
+    }
     for (var y = 21; y > 11; y--) {
       for (var x = 0; x < 10; x++) {
         if (randomNums[y - 12] !== x)
@@ -509,6 +515,7 @@ function randomGenerator() {
 var rng = new (function() {
   this.seed = 1;
   this.next = function() {
+    // Returns a float between 0.0, and 1.0
     return (this.gen() / 2147483647);
   }
   this.gen = function() {
