@@ -12,7 +12,7 @@ the game so you know why some things are done a certain way.
  * Playfield.
  */
 var cellSize;
-var stack;
+var column;
 
 /**
  * Get html elements. 
@@ -39,13 +39,6 @@ var stackCtx = stackCanvas.getContext('2d');
 var activeCtx = activeCanvas.getContext('2d');
 var previewCtx = previewCanvas.getContext('2d');
 var spriteCtx = spriteCanvas.getContext('2d');
-
-/**
-*Pausing variables
-*/
-
-var startPauseTime;
-var pauseTime;
 
 /**
  * Piece data
@@ -146,6 +139,55 @@ var PieceZ = {
 };
 var pieces = [PieceI, PieceJ, PieceL, PieceO, PieceS, PieceT, PieceZ];
 
+// Finesse data
+// index x orientatio x column = finesse
+// finesse[0][0][4] = 1
+// TODO double check these.
+var finesse = [
+  [
+    [1, 2, 1, 0, 1, 2, 1],
+    [2, 2, 2, 2, 1, 1, 2, 2, 2, 2],
+    [1, 2, 1, 0, 1, 2, 1],
+    [2, 2, 2, 2, 1, 1, 2, 2, 2, 2]
+  ],
+  [
+    [1, 2, 1, 0, 1, 2, 2, 1],
+    [2, 3, 2, 1, 2, 3, 3, 2, 2],
+    [2, 2, 3, 2, 1, 2, 3, 3, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2]
+  ],
+  [
+    [1, 2, 1, 0, 1, 2, 2, 1],
+    [2, 2, 3, 2, 1, 2, 3, 3, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2]
+  ],
+  [
+    [1, 2, 2, 1, 0, 1, 2, 2, 1],
+    [1, 2, 2, 1, 0, 1, 2, 2, 1],
+    [1, 2, 2, 1, 0, 1, 2, 2, 1],
+    [1, 2, 2, 1, 0, 1, 2, 2, 1]
+  ],
+  [
+    [1, 2, 1, 0, 1, 2, 2, 1],
+    [2, 2, 2, 1, 1, 2, 3, 2, 2],
+    [1, 2, 1, 0, 1, 2, 2, 1],
+    [2, 2, 2, 1, 1, 2, 3, 2, 2]
+  ],
+  [
+    [1, 2, 1, 0, 1, 2, 2, 1],
+    [2, 2, 3, 2, 1, 2, 3, 3, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2]
+  ],
+  [
+    [1, 2, 1, 0, 1, 2, 2, 1],
+    [2, 2, 2, 1, 1, 2, 3, 2, 2],
+    [1, 2, 1, 0, 1, 2, 2, 1],
+    [2, 2, 2, 1, 1, 2, 3, 2, 2]
+  ]
+];
+
 /**
  * Gameplay specific vars.
  */
@@ -210,7 +252,13 @@ var setting = {
 };
 
 var frame;
-var inc;
+
+/**
+*Pausing variables
+*/
+
+var startPauseTime;
+var pauseTime;
 
 /**
  * 0 = Normal
@@ -231,10 +279,11 @@ var toGreyRow;
 var gametype;
 //TODO Make dirty flags for each canvas, draw them all at once during frame call.
 // var dirtyHold, dirtyActive, dirtyStack, dirtyPreview;
-var lastX, lastY, lastPos, landed, newPiece;
+var lastX, lastY, lastPos, landed;
 
 // Stats
 var lines;
+var statsFinesse;
 var piecesSet;
 var startTime;
 var digLines;
@@ -328,9 +377,9 @@ function resize() {
     bg(bgStackCtx);
 
   if (gameState === 0) {
-    fallingPiece.drawGhost();
-    fallingPiece.draw();
-    drawStack();
+    piece.drawGhost();
+    piece.draw();
+    stack.draw();
     drawPreview();
     if (holdPiece) {
       if (holdPiece === 0 || holdPiece === 3) {
@@ -366,6 +415,7 @@ function init(gt) {
   lineLimit = 40;
 
   //Reset
+  column = 0;
   keysDown = 0;
   lastKeys = 0;
   released = 255;
@@ -379,10 +429,8 @@ function init(gt) {
   rng.seed = replayKeys.seed;
   toGreyRow = 21;
   frame = 0;
-  inc = 0;
   lastPos = 'reset';
-  fallingPiece.reset();
-  stack = newGrid(10, 22);
+  stack.new(10, 22);
   holdPiece = void 0;
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = Date.now();
@@ -393,7 +441,9 @@ function init(gt) {
     if ([3,4,6].indexOf(grabBag[0]) === -1) break;
   }
   grabBag.push.apply(grabBag, randomGenerator());
+  drawPreview();
 
+  statsFinesse = 0;
   lines = 0;
   piecesSet = 0;
 
@@ -403,7 +453,6 @@ function init(gt) {
   clear(stackCtx);
   clear(activeCtx);
   clear(holdCtx);
-  drawPreview();
 
   if (gametype === 3) {
     // Dig Race
@@ -426,10 +475,10 @@ function init(gt) {
     for (var y = 21; y > 11; y--) {
       for (var x = 0; x < 10; x++) {
         if (randomNums[y - 12] !== x)
-          stack[x][y] = 8;
+          stack.grid[x][y] = 8;
       }
     }
-    drawStack();
+    stack.draw();
   }
 
   menu();
@@ -471,17 +520,6 @@ window.requestAnimFrame = (function () {
            window.setTimeout(callback, 1000 / 60);
          };
 })();
-
-/**
- * Creates a matrix for the playfield.
- */
-function newGrid(x, y) {
-  var cells = new Array(x);
-  for (var i = 0; i < x; i++) {
-    cells[i] = new Array(y);
-  }
-  return cells;
-}
 
 function pause() {
   if (gameState === 0) {
@@ -534,356 +572,11 @@ function statistics() {
                         (seconds < 10 ? ':0' : ':') + seconds;
 }
 
-/**
- * Adds tetro to the stack, and clears lines if they fill up.
- */
-function addPiece(tetro) {
-
-  // Add the piece to the stack, and check which lines are modified.
-  var range = [];
-  var valid = false;
-  for (var x = 0; x < tetro.length; x++) {
-    for (var y = 0; y < tetro[x].length; y++) {
-      if (tetro[x][y]) {
-        stack[x + fallingPiece.x][y + fallingPiece.y] = tetro[x][y];
-        if (range.indexOf(y + fallingPiece.y) === -1) {
-          range.push(y + fallingPiece.y);
-          // This checks if any cell is in the play field. If there
-          //  isn't any this is called a lock out and the game ends.
-          if (y + fallingPiece.y > 1) valid = true;
-        }
-      }
-    }
-  }
-
-  // Lock out
-  if (!valid) {
-    gameState = 9;
-    msg.innerHTML = 'LOCK OUT!';
-    menu(3);
-    return;
-  }
-
-  // Check modified lines for full lines.
-  range = range.sort(function(a,b){return a-b});
-  for (var row = range[0], len = row + range.length; row < len; row++) {
-    var count = 0;
-    for (var x = 0; x < 10; x++) {
-      if (stack[x][row]) count++;
-    }
-    // Clear the line. This basically just moves down the stack.
-    // TODO Ponder during the day and see if there is a more elegant solution.
-    if (count === 10) {
-      lines++; // NOTE stats
-      if (gametype === 3) {
-        if (digLines.indexOf(row) !== -1) {
-          digLines.splice(digLines.indexOf(row), 1);
-        }
-      }
-      for (var y = row; y >= -1; y--) {
-        for (var x = 0; x < 10; x++) {
-          stack[x][y] = stack[x][y - 1];
-        }
-      }
-    }
-  }
-
-  piecesSet++; // NOTE Stats
-
-  statsPiece.innerHTML = piecesSet;
-
-  if (gametype !== 3)
-    statsLines.innerHTML = lineLimit - lines;
-  else
-    statsLines.innerHTML = digLines.length;
-
-  drawStack();
-}
-
-function FallingPiece() {
-  this.x;
-  this.y;
-  this.pos = 0;
-  this.tetro;
-  this.index;
-  this.kickData;
-  this.lockDelay = 0;
-  this.shiftDelay = 0;
-  this.arrDelay = 0;
-  this.active = false;
-  this.held = false;
-}
-FallingPiece.prototype.reset = function() {
-  this.pos = 0;
-  this.tetro = [];
-  this.active = false;
-  this.held = false;
-  landed = false;
-}
-FallingPiece.prototype.newPiece = function() {
-  if (!this.active) {
-
-    // TODO Do this better. Make clone object func maybe.
-    //for property in pieces, this.prop = piece.prop
-    this.tetro = pieces[grabBag[inc]].tetro;
-    this.kickData = pieces[grabBag[inc]].kickData;
-    this.x = pieces[grabBag[inc]].x;
-    this.y = pieces[grabBag[inc]].y;
-    this.index = pieces[grabBag[inc]].index;
-
-    this.active = true;
-    newPiece = true;
-
-    // Determine if we need another grab bag.
-    //TODO Do this better. (make grabbag object)
-    if (inc < 6) {
-      inc++;
-    } else {
-      grabBag = grabBag.slice(-7);
-      grabBag.push.apply(grabBag, randomGenerator());
-      inc = 0;
-    }
-    drawPreview();
-
-    // Check for blockout.
-    if (!this.moveValid(0, 0, this.tetro)) {
-      gameState = 9;
-      msg.innerHTML = 'BLOCK OUT!';
-      menu(3);
-    }
-  }
-}
-FallingPiece.prototype.rotate = function(direction) {
-
-  // Rotates the tetromino's matrix.
-  var rotated = [];
-  if (direction === -1) {
-    for (var i = this.tetro.length - 1; i >= 0; i--) {
-      rotated[i] = [];
-      for (var row = 0; row < this.tetro.length; row++) {
-        rotated[i][this.tetro.length - 1 - row] = this.tetro[row][i];
-      }
-    }
-  } else {
-    for (var i = 0; i < this.tetro.length; i++) {
-      rotated[i] = [];
-      for (var row = this.tetro.length - 1; row >= 0; row--) {
-        rotated[i][row] = this.tetro[row][this.tetro.length - 1 - i];
-      }
-    }
-  }
-
-  // Goes thorugh kick data until it finds a valid move.
-  var curPos = this.pos.mod(4);
-  var newPos = (this.pos + direction).mod(4);
-
-  for (var x = 0, len = this.kickData[0].length; x < len; x++) {
-    if (this.moveValid(
-    this.kickData[curPos][x][0] - this.kickData[newPos][x][0],
-    this.kickData[curPos][x][1] - this.kickData[newPos][x][1],
-    rotated
-    )) {
-      this.x += this.kickData[curPos][x][0] -
-                this.kickData[newPos][x][0];
-      this.y += this.kickData[curPos][x][1] -
-                this.kickData[newPos][x][1];
-      this.tetro = rotated;
-      this.pos = newPos;
-      break;
-    }
-  }
-}
-FallingPiece.prototype.checkShift = function() {
-  if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
-    this.shiftDelay = 0;
-    this.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
-  } else if (keysDown & flags.moveRight && !(lastKeys & flags.moveRight)) {
-    this.shiftDelay = 0;
-    this.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
-  }
-  //shift released
-  if (shift === 1 &&
-  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
-    this.shiftDelay = 0;
-    this.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
-  } else if (shift === -1 &&
-  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
-    this.shiftDelay = 0;
-    this.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
-  } else if (
-  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
-    shift = -1;
-  } else if (
-  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
-    shift = 1;
-  } else if ((!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
-             (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)) {
-    this.shiftDelay = 0;
-    this.arrDelay = 0;
-    shiftReleased = true;
-    shift = 0;
-  }
-  if (shift) {
-    // 1. When key pressed instantly move over once.
-    if (shiftReleased) {
-      this.shift(shift);
-      this.shiftDelay++;
-      shiftReleased = false;
-    // 2. Apply DAS delay
-    } else if (this.shiftDelay < settings.DAS) {
-      this.shiftDelay++;
-    // 3. Once the delay is complete, move over once.
-    //     Inc delay so this doesn't run again.
-    } else if (this.shiftDelay === settings.DAS && settings.DAS !== 0) {
-      this.shift(shift);
-      if (settings.ARR !== 0) this.shiftDelay++;
-    // 4. Apply ARR delay
-    } else if (this.arrDelay < settings.ARR) {
-      this.arrDelay++;
-    // 5. If ARR Delay is full, move piece, and reset delay and repeat.
-    } else if (this.arrDelay === settings.ARR && settings.ARR !== 0) {
-      this.shift(shift);
-    }
-  }
-}
-FallingPiece.prototype.shift = function(direction) {
-  this.arrDelay = 0;
-  if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
-    for (var i = 1; i < 10; i++) {
-      if (!this.moveValid(i * direction, 0, this.tetro)) {
-        this.x += i * direction - direction;
-        break;
-      }
-    }
-  } else if (this.moveValid(direction, 0, this.tetro)) {
-    this.x += direction;
-  }
-}
-FallingPiece.prototype.shiftDown = function() {
-  if (this.moveValid(0, 1, this.tetro)) {
-    var grav = gravityArr[settings['Soft Drop'] + 1];
-    if (grav > 1)
-      this.y += this.getDrop(grav);
-    else
-      this.y += grav;
-  }
-}
-FallingPiece.prototype.hardDrop = function() {
-  this.y += this.getDrop(20);
-  this.lockDelay = settings['Lock Delay'];
-}
-FallingPiece.prototype.getDrop = function(distance) {
-  for (var i = 1; i <= distance; i++) {
-    if (!this.moveValid(0, i, this.tetro))
-      return i - 1;
-  }
-  return i - 1;
-}
-FallingPiece.prototype.hold = function() {
-  if (!this.held) {
-    if (holdPiece !== void 0) {
-      var temp = holdPiece;
-      this.x = pieces[holdPiece].x;
-      this.y = pieces[holdPiece].y;
-      this.pos = 0;
-      this.tetro = pieces[holdPiece].tetro;
-      this.kickData = pieces[holdPiece].kickData;
-      holdPiece = this.index;
-      this.index = temp;
-      newPiece = true;
-    } else {
-      holdPiece = this.index;
-      this.reset();
-    }
-    this.held = true;
-    //Draw Hold
-    clear(holdCtx);
-    if (holdPiece === 0 || holdPiece === 3) {
-      draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
-           2 + pieces[holdPiece].y, holdCtx);
-    } else {
-      draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 2.5,
-           2 + pieces[holdPiece].y, holdCtx);
-    }
-  }
-}
-FallingPiece.prototype.update = function() {
-  if (this.moveValid(0, 1, this.tetro)) {
-    landed = false;
-    if (settings.Gravity) {
-      var grav = gravityArr[settings.Gravity - 1];
-      if (grav > 1)
-        this.y += this.getDrop(grav);
-      else
-        this.y += grav;
-    } else {
-      this.y += gravity;
-    }
-  } else {
-    landed = true;
-    this.y = Math.floor(this.y);
-    if (this.lockDelay >= settings['Lock Delay']) {
-      addPiece(this.tetro);
-      this.reset();
-    } else {
-      var a = 1 / setting['Lock Delay'][settings['Lock Delay']];
-      activeCtx.globalCompositeOperation = 'source-atop';
-      activeCtx.fillStyle = 'rgba(0,0,0,' + a + ')';
-      activeCtx.fillRect(0, 0, activeCanvas.width, activeCanvas.height);
-      activeCtx.globalCompositeOperation = 'source-over';
-      this.lockDelay++;
-    }
-  }
-}
-/**
- * Checks if position and orientation passed is valid.
- *  We call it for every action instead of only once a frame in case one
- *  of the actions is still valid, we don't want to block it.
- */
-FallingPiece.prototype.moveValid = function(cx, cy, tetro) {
-  cx = cx + fallingPiece.x;
-  cy = Math.floor(cy + fallingPiece.y);
-
-  for (var x = 0; x < tetro.length; x++) {
-    for (var y = 0; y < tetro[x].length; y++) {
-      if (tetro[x][y] &&
-      ((cx + x < 0 || cx + x >= 10 || cy + y >= 22) ||
-      stack[cx + x][cy + y])) {
-        return false;
-      }
-    }
-  }
-  fallingPiece.lockDelay = 0;
-  return true;
-}
-FallingPiece.prototype.draw = function() {
-  draw(this.tetro, this.x, this.y, activeCtx);
-}
-FallingPiece.prototype.drawGhost = function() {
-  if (!settings.Ghost && !landed) {
-    draw(fallingPiece.tetro, fallingPiece.x,
-         fallingPiece.y + fallingPiece.getDrop(22), activeCtx, 0);
-  } else if (settings.Ghost === 1 && !landed) {
-    activeCtx.globalAlpha = 0.3;
-    draw(fallingPiece.tetro, fallingPiece.x,
-         fallingPiece.y + fallingPiece.getDrop(22), activeCtx);
-    activeCtx.globalAlpha = 1;
-  }
-}
-
-var fallingPiece = new FallingPiece();
-
-
 // ========================== View ============================================
 
+/**
+ * Draws grid in background.
+ */
 function bg(ctx) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.fillStyle = '#1c1c1c';
@@ -906,7 +599,7 @@ function drawCell(x, y, color, ctx) {
 }
 
 /**
- * Pre-renders all mino colors.
+ * Pre-renders all mino types in all colors.
  */
 function makeSprite() {
   var shaded = [
@@ -1047,7 +740,7 @@ function clear(ctx) {
 }
 
 /**
- * Takes an array of minos and tells drawCell where to draw it.
+ * Draws a 2d array of minos.
  */
 function draw(tetro, cx, cy, ctx, color) {
   for (var x = 0, len = tetro.length; x < len; x++) {
@@ -1058,109 +751,18 @@ function draw(tetro, cx, cy, ctx, color) {
 }
 
 /**
- * Draws the grabbag for the piece preview.
+ * Draws the piece preview.
  */
 function drawPreview() {
   clear(previewCtx);
   for (var i = 0; i < 6; i++) {
-    if (grabBag[inc + i] === 0 || grabBag[inc + i] === 3) {
-      draw(pieces[grabBag[inc + i]].tetro, pieces[grabBag[inc + i]].x - 3,
-           pieces[grabBag[inc + i]].y + 2 + i * 3, previewCtx);
+    if (grabBag[i] === 0 || grabBag[i] === 3) {
+      draw(pieces[grabBag[i]].tetro, pieces[grabBag[i]].x - 3,
+           pieces[grabBag[i]].y + 2 + i * 3, previewCtx);
     } else {
-      draw(pieces[grabBag[inc + i]].tetro, pieces[grabBag[inc + i]].x - 2.5,
-           pieces[grabBag[inc + i]].y + 2 + i * 3, previewCtx);
+      draw(pieces[grabBag[i]].tetro, pieces[grabBag[i]].x - 2.5,
+           pieces[grabBag[i]].y + 2 + i * 3, previewCtx);
     }
-  }
-}
-
-/**
- * Draws the stack.
- */
-function drawStack() {
-  clear(stackCtx);
-  draw(stack, 0, 0, stackCtx);
-
-  // Darken Stack
-  // TODO wrap this with an option.
-  stackCtx.globalCompositeOperation = 'source-atop';
-  stackCtx.fillStyle = 'rgba(0,0,0,0.3)';
-  stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
-  stackCtx.globalCompositeOperation = 'source-over';
-
-  if (settings.Outline) {
-    var b = ~~(cellSize / 8);
-    var c = cellSize;
-    var lineCanvas = document.createElement('canvas');
-    lineCanvas.width = stackCanvas.width;
-    lineCanvas.height = stackCanvas.height;
-    var lineCtx = lineCanvas.getContext('2d');
-    lineCtx.fillStyle = 'rgba(255,255,255,0.5)';
-    lineCtx.beginPath();
-    for (var x = 0, len = stack.length; x < len; x++) {
-      for (var y = 0, wid = stack[x].length; y < wid; y++) {
-        if (stack[x][y]) {
-          if (x < 9 && !stack[x + 1][y]) {
-            lineCtx.fillRect(x * c + c - b, y * c - (2 * c), b, c);
-          }
-          if (x > 0 && !stack[x - 1][y]) {
-            lineCtx.fillRect(x * c, y * c - (2 * c), b, c);
-          }
-          if (y < 21 && !stack[x][y + 1]) {
-            lineCtx.fillRect(x * c, y * c - (2 * c) + c - b, c, b);
-          }
-          if (!stack[x][y - 1]) {
-            lineCtx.fillRect(x * c, y * c - (2 * c), c, b);
-          }
-          // Diags
-          if (x < 9 && y < 21) {
-            if (!stack[x + 1][y] && !stack[x][y + 1]) {
-              lineCtx.clearRect(x * c + c - b, y * c - (2 * c) + c - b, b, b);
-              lineCtx.fillRect(x * c + c - b, y * c - (2 * c) + c - b, b, b);
-            } else if (!stack[x + 1][y + 1] && stack[x + 1][y] && stack[x][y + 1]) {
-              lineCtx.moveTo(x * c + c, y * c - (2 * c) + c - b);
-              lineCtx.lineTo(x * c + c, y * c - (2 * c) + c);
-              lineCtx.lineTo(x * c + c - b, y * c - (2 * c) + c);
-              lineCtx.arc(x * c + c, y * c - (2 * c) + c, b, 3 * Math.PI / 2, Math.PI, true);
-            }
-          }
-          if (x < 9) {
-            if (!stack[x + 1][y] && !stack[x][y - 1]) {
-              lineCtx.clearRect(x * c + c - b, y * c - (2 * c), b, b);
-              lineCtx.fillRect(x * c + c - b, y * c - (2 * c), b, b);
-            } else if (!stack[x + 1][y - 1] && stack[x + 1][y] && stack[x][y - 1]) {
-              lineCtx.moveTo(x * c + c - b, y * c - (2 * c));
-              lineCtx.lineTo(x * c + c, y * c - (2 * c));
-              lineCtx.lineTo(x * c + c, y * c - (2 * c) + b);
-              lineCtx.arc(x * c + c, y * c - (2 * c), b, Math.PI / 2, Math.PI, false);
-            }
-          }
-          if (x > 0 && y < 21) {
-            if (!stack[x - 1][y] && !stack[x][y + 1]) {
-              lineCtx.clearRect(x * c, y * c - (2 * c) + c - b, b, b);
-              lineCtx.fillRect(x * c, y * c - (2 * c) + c - b, b, b);
-            } else if (!stack[x - 1][y + 1] && stack[x - 1][y] && stack[x][y + 1]) {
-              lineCtx.moveTo(x * c, y * c - (2 * c) + c - b);
-              lineCtx.lineTo(x * c, y * c - (2 * c) + c);
-              lineCtx.lineTo(x * c + b, y * c - (2 * c) + c);
-              lineCtx.arc(x * c, y * c - (2 * c) + c, b, Math.PI * 2, 3 * Math.PI / 2, true);
-            }
-          }
-          if (x > 0) {
-            if (!stack[x - 1][y] && !stack[x][y - 1]) {
-              lineCtx.clearRect(x * c, y * c - (2 * c), b, b);
-              lineCtx.fillRect(x * c, y * c - (2 * c), b, b);
-            } else if (!stack[x - 1][y - 1] && stack[x - 1][y] && stack[x][y - 1]) {
-              lineCtx.moveTo(x * c + b, y * c - (2 * c));
-              lineCtx.lineTo(x * c, y * c - (2 * c));
-              lineCtx.lineTo(x * c, y * c - (2 * c) + b);
-              lineCtx.arc(x * c, y * c - (2 * c), b, Math.PI / 2, Math.PI * 2, true);
-            }
-          }
-        }
-      }
-    }
-    lineCtx.fill();
-    stackCtx.drawImage(lineCanvas, 0, 0);
   }
 }
 
@@ -1185,6 +787,7 @@ addEventListener('keydown', function(e) {
   if (!watchingReplay) {
     if (e.keyCode === binds.moveLeft) {
       keysDown |= flags.moveLeft;
+      //piece.finesse++
     } else if (e.keyCode === binds.moveRight) {
       keysDown |= flags.moveRight;
     } else if (e.keyCode === binds.moveDown) {
@@ -1227,10 +830,12 @@ addEventListener('keyup', function(e) {
 
 // ========================== Loop ============================================
 
+//TODO Cleanup gameloop and update.
 /**
  * Runs every frame.
  */
 function update() {
+  //TODO Das preservation broken.
   if (lastKeys !== keysDown && !watchingReplay) {
     replayKeys[frame] = keysDown;
   } else if (frame in replayKeys) {
@@ -1238,30 +843,28 @@ function update() {
   }
 
   if (!(lastKeys & flags.holdPiece) && flags.holdPiece & keysDown) {
-    fallingPiece.hold();
+    piece.hold();
   }
-
-  fallingPiece.newPiece();
 
   if (flags.rotLeft & keysDown && !(lastKeys & flags.rotLeft)) {
-    fallingPiece.rotate(-1);
+    piece.rotate(-1);
   } else if (flags.rotRight & keysDown && !(lastKeys & flags.rotRight)) {
-    fallingPiece.rotate(1);
+    piece.rotate(1);
   } else if (flags.rot180 & keysDown && !(lastKeys & flags.rot180)) {
-    fallingPiece.rotate(1);
-    fallingPiece.rotate(1);
+    piece.rotate(1);
+    piece.rotate(1);
   }
 
-  fallingPiece.checkShift();
+  piece.checkShift();
 
   if (flags.moveDown & keysDown) {
-    fallingPiece.shiftDown();
+    piece.shiftDown();
   }
   if (!(lastKeys & flags.hardDrop) && flags.hardDrop & keysDown) {
-    fallingPiece.hardDrop();
+    piece.hardDrop();
   }
 
-  fallingPiece.update();
+  piece.update();
 
   // Win
   // TODO
@@ -1286,7 +889,6 @@ function update() {
   }
 }
 
-
 function gameLoop() {
   requestAnimFrame(gameLoop);
 
@@ -1299,19 +901,18 @@ function gameLoop() {
       update();
     }
 
-    if ((fallingPiece.x !== lastX ||
-    Math.floor(fallingPiece.y) !== lastY ||
-    fallingPiece.pos !== lastPos ||
-    newPiece) &&
-    fallingPiece.active) {
+    if (piece.x !== lastX ||
+    Math.floor(piece.y) !== lastY ||
+    piece.pos !== lastPos ||
+    piece.dirty) {
       clear(activeCtx);
-      fallingPiece.drawGhost();
-      fallingPiece.draw();
+      piece.drawGhost();
+      piece.draw();
     }
-    lastX = fallingPiece.x;
-    lastY = Math.floor(fallingPiece.y);
-    lastPos = fallingPiece.pos;
-    newPiece = false;
+    lastX = piece.x;
+    lastY = Math.floor(piece.y);
+    lastPos = piece.pos;
+    piece.dirty = false;
   } else if (gameState === 2) {
     // Count Down
     if (frame < 50) {
@@ -1322,6 +923,7 @@ function gameLoop() {
       msg.innerHTML = '';
       gameState = 0;
       startTime = Date.now();
+      piece.new();
     }
     // DAS Preload
     if (lastKeys !== keysDown && !watchingReplay) {
@@ -1331,12 +933,12 @@ function gameLoop() {
     }
     if (keysDown & flags.moveLeft) {
       lastKeys = keysDown;
-      fallingPiece.shiftDelay = settings.DAS;
+      piece.shiftDelay = settings.DAS;
       shiftReleased = false;
       shift = -1;
     } else if (keysDown & flags.moveRight) {
       lastKeys = keysDown;
-      fallingPiece.shiftDelay = settings.DAS;
+      piece.shiftDelay = settings.DAS;
       shiftReleased = false;
       shift = 1;
     }
@@ -1348,9 +950,9 @@ function gameLoop() {
       clear(activeCtx);
     if (frame % 2) {
       for (var x = 0; x < 10; x++) {
-        if (stack[x][toGreyRow]) stack[x][toGreyRow] = gameState - 1;
+        if (stack.grid[x][toGreyRow]) stack.grid[x][toGreyRow] = gameState - 1;
       }
-      drawStack();
+      stack.draw();
       toGreyRow--;
     }
   }
