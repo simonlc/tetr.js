@@ -74,12 +74,6 @@ Stack.prototype.addPiece = function(tetro) {
 
   statsFinesse += piece.finesse - finesse[piece.index][piece.pos][column];
   piecesSet++; // NOTE Stats
-  console.log("Column: " + column);
-  console.log("Finesse: " + statsFinesse);
-  console.log("Piece: " + piece.finesse);
-  console.log("pos: " + piece.pos);
-  console.log("Index: " + piece.index);
-  console.log("-----------------------");
   // TODO Might not need this (same for in init)
   column = 0;
 

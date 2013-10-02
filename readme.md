@@ -32,6 +32,7 @@
 - Ghost piece color and transparency
 - Responsive design
 - Preload das preservation during countdown
+- Finesse faults counter.
 
 ## Planned future mechanics and features
 

@@ -152,15 +152,15 @@ var finesse = [
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
-    [2, 3, 2, 1, 2, 3, 3, 2, 2],
     [2, 2, 3, 2, 1, 2, 3, 3, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2]
+    [2, 3, 2, 1, 2, 3, 3, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2, 2]
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
     [2, 2, 3, 2, 1, 2, 3, 3, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2]
+    [2, 3, 2, 1, 2, 3, 3, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2, 2]
   ],
   [
     [1, 2, 2, 1, 0, 1, 2, 2, 1],
@@ -177,8 +177,8 @@ var finesse = [
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
     [2, 2, 3, 2, 1, 2, 3, 3, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2]
+    [2, 3, 2, 1, 2, 3, 3, 2],
+    [2, 3, 2, 1, 2, 3, 3, 2, 2]
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
@@ -191,8 +191,6 @@ var finesse = [
 /**
  * Gameplay specific vars.
  */
-var holdPiece;
-var shift;
 var gravityUnit = 0.00390625;
 var gravity;
 var gravityArr = (function() {
@@ -271,7 +269,6 @@ var gameState = 3;
 
 var paused = false;
 var lineLimit;
-var grabBag;
 
 var replayKeys;
 var watchingReplay = false;
@@ -300,7 +297,7 @@ var binds = {
   moveRight: 39,
   moveDown: 40,
   hardDrop: 32,
-  holdPiece: 67,
+  hold: 67,
   rotRight: 88,
   rotLeft: 90,
   rot180: 16,
@@ -311,7 +308,7 @@ var flags = {
   moveRight: 2,
   moveLeft: 4,
   moveDown: 8,
-  holdPiece: 16,
+  hold: 16,
   rotRight: 32,
   rotLeft: 64,
   rot180: 128,
@@ -380,15 +377,9 @@ function resize() {
     piece.drawGhost();
     piece.draw();
     stack.draw();
-    drawPreview();
-    if (holdPiece) {
-      if (holdPiece === 0 || holdPiece === 3) {
-        draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
-             2 + pieces[holdPiece].y, holdCtx);
-      } else {
-        draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 2.5,
-             2 + pieces[holdPiece].y, holdCtx);
-      }
+    preview.draw();
+    if (hold.piece) {
+      hold.draw();
     }
   }
 }
@@ -407,7 +398,7 @@ function init(gt) {
   } else {
     watchingReplay = false;
     replayKeys = {};
-    // TODO make new seed an rng method
+    // TODO Make new seed and rng method.
     replayKeys.seed = ~~(Math.random() * 2147483645) + 1;
     gametype = gt;
   }
@@ -419,7 +410,8 @@ function init(gt) {
   keysDown = 0;
   lastKeys = 0;
   released = 255;
-  shift = 0;
+  //TODO Check if needed.
+  piece.shift = 0;
   shiftReleased = true;
 
   startPauseTime = 0;
@@ -431,17 +423,12 @@ function init(gt) {
   frame = 0;
   lastPos = 'reset';
   stack.new(10, 22);
-  holdPiece = void 0;
+  hold.piece = void 0;
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = Date.now();
 
-  //XXX fix ugly code lolwut
-  while (1) {
-    grabBag = randomGenerator();
-    if ([3,4,6].indexOf(grabBag[0]) === -1) break;
-  }
-  grabBag.push.apply(grabBag, randomGenerator());
-  drawPreview();
+  preview.init()
+  //preview.draw();
 
   statsFinesse = 0;
   lines = 0;
@@ -463,7 +450,6 @@ function init(gt) {
 
     statsLines.innerHTML = 10;
     statsLines.innerHTML = 10;
-    //TODO Use seed
     var randomNums = [];
     for (var i = 0; i < 10; i++) {
       var random = ~~(rng.next() * 10);
@@ -750,22 +736,6 @@ function draw(tetro, cx, cy, ctx, color) {
   }
 }
 
-/**
- * Draws the piece preview.
- */
-function drawPreview() {
-  clear(previewCtx);
-  for (var i = 0; i < 6; i++) {
-    if (grabBag[i] === 0 || grabBag[i] === 3) {
-      draw(pieces[grabBag[i]].tetro, pieces[grabBag[i]].x - 3,
-           pieces[grabBag[i]].y + 2 + i * 3, previewCtx);
-    } else {
-      draw(pieces[grabBag[i]].tetro, pieces[grabBag[i]].x - 2.5,
-           pieces[grabBag[i]].y + 2 + i * 3, previewCtx);
-    }
-  }
-}
-
 // ========================== Controller ======================================
 
 addEventListener('keydown', function(e) {
@@ -800,8 +770,8 @@ addEventListener('keydown', function(e) {
       keysDown |= flags.rotLeft;
     } else if (e.keyCode === binds.rot180) {
       keysDown |= flags.rot180;
-    } else if (e.keyCode === binds.holdPiece) {
-      keysDown |= flags.holdPiece;
+    } else if (e.keyCode === binds.hold) {
+      keysDown |= flags.hold;
     }
   }
 }, false);
@@ -821,8 +791,8 @@ addEventListener('keyup', function(e) {
       keysDown ^= flags.rotLeft;
     } else if (e.keyCode === binds.rot180 && keysDown & flags.rot180) {
       keysDown ^= flags.rot180;
-    } else if (e.keyCode === binds.holdPiece && keysDown & flags.holdPiece) {
-      keysDown ^= flags.holdPiece;
+    } else if (e.keyCode === binds.hold && keysDown & flags.hold) {
+      keysDown ^= flags.hold;
     }
   }
 }, false);
@@ -842,23 +812,27 @@ function update() {
     keysDown = replayKeys[frame];
   }
 
-  if (!(lastKeys & flags.holdPiece) && flags.holdPiece & keysDown) {
+  if (!(lastKeys & flags.hold) && flags.hold & keysDown) {
     piece.hold();
   }
 
   if (flags.rotLeft & keysDown && !(lastKeys & flags.rotLeft)) {
     piece.rotate(-1);
+    piece.finesse++;
   } else if (flags.rotRight & keysDown && !(lastKeys & flags.rotRight)) {
     piece.rotate(1);
+    piece.finesse++;
   } else if (flags.rot180 & keysDown && !(lastKeys & flags.rot180)) {
     piece.rotate(1);
     piece.rotate(1);
+    piece.finesse++;
   }
 
   piece.checkShift();
 
   if (flags.moveDown & keysDown) {
     piece.shiftDown();
+    //piece.finesse++;
   }
   if (!(lastKeys & flags.hardDrop) && flags.hardDrop & keysDown) {
     piece.hardDrop();

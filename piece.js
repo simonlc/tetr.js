@@ -7,6 +7,8 @@ function Piece() {
   this.kickData;
   this.lockDelay = 0;
   this.shiftDelay = 0;
+  this.shiftDir;
+  this.shiftReleased;
   this.arrDelay = 0;
   this.held = false;
   this.finesse = 0;
@@ -15,7 +17,8 @@ function Piece() {
 /**
  * Removes last active piece, and gets the next active piece from the grab bag.
  */
-Piece.prototype.new = function() {
+Piece.prototype.new = function(index) {
+  // TODO if no arguments, get next grabbag piece
   this.pos = 0;
   this.tetro = [];
   this.held = false;
@@ -26,19 +29,18 @@ Piece.prototype.new = function() {
 
   // TODO Do this better. Make clone object func maybe.
   //for property in pieces, this.prop = piece.prop
-  this.tetro = pieces[grabBag[0]].tetro;
-  this.kickData = pieces[grabBag[0]].kickData;
-  this.x = pieces[grabBag[0]].x;
-  this.y = pieces[grabBag[0]].y;
-  this.index = pieces[grabBag[0]].index;
+  this.tetro = pieces[index].tetro;
+  this.kickData = pieces[index].kickData;
+  this.x = pieces[index].x;
+  this.y = pieces[index].y;
+  this.index = index;
 
-  // Determine if we need another grab bag.
+  // TODO ---------------- snip
+
   //TODO Do this better. (make grabbag object)
-  grabBag.shift();
-  if (grabBag.length === 7) {
-    grabBag.push.apply(grabBag, randomGenerator());
-  }
-  drawPreview();
+  // Preview.next(); == grabbag.next()
+  // Preview.draw();
+  preview.next();
 
   // Check for blockout.
   if (!this.moveValid(0, 0, this.tetro)) {
@@ -90,21 +92,21 @@ Piece.prototype.rotate = function(direction) {
   }
 }
 Piece.prototype.checkShift = function() {
-  // If left or right is pressed, but not both
+  // Shift key pressed event.
   if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
     shiftReleased = true;
     shift = -1;
-    //this.finesse++;
+    this.finesse++;
   } else if (keysDown & flags.moveRight && !(lastKeys & flags.moveRight)) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
     shiftReleased = true;
     shift = 1;
-    //this.finesse++;
+    this.finesse++;
   }
-  //shift released
+  // Shift key released event.
   if (shift === 1 &&
   !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
     this.shiftDelay = 0;
@@ -130,6 +132,7 @@ Piece.prototype.checkShift = function() {
     shiftReleased = true;
     shift = 0;
   }
+  // Handle events
   if (shift) {
     // 1. When key pressed instantly move over once.
     if (shiftReleased) {
@@ -187,33 +190,17 @@ Piece.prototype.getDrop = function(distance) {
   return i - 1;
 }
 Piece.prototype.hold = function() {
-  var temp = holdPiece;
+  var temp = hold.piece;
   if (!this.held) {
-    if (holdPiece !== void 0) {
-      // TODO make this.new take an argument (number) and remove this.
-      this.pos = 0;
-      this.x = pieces[holdPiece].x;
-      this.y = pieces[holdPiece].y;
-      this.tetro = pieces[holdPiece].tetro;
-      this.kickData = pieces[holdPiece].kickData;
-      holdPiece = this.index;
-      this.index = temp;
-      this.dirty = true;
-      this.finesse = 0;
+    if (hold.piece !== void 0) {
+      hold.piece = this.index;
+      this.new(temp);
     } else {
-      holdPiece = this.index;
+      hold.piece = this.index;
       this.new();
     }
     this.held = true;
-    //Draw Hold (make func?)
-    clear(holdCtx);
-    if (holdPiece === 0 || holdPiece === 3) {
-      draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 3,
-           2 + pieces[holdPiece].y, holdCtx);
-    } else {
-      draw(pieces[holdPiece].tetro, pieces[holdPiece].x - 2.5,
-           2 + pieces[holdPiece].y, holdCtx);
-    }
+    hold.draw();
   }
 }
 /**

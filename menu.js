@@ -1,4 +1,4 @@
-var version = '0.1.7';
+var version = '0.1.8';
 var setLoop;
 var arrowReleased = true;
 var arrowDelay = 0;
@@ -144,8 +144,10 @@ function loadLocalData() {
       controlCells[i].innerHTML = key[binds[controlCells[i].id]];
     }
   }
+  // TODO When new version just update with new stuff, rest stays unchanged.
   if (localStorage['version'] !== version)
     localStorage.removeItem('settings');
+    localStorage.removeItem('binds');
   if (localStorage['settings']) {
     settings = JSON.parse(localStorage.getItem('settings'));
   }
