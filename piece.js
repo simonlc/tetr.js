@@ -96,63 +96,63 @@ Piece.prototype.checkShift = function() {
   if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
+    this.shiftReleased = true;
+    this.shiftDir = -1;
     this.finesse++;
   } else if (keysDown & flags.moveRight && !(lastKeys & flags.moveRight)) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
+    this.shiftReleased = true;
+    this.shiftDir = 1;
     this.finesse++;
   }
   // Shift key released event.
-  if (shift === 1 &&
+  if (this.shiftDir === 1 &&
   !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
-    shiftReleased = true;
-    shift = -1;
-  } else if (shift === -1 &&
+    this.shiftReleased = true;
+    this.shiftDir = -1;
+  } else if (this.shiftDir === -1 &&
   !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
-    shiftReleased = true;
-    shift = 1;
+    this.shiftReleased = true;
+    this.shiftDir = 1;
   } else if (
   !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
-    shift = -1;
+    this.shiftDir = -1;
   } else if (
   !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
-    shift = 1;
+    this.shiftDir = 1;
   } else if ((!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
              (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
-    shiftReleased = true;
-    shift = 0;
+    this.shiftReleased = true;
+    this.shiftDir = 0;
   }
   // Handle events
-  if (shift) {
+  if (this.shiftDir) {
     // 1. When key pressed instantly move over once.
-    if (shiftReleased) {
-      this.shift(shift);
+    if (this.shiftReleased) {
+      this.shift(this.shiftDir);
       this.shiftDelay++;
-      shiftReleased = false;
+      this.shiftReleased = false;
     // 2. Apply DAS delay
     } else if (this.shiftDelay < settings.DAS) {
       this.shiftDelay++;
     // 3. Once the delay is complete, move over once.
     //     Increment delay so this doesn't run again.
     } else if (this.shiftDelay === settings.DAS && settings.DAS !== 0) {
-      this.shift(shift);
+      this.shift(this.shiftDir);
       if (settings.ARR !== 0) this.shiftDelay++;
     // 4. Apply ARR delay
     } else if (this.arrDelay < settings.ARR) {
       this.arrDelay++;
     // 5. If ARR Delay is full, move piece, and reset delay and repeat.
     } else if (this.arrDelay === settings.ARR && settings.ARR !== 0) {
-      this.shift(shift);
+      this.shift(this.shiftDir);
     }
   }
 }
