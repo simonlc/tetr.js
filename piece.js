@@ -40,7 +40,7 @@ Piece.prototype.new = function(index) {
   //TODO Do this better. (make grabbag object)
   // Preview.next(); == grabbag.next()
   // Preview.draw();
-  preview.next();
+  //preview.next();
 
   // Check for blockout.
   if (!this.moveValid(0, 0, this.tetro)) {
@@ -197,7 +197,7 @@ Piece.prototype.hold = function() {
       this.new(temp);
     } else {
       hold.piece = this.index;
-      this.new();
+      this.new(preview.next());
     }
     this.held = true;
     hold.draw();
@@ -241,7 +241,7 @@ Piece.prototype.update = function() {
     this.y = Math.floor(this.y);
     if (this.lockDelay >= settings['Lock Delay']) {
       stack.addPiece(this.tetro);
-      this.new();
+      this.new(preview.next());
     } else {
       var a = 1 / setting['Lock Delay'][settings['Lock Delay']];
       activeCtx.globalCompositeOperation = 'source-atop';

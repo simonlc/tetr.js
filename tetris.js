@@ -289,7 +289,6 @@ var digLines;
 var keysDown;
 var lastKeys;
 var released;
-var shiftReleased;
 
 var binds = {
   pause: 27,
@@ -297,7 +296,7 @@ var binds = {
   moveRight: 39,
   moveDown: 40,
   hardDrop: 32,
-  hold: 67,
+  holdPiece: 67,
   rotRight: 88,
   rotLeft: 90,
   rot180: 16,
@@ -308,7 +307,7 @@ var flags = {
   moveRight: 2,
   moveLeft: 4,
   moveDown: 8,
-  hold: 16,
+  holdPiece: 16,
   rotRight: 32,
   rotLeft: 64,
   rot180: 128,
@@ -411,8 +410,8 @@ function init(gt) {
   lastKeys = 0;
   released = 255;
   //TODO Check if needed.
-  piece.shift = 0;
-  shiftReleased = true;
+  piece.shiftDir = 0;
+  piece.shiftReleased = true;
 
   startPauseTime = 0;
   pauseTime = 0;
@@ -730,6 +729,7 @@ function draw(tetro, cx, cy, ctx, color) {
 // ========================== Controller ======================================
 
 addEventListener('keydown', function(e) {
+  // TODO send to menu or game depending on context.
   if ([32,37,38,39,40].indexOf(e.keyCode) !== -1)
     e.preventDefault();
   //TODO if active, prevent default for binded keys
@@ -761,8 +761,8 @@ addEventListener('keydown', function(e) {
       keysDown |= flags.rotLeft;
     } else if (e.keyCode === binds.rot180) {
       keysDown |= flags.rot180;
-    } else if (e.keyCode === binds.hold) {
-      keysDown |= flags.hold;
+    } else if (e.keyCode === binds.holdPiece) {
+      keysDown |= flags.holdPiece;
     }
   }
 }, false);
@@ -782,8 +782,8 @@ addEventListener('keyup', function(e) {
       keysDown ^= flags.rotLeft;
     } else if (e.keyCode === binds.rot180 && keysDown & flags.rot180) {
       keysDown ^= flags.rot180;
-    } else if (e.keyCode === binds.hold && keysDown & flags.hold) {
-      keysDown ^= flags.hold;
+    } else if (e.keyCode === binds.holdPiece && keysDown & flags.holdPiece) {
+      keysDown ^= flags.holdPiece;
     }
   }
 }, false);
@@ -803,7 +803,7 @@ function update() {
     keysDown = replayKeys[frame];
   }
 
-  if (!(lastKeys & flags.hold) && flags.hold & keysDown) {
+  if (!(lastKeys & flags.holdPiece) && flags.holdPiece & keysDown) {
     piece.hold();
   }
 
@@ -857,6 +857,7 @@ function update() {
 function gameLoop() {
   requestAnimFrame(gameLoop);
 
+  //TODO check to see how pause works in replays.
   frame++;
 
   if (gameState === 0) {
@@ -866,6 +867,7 @@ function gameLoop() {
       update();
     }
 
+    // TODO improve this with 'dirty' flags.
     if (piece.x !== lastX ||
     Math.floor(piece.y) !== lastY ||
     piece.pos !== lastPos ||
@@ -888,7 +890,7 @@ function gameLoop() {
       msg.innerHTML = '';
       gameState = 0;
       startTime = Date.now();
-      piece.new();
+      piece.new(preview.next());
     }
     // DAS Preload
     if (lastKeys !== keysDown && !watchingReplay) {
@@ -899,13 +901,13 @@ function gameLoop() {
     if (keysDown & flags.moveLeft) {
       lastKeys = keysDown;
       piece.shiftDelay = settings.DAS;
-      shiftReleased = false;
-      shift = -1;
+      piece.shiftReleased = false;
+      piece.shiftDir = -1;
     } else if (keysDown & flags.moveRight) {
       lastKeys = keysDown;
       piece.shiftDelay = settings.DAS;
-      shiftReleased = false;
-      shift = 1;
+      piece.shiftReleased = false;
+      piece.shiftDir = 1;
     }
   } else if (toGreyRow >= 2){
     /**

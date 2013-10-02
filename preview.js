@@ -11,11 +11,13 @@ Preview.prototype.init = function() {
   this.draw();
 }
 Preview.prototype.next = function() {
-  this.grabBag.shift();
+  var next;
+  next = this.grabBag.shift();
   if (this.grabBag.length === 7) {
     this.grabBag.push.apply(this.grabBag, this.gen());
   }
   this.draw();
+  return next;
   //TODO Maybe return the next piece?
 }
 /**

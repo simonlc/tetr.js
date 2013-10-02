@@ -145,9 +145,10 @@ function loadLocalData() {
     }
   }
   // TODO When new version just update with new stuff, rest stays unchanged.
-  if (localStorage['version'] !== version)
+  if (localStorage['version'] !== version) {
     localStorage.removeItem('settings');
     localStorage.removeItem('binds');
+  }
   if (localStorage['settings']) {
     settings = JSON.parse(localStorage.getItem('settings'));
   }
