@@ -524,15 +524,6 @@ function unpause() {
 }
 
 /**
- * Creates a "grab bag" of the 7 tetrominos. The first
- *  drop of the first generation can not be an S, O, or Z piece.
- */
-function randomGenerator() {
-  var pieceList = [0, 1, 2, 3, 4, 5, 6];
-  return pieceList.sort(function() {return 0.5 - rng.next()});
-}
-
-/**
  * Park Miller "Minimal Standard" PRNG.
  */
 //TODO put random seed method in here.
