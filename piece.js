@@ -1,14 +1,14 @@
 function Piece() {
-  this.x;
-  this.y;
+  this.x = 0;
+  this.y = 0;
   this.pos = 0;
-  this.tetro;
-  this.index;
-  this.kickData;
+  this.tetro = null;
+  this.index = 0;
+  this.kickData = null;
   this.lockDelay = 0;
   this.shiftDelay = 0;
-  this.shiftDir;
-  this.shiftReleased;
+  this.shiftDir = 0;
+  this.shiftReleased = false;
   this.arrDelay = 0;
   this.held = false;
   this.finesse = 0;
@@ -48,22 +48,24 @@ Piece.prototype.new = function(index) {
     msg.innerHTML = 'BLOCK OUT!';
     menu(3);
   }
-}
+};
+
 Piece.prototype.rotate = function(direction) {
 
   // Rotates tetromino.
   var rotated = [];
+  var i, row;
   if (direction === -1) {
-    for (var i = this.tetro.length - 1; i >= 0; i--) {
+    for (i = this.tetro.length - 1; i >= 0; i--) {
       rotated[i] = [];
-      for (var row = 0; row < this.tetro.length; row++) {
+      for (row = 0; row < this.tetro.length; row++) {
         rotated[i][this.tetro.length - 1 - row] = this.tetro[row][i];
       }
     }
   } else {
-    for (var i = 0; i < this.tetro.length; i++) {
+    for (i = 0; i < this.tetro.length; i++) {
       rotated[i] = [];
-      for (var row = this.tetro.length - 1; row >= 0; row--) {
+      for (row = this.tetro.length - 1; row >= 0; row--) {
         rotated[i][row] = this.tetro[row][this.tetro.length - 1 - i];
       }
     }
@@ -90,7 +92,8 @@ Piece.prototype.rotate = function(direction) {
       break;
     }
   }
-}
+};
+
 Piece.prototype.checkShift = function() {
   // Shift key pressed event.
   if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
@@ -155,7 +158,8 @@ Piece.prototype.checkShift = function() {
       this.shift(this.shiftDir);
     }
   }
-}
+};
+
 Piece.prototype.shift = function(direction) {
   this.arrDelay = 0;
   if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
@@ -168,7 +172,8 @@ Piece.prototype.shift = function(direction) {
   } else if (this.moveValid(direction, 0, this.tetro)) {
     this.x += direction;
   }
-}
+};
+
 Piece.prototype.shiftDown = function() {
   if (this.moveValid(0, 1, this.tetro)) {
     var grav = gravityArr[settings['Soft Drop'] + 1];
@@ -177,18 +182,21 @@ Piece.prototype.shiftDown = function() {
     else
       this.y += grav;
   }
-}
+};
+
 Piece.prototype.hardDrop = function() {
   this.y += this.getDrop(20);
   this.lockDelay = settings['Lock Delay'];
-}
+};
+
 Piece.prototype.getDrop = function(distance) {
   for (var i = 1; i <= distance; i++) {
     if (!this.moveValid(0, i, this.tetro))
       return i - 1;
   }
   return i - 1;
-}
+};
+
 Piece.prototype.hold = function() {
   var temp = hold.piece;
   if (!this.held) {
@@ -202,7 +210,8 @@ Piece.prototype.hold = function() {
     this.held = true;
     hold.draw();
   }
-}
+};
+
 /**
  * Checks if position and orientation passed is valid.
  *  We call it for every action instead of only once a frame in case one
@@ -223,7 +232,8 @@ Piece.prototype.moveValid = function(cx, cy, tetro) {
   }
   this.lockDelay = 0;
   return true;
-}
+};
+
 Piece.prototype.update = function() {
   if (this.moveValid(0, 1, this.tetro)) {
     landed = false;
@@ -251,10 +261,12 @@ Piece.prototype.update = function() {
       this.lockDelay++;
     }
   }
-}
+};
+
 Piece.prototype.draw = function() {
   draw(this.tetro, this.x, this.y, activeCtx);
-}
+};
+
 Piece.prototype.drawGhost = function() {
   if (!settings.Ghost && !landed) {
     draw(this.tetro, this.x,
@@ -265,6 +277,6 @@ Piece.prototype.drawGhost = function() {
          this.y + this.getDrop(22), activeCtx);
     activeCtx.globalAlpha = 1;
   }
-}
+};
 
 var piece = new Piece();

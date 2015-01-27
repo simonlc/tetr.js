@@ -196,10 +196,12 @@ var gravity;
 var gravityArr = (function() {
   var array = [];
   array.push(0);
-  for (var i = 1; i < 64; i++)
+  for (var i = 1; i < 64; i++) {
     array.push(i / 64);
-  for (var i = 1; i <= 20; i++)
-    array.push(i);
+  }
+  for (var j = 1; j <= 20; j++) {
+    array.push(j);
+  }
   return array;
 })();
 
@@ -225,18 +227,22 @@ var setting = {
     var array = [];
     array.push('Auto');
     array.push('0G');
-    for (var i = 1; i < 64; i++)
+    for (var i = 1; i < 64; i++) {
       array.push(i + '/64G');
-    for (var i = 1; i <= 20; i++)
-      array.push(i + 'G');
+    }
+    for (var j = 1; j <= 20; j++) {
+      array.push(j + 'G');
+    }
     return array;
   })(),
   'Soft Drop': (function() {
     var array = [];
-    for (var i = 1; i < 64; i++)
+    for (var i = 1; i < 64; i++) {
       array.push(i + '/64G');
-    for (var i = 1; i <= 20; i++)
-      array.push(i + 'G');
+    }
+    for (var j = 1; j <= 20; j++) {
+      array.push(j + 'G');
+    }
     return array;
   })(),
   'Lock Delay': range(0,101),
@@ -454,13 +460,15 @@ function init(gt) {
       var random = ~~(rng.next() * 10);
       if (random !== randomNums[i - 1])
         randomNums.push(random);
-      else
-        i--
+      else {
+        i--;
+      }
     }
     for (var y = 21; y > 11; y--) {
       for (var x = 0; x < 10; x++) {
-        if (randomNums[y - 12] !== x)
-          stack.grid[x][y] = 8;
+        if (randomNums[y - 12] !== x) {
+            stack.grid[x][y] = 8;
+          }
       }
     }
     stack.draw();
@@ -511,7 +519,7 @@ function pause() {
     paused = true;
     startPauseTime = Date.now();
     msg.innerHTML = "Paused";
-    menu(4);    
+    menu(4);
   }
 }
 
@@ -531,10 +539,10 @@ var rng = new (function() {
   this.next = function() {
     // Returns a float between 0.0, and 1.0
     return (this.gen() / 2147483647);
-  }
+  };
   this.gen = function() {
     return this.seed = (this.seed * 16807) % 2147483647;
-  }
+  };
 })();
 
 /**
@@ -654,6 +662,7 @@ function makeSprite() {
       spriteCtx.fillStyle = shaded[i][0];
       spriteCtx.fillRect(x, 0, cellSize, cellSize);
     } else if (settings.Block === 2) {
+      console.log('glosssssy')
       // Glossy
       var k = Math.max(~~(cellSize * 0.083), 1);
 

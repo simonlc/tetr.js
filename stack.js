@@ -10,7 +10,8 @@ Stack.prototype.new = function(x, y) {
     cells[i] = new Array(y);
   }
   this.grid = cells;
-}
+};
+
 /**
  * Adds tetro to the stack, and clears lines if they fill up.
  */
@@ -20,8 +21,9 @@ Stack.prototype.addPiece = function(tetro) {
   // Add the piece to the stack.
   var range = [];
   var valid = false;
-  for (var x = 0; x < tetro.length; x++) {
-    for (var y = 0; y < tetro[x].length; y++) {
+  var x, y;
+  for (x = 0; x < tetro.length; x++) {
+    for (y = 0; y < tetro[x].length; y++) {
       if (tetro[x][y]) {
         this.grid[x + piece.x][y + piece.y] = tetro[x][y];
         // Get column for finesse
@@ -49,10 +51,13 @@ Stack.prototype.addPiece = function(tetro) {
   }
 
   // Check modified lines for full lines.
-  range = range.sort(function(a,b){return a-b});
+  range = range.sort(function(a,b) {
+    return a-b;
+  });
+  
   for (var row = range[0], len = row + range.length; row < len; row++) {
     var count = 0;
-    for (var x = 0; x < 10; x++) {
+    for (x = 0; x < 10; x++) {
       if (this.grid[x][row]) count++;
     }
     // Clear the line. This basically just moves down the stack.
@@ -64,8 +69,8 @@ Stack.prototype.addPiece = function(tetro) {
           digLines.splice(digLines.indexOf(row), 1);
         }
       }
-      for (var y = row; y >= -1; y--) {
-        for (var x = 0; x < 10; x++) {
+      for (y = row; y >= -1; y--) {
+        for (x = 0; x < 10; x++) {
           this.grid[x][y] = this.grid[x][y - 1];
         }
       }
@@ -85,7 +90,8 @@ Stack.prototype.addPiece = function(tetro) {
     statsLines.innerHTML = digLines.length;
 
   this.draw();
-}
+};
+
 /**
  * Draws the stack.
  */
@@ -175,5 +181,6 @@ Stack.prototype.draw = function() {
     lineCtx.fill();
     stackCtx.drawImage(lineCanvas, 0, 0);
   }
-}
+};
+
 var stack = new Stack();
