@@ -1,5 +1,4 @@
 // ========================== Controller ======================================
-
 addEventListener('keydown', function(e) {
   // TODO send to menu or game depending on context.
   if ([32,37,38,39,40].indexOf(e.keyCode) !== -1)

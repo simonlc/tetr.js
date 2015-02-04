@@ -250,8 +250,8 @@ Piece.prototype.update = function() {
     landed = true;
     this.y = Math.floor(this.y);
     if (this.lockDelay >= settings['Lock Delay']) {
-      stack.addPiece(this.tetro);
-      otherStack.addPiece(this.tetro);
+      stack.addPiece(this.tetro, true);
+      otherStack.addPiece(this.tetro, false);
       this.new(preview.next());
     } else {
       var a = 1 / setting['Lock Delay'][settings['Lock Delay']];
@@ -279,5 +279,3 @@ Piece.prototype.drawGhost = function() {
     activeCtx.globalAlpha = 1;
   }
 };
-
-var piece = new Piece();

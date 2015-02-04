@@ -15,7 +15,7 @@ Stack.prototype.new = function(x, y) {
 /**
  * Adds tetro to the stack, and clears lines if they fill up.
  */
-Stack.prototype.addPiece = function(tetro) {
+Stack.prototype.addPiece = function(tetro, modifyStats) {
   var once = false;
 
   // Add the piece to the stack.
@@ -58,12 +58,16 @@ Stack.prototype.addPiece = function(tetro) {
   for (var row = range[0], len = row + range.length; row < len; row++) {
     var count = 0;
     for (x = 0; x < 10; x++) {
-      if (this.grid[x][row]) count++;
+      if (this.grid[x][row]) {
+        count++;
+      }
     }
     // Clear the line. This basically just moves down the stack.
     // TODO Ponder during the day and see if there is a more elegant solution.
     if (count === 10) {
-      lines++; // NOTE stats
+      if (modifyStats) {
+        lines++;
+      }
       if (gametype === 3) {
         if (digLines.indexOf(row) !== -1) {
           digLines.splice(digLines.indexOf(row), 1);
@@ -77,17 +81,18 @@ Stack.prototype.addPiece = function(tetro) {
     }
   }
 
-  statsFinesse += piece.finesse - finesse[piece.index][piece.pos][column];
-  piecesSet++; // NOTE Stats
-  // TODO Might not need this (same for in init)
-  column = 0;
-
-  statsPiece.innerHTML = piecesSet;
-
-  if (gametype !== 3)
+  if (modifyStats) {
+    statsFinesse += piece.finesse - finesse[piece.index][piece.pos][column];
+    piecesSet++;
+    statsPiece.innerHTML = piecesSet;
+  
+    if (gametype !== 3) {
     statsLines.innerHTML = lineLimit - lines;
-  else
-    statsLines.innerHTML = digLines.length;
+    }
+    else {
+      statsLines.innerHTML = digLines.length;
+    }
+}
 
   this.draw();
 };
@@ -105,8 +110,8 @@ Stack.prototype.draw = function() {
   this.ctx.globalCompositeOperation = 'source-over';
 
   if (settings.Outline) {
-    var b = ~~(cellSize / 8);
-    var c = cellSize;
+    var b = ~~(this.ctx.canvas.cellSize / 8);
+    var c = this.ctx.canvas.cellSize;
     var lineCanvas = document.createElement('canvas');
     lineCanvas.width = stackCanvas.width;
     lineCanvas.height = stackCanvas.height;

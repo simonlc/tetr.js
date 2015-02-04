@@ -4,6 +4,7 @@
  * Draws grid in background.
  */
 function bg(ctx) {
+  var cellSize = ctx.canvas.cellSize;
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.fillStyle = '#1c1c1c';
   for (var x = -1; x < ctx.canvas.width + 1; x += cellSize) {
@@ -18,16 +19,22 @@ function bg(ctx) {
  * Draws a pre-rendered mino.
  */
 function drawCell(x, y, color, ctx) {
+  var cellSize = ctx.canvas.cellSize;
   x = x * cellSize;
   x = ~~x;
   y = ~~y * cellSize - 2 * cellSize;
+  if (ctx.canvas.cellSize != 20) {
+    console.log('preeya canvas')
+  }
+
   ctx.drawImage(spriteCanvas, color * cellSize, 0, cellSize, cellSize, x, y, cellSize, cellSize);
 }
 
 /**
  * Pre-renders all mino types in all colors.
  */
-function makeSprite() {
+function makeSprite(cellSize) {
+  // cellSize = 20;
   var shaded = [
     // 0         +10        -10        -20
     ['#c1c1c1', '#dddddd', '#a6a6a6', '#8b8b8b'],

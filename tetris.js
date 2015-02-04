@@ -11,7 +11,6 @@ the game so you know why some things are done a certain way.
 /**
  * Playfield.
  */
-var cellSize;
 var column;
 
 /**
@@ -47,6 +46,7 @@ var stack = new Stack(stackCtx);
 var otherStack = new Stack(otherStackCtx);
 
 var preview = new Preview();
+var piece = new Piece();
 
 var frame;
 
@@ -118,21 +118,29 @@ function resize() {
   var c = document.getElementById('c');
 
   var other = document.getElementById('other');
-
-
   var content = document.getElementById('content');
 
   // TODO Finalize this.
   // Aspect ratio: 1.024
   var screenHeight = window.innerHeight - 34;
   var screenWidth = ~~(screenHeight * 1.024);
+  var cellSize;
+  
   if (screenWidth > window.innerWidth)
     screenHeight = ~~(window.innerWidth / 1.024);
 
-  if (settings.Size === 1 && screenHeight > 602) cellSize = 15;
-  else if (settings.Size === 2 && screenHeight > 602) cellSize = 30;
-  else if (settings.Size === 3 && screenHeight > 902) cellSize = 45;
-  else cellSize = Math.max(~~(screenHeight / 20), 10);
+  if (settings.Size === 1 && screenHeight > 602) {
+    cellSize = 15;
+  }
+  else if (settings.Size === 2 && screenHeight > 602) {
+    cellSize = 30;
+  }
+  else if (settings.Size === 3 && screenHeight > 902) {
+    cellSize = 45;
+  }
+  else {
+    cellSize = Math.max(~~(screenHeight / 20), 10);
+  }
 
   var pad = (window.innerHeight - (cellSize * 20 + 2)) / 2 + 'px';
   content.style.padding = pad + ' 0';
@@ -143,6 +151,7 @@ function resize() {
 
   stackCanvas.width = activeCanvas.width = bgStackCanvas.width = cellSize * 10;
   stackCanvas.height = activeCanvas.height = bgStackCanvas.height = cellSize * 20;
+  stackCanvas.cellSize = 2;
   b.style.width = stackCanvas.width + 'px';
   b.style.height = stackCanvas.height + 'px';
 
@@ -173,7 +182,11 @@ function resize() {
   }
 
   // Redraw graphics
-  makeSprite();
+  makeSprite(cellSize);
+  stackCanvas.cellSize = holdCanvas.cellSize = bgStackCanvas.cellSize = 
+    activeCanvas.cellSize = previewCanvas.cellSize = spriteCanvas.cellSize = cellSize;
+
+  otherStackCanvas.cellSize = cellSize - 5;
 
   if (settings.Grid === 1)
     bg(bgStackCtx);
@@ -191,7 +204,6 @@ function resize() {
 }
 addEventListener('resize', resize, false);
 resize();
-
 /**
  * ========================== Model ===========================================
  */
