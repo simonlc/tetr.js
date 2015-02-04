@@ -1,5 +1,5 @@
-function Stack() {
-  //this.grid;
+function Stack(ctx) {
+  this.ctx = ctx;
 }
 /**
  * Creates a matrix for the playfield.
@@ -54,7 +54,7 @@ Stack.prototype.addPiece = function(tetro) {
   range = range.sort(function(a,b) {
     return a-b;
   });
-  
+
   for (var row = range[0], len = row + range.length; row < len; row++) {
     var count = 0;
     for (x = 0; x < 10; x++) {
@@ -96,15 +96,13 @@ Stack.prototype.addPiece = function(tetro) {
  * Draws the stack.
  */
 Stack.prototype.draw = function() {
-  clear(stackCtx);
-  draw(this.grid, 0, 0, stackCtx);
+  clear(this.ctx);
+  draw(this.grid, 0, 0, this.ctx);
 
-  // Darken Stack
-  // TODO wrap this with an option.
-  stackCtx.globalCompositeOperation = 'source-atop';
-  stackCtx.fillStyle = 'rgba(0,0,0,0.3)';
-  stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
-  stackCtx.globalCompositeOperation = 'source-over';
+  this.ctx.globalCompositeOperation = 'source-atop';
+  this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  this.ctx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
+  this.ctx.globalCompositeOperation = 'source-over';
 
   if (settings.Outline) {
     var b = ~~(cellSize / 8);
@@ -179,8 +177,6 @@ Stack.prototype.draw = function() {
       }
     }
     lineCtx.fill();
-    stackCtx.drawImage(lineCanvas, 0, 0);
+    this.ctx.drawImage(lineCanvas, 0, 0);
   }
 };
-
-var stack = new Stack();

@@ -251,6 +251,7 @@ Piece.prototype.update = function() {
     this.y = Math.floor(this.y);
     if (this.lockDelay >= settings['Lock Delay']) {
       stack.addPiece(this.tetro);
+      otherStack.addPiece(this.tetro);
       this.new(preview.next());
     } else {
       var a = 1 / setting['Lock Delay'][settings['Lock Delay']];

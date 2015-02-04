@@ -105,11 +105,11 @@ var s;
 var settingsArrow;
 // TODO DRY this.
 function arrowRelease() {
-    resize();
     arrowReleased = true;
     arrowDelay = 0;
-    clearTimeout(setLoop)
+    clearTimeout(setLoop);
 }
+
 function left() {
   settingsArrow = 1;
   s = this.parentNode.id;
@@ -117,6 +117,7 @@ function left() {
   this.onmouseout = arrowRelease;
   settingsLoop();
 }
+
 function right() {
   settingsArrow = 0;
   s = this.parentNode.id;
@@ -161,6 +162,7 @@ for (var s in settings) {
   var iLeft = document.createElement('i');
   var span = document.createElement('span');
   var iRight = document.createElement('i');
+  var set = document.getElementById('settings');
 
   div.id = s;
   b.innerHTML = s + ':';
@@ -176,4 +178,3 @@ for (var s in settings) {
   div.appendChild(span);
   div.appendChild(iRight);
 }
-resize();

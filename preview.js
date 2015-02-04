@@ -1,6 +1,7 @@
 function Preview() {
   grabBag = this.gen();
 }
+
 Preview.prototype.init = function() {
   //XXX fix ugly code lolwut
   while (1) {
@@ -9,7 +10,8 @@ Preview.prototype.init = function() {
   }
   this.grabBag.push.apply(this.grabBag, this.gen());
   this.draw();
-}
+};
+
 Preview.prototype.next = function() {
   var next;
   next = this.grabBag.shift();
@@ -19,14 +21,16 @@ Preview.prototype.next = function() {
   this.draw();
   return next;
   //TODO Maybe return the next piece?
-}
+};
+
 /**
  * Creates a "grab bag" of the 7 tetrominos.
  */
 Preview.prototype.gen = function() {
   var pieceList = [0, 1, 2, 3, 4, 5, 6];
   return pieceList.sort(function() {return 0.5 - rng.next()});
-}
+};
+
 /**
  * Draws the piece preview.
  */
@@ -41,5 +45,4 @@ Preview.prototype.draw = function() {
            pieces[this.grabBag[i]].y + 2 + i * 3, previewCtx);
     }
   }
-}
-var preview = new Preview();
+};
