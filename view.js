@@ -18,14 +18,13 @@ function bg(ctx) {
 /**
  * Draws a pre-rendered mino.
  */
-function drawCell(x, y, color, ctx) {
+function drawCell(x, y, color, ctx, spriteCanvas) {
   var cellSize = ctx.canvas.cellSize;
+  console.log(spriteCanvas.id, ctx.canvas.id);
+
   x = x * cellSize;
   x = ~~x;
   y = ~~y * cellSize - 2 * cellSize;
-  if (ctx.canvas.cellSize != 20) {
-    console.log('preeya canvas')
-  }
 
   ctx.drawImage(spriteCanvas, color * cellSize, 0, cellSize, cellSize, x, y, cellSize, cellSize);
 }
@@ -33,8 +32,7 @@ function drawCell(x, y, color, ctx) {
 /**
  * Pre-renders all mino types in all colors.
  */
-function makeSprite(cellSize) {
-  // cellSize = 20;
+function makeSprite(cellSize, spriteCanvas, spriteCtx) {
   var shaded = [
     // 0         +10        -10        -20
     ['#c1c1c1', '#dddddd', '#a6a6a6', '#8b8b8b'],
@@ -88,80 +86,79 @@ function makeSprite(cellSize) {
     var grad, k;
     if (settings.Block === 0) {
       // Shaded
-      spriteCtx.fillStyle = shaded[i][1];
-      spriteCtx.fillRect(x, 0, cellSize, cellSize);
+        // spriteCtx.fillStyle = shaded[i][1];
+        // spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-      spriteCtx.fillStyle = shaded[i][3];
-      spriteCtx.fillRect(x, cellSize / 2, cellSize, cellSize / 2);
+        // spriteCtx.fillStyle = shaded[i][3];
+        // spriteCtx.fillRect(x, cellSize / 2, cellSize, cellSize / 2);
 
-      spriteCtx.fillStyle = shaded[i][0];
-      spriteCtx.beginPath();
-      spriteCtx.moveTo(x, 0);
-      spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
-      spriteCtx.lineTo(x, cellSize);
-      spriteCtx.fill();
+        // spriteCtx.fillStyle = shaded[i][0];
+        // spriteCtx.beginPath();
+        // spriteCtx.moveTo(x, 0);
+        // spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
+        // spriteCtx.lineTo(x, cellSize);
+        // spriteCtx.fill();
 
-      spriteCtx.fillStyle = shaded[i][2];
-      spriteCtx.beginPath();
-      spriteCtx.moveTo(x + cellSize, 0);
-      spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
-      spriteCtx.lineTo(x + cellSize, cellSize);
-      spriteCtx.fill();
+        // spriteCtx.fillStyle = shaded[i][2];
+        // spriteCtx.beginPath();
+        // spriteCtx.moveTo(x + cellSize, 0);
+        // spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
+        // spriteCtx.lineTo(x + cellSize, cellSize);
+        // spriteCtx.fill();
     } else if (settings.Block === 1) {
       // Flat
       spriteCtx.fillStyle = shaded[i][0];
       spriteCtx.fillRect(x, 0, cellSize, cellSize);
     } else if (settings.Block === 2) {
-      // Glossy
-      k = Math.max(~~(cellSize * 0.083), 1);
+      // // Glossy
+      // k = Math.max(~~(cellSize * 0.083), 1);
 
-      grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
-      grad.addColorStop(0.5, glossy[i][3]);
-      grad.addColorStop(1, glossy[i][4]);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x, 0, cellSize, cellSize);
+      // grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
+      // grad.addColorStop(0.5, glossy[i][3]);
+      // grad.addColorStop(1, glossy[i][4]);
+      // spriteCtx.fillStyle = grad;
+      // spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-      grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
-      grad.addColorStop(0, glossy[i][2]);
-      grad.addColorStop(0.5, glossy[i][1]);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
+      // grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
+      // grad.addColorStop(0, glossy[i][2]);
+      // grad.addColorStop(0.5, glossy[i][1]);
+      // spriteCtx.fillStyle = grad;
+      // spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
 
-      grad = spriteCtx.createLinearGradient(x + k, k, x + cellSize - k, cellSize - k);
-      grad.addColorStop(0, shaded[i][0]);
-      grad.addColorStop(0.5, glossy[i][0]);
-      grad.addColorStop(0.5, shaded[i][0]);
-      grad.addColorStop(1, glossy[i][0]);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
-
+      // grad = spriteCtx.createLinearGradient(x + k, k, x + cellSize - k, cellSize - k);
+      // grad.addColorStop(0, shaded[i][0]);
+      // grad.addColorStop(0.5, glossy[i][0]);
+      // grad.addColorStop(0.5, shaded[i][0]);
+      // grad.addColorStop(1, glossy[i][0]);
+      // spriteCtx.fillStyle = grad;
+      // spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
     } else if (settings.Block === 3 || settings.Block === 4) {
       // Arika
-      if (settings.Block === 4) tgm = world;
-      k = Math.max(~~(cellSize * 0.125), 1);
+      // if (settings.Block === 4) tgm = world;
+      // k = Math.max(~~(cellSize * 0.125), 1);
 
-      spriteCtx.fillStyle = tgm[i][1];
-      spriteCtx.fillRect(x, 0, cellSize, cellSize);
-      spriteCtx.fillStyle = tgm[i][0];
-      spriteCtx.fillRect(x, 0, cellSize, ~~(cellSize / 2));
+      // spriteCtx.fillStyle = tgm[i][1];
+      // spriteCtx.fillRect(x, 0, cellSize, cellSize);
+      // spriteCtx.fillStyle = tgm[i][0];
+      // spriteCtx.fillRect(x, 0, cellSize, ~~(cellSize / 2));
 
-      grad = spriteCtx.createLinearGradient(x, k, x, cellSize - k);
-      grad.addColorStop(0, tgm[i][2]);
-      grad.addColorStop(1, tgm[i][3]);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x + k, k, cellSize - k*2, cellSize - k*2);
+      // grad = spriteCtx.createLinearGradient(x, k, x, cellSize - k);
+      // grad.addColorStop(0, tgm[i][2]);
+      // grad.addColorStop(1, tgm[i][3]);
+      // spriteCtx.fillStyle = grad;
+      // spriteCtx.fillRect(x + k, k, cellSize - k*2, cellSize - k*2);
 
-      grad = spriteCtx.createLinearGradient(x, k, x, cellSize);
-      grad.addColorStop(0, tgm[i][0]);
-      grad.addColorStop(1, tgm[i][3]);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x, k, k, cellSize - k);
+      // grad = spriteCtx.createLinearGradient(x, k, x, cellSize);
+      // grad.addColorStop(0, tgm[i][0]);
+      // grad.addColorStop(1, tgm[i][3]);
+      // spriteCtx.fillStyle = grad;
+      // spriteCtx.fillRect(x, k, k, cellSize - k);
 
-      grad = spriteCtx.createLinearGradient(x, 0, x, cellSize - k);
-      grad.addColorStop(0, tgm[i][2]);
-      grad.addColorStop(1, tgm[i][1]);
-      spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x + cellSize - k, 0, k, cellSize - k);
+      // grad = spriteCtx.createLinearGradient(x, 0, x, cellSize - k);
+      // grad.addColorStop(0, tgm[i][2]);
+      // grad.addColorStop(1, tgm[i][1]);
+      // spriteCtx.fillStyle = grad;
+      // spriteCtx.fillRect(x + cellSize - k, 0, k, cellSize - k);
     }
   }
 }
@@ -176,10 +173,10 @@ function clear(ctx) {
 /**
  * Draws a 2d array of minos.
  */
-function draw(tetro, cx, cy, ctx, color) {
+function draw(tetro, cx, cy, ctx, color, spriteCanvas) {
   for (var x = 0, len = tetro.length; x < len; x++) {
     for (var y = 0, wid = tetro[x].length; y < wid; y++) {
-      if (tetro[x][y]) drawCell(x + cx, y + cy, color !== void 0 ? color : tetro[x][y], ctx);
+      if (tetro[x][y]) drawCell(x + cx, y + cy, color !== void 0 ? color : tetro[x][y], ctx, spriteCanvas);
     }
   }
 }

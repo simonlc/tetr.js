@@ -1,5 +1,6 @@
-function Preview() {
+function Preview(spriteCanvas) {
   grabBag = this.gen();
+  this.spriteCanvas = spriteCanvas
 }
 
 Preview.prototype.init = function() {
@@ -39,10 +40,10 @@ Preview.prototype.draw = function() {
   for (var i = 0; i < 6; i++) {
     if (this.grabBag[i] === 0 || this.grabBag[i] === 3) {
       draw(pieces[this.grabBag[i]].tetro, pieces[this.grabBag[i]].x - 3,
-           pieces[this.grabBag[i]].y + 2 + i * 3, previewCtx);
+           pieces[this.grabBag[i]].y + 2 + i * 3, previewCtx, void(0), this.spriteCanvas);
     } else {
       draw(pieces[this.grabBag[i]].tetro, pieces[this.grabBag[i]].x - 2.5,
-           pieces[this.grabBag[i]].y + 2 + i * 3, previewCtx);
+           pieces[this.grabBag[i]].y + 2 + i * 3, previewCtx, void(0), this.spriteCanvas);
     }
   }
 };

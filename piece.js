@@ -17,7 +17,7 @@ function Piece() {
 /**
  * Removes last active piece, and gets the next active piece from the grab bag.
  */
-Piece.prototype.new = function(index) {
+Piece.prototype.new = function(index, spriteCanvas) {
   // TODO if no arguments, get next grabbag piece
   this.pos = 0;
   this.tetro = [];
@@ -34,6 +34,8 @@ Piece.prototype.new = function(index) {
   this.x = pieces[index].x;
   this.y = pieces[index].y;
   this.index = index;
+
+  this.spriteCanvas = spriteCanvas;
 
   // TODO ---------------- snip
 
@@ -202,13 +204,13 @@ Piece.prototype.hold = function() {
   if (!this.held) {
     if (hold.piece !== void 0) {
       hold.piece = this.index;
-      this.new(temp);
+      this.new(temp, this.spriteCanvas);
     } else {
       hold.piece = this.index;
-      this.new(preview.next());
+      this.new(preview.next(), this.spriteCanvas);
     }
     this.held = true;
-    hold.draw();
+    hold.draw(this.spriteCanvas);
   }
 };
 
@@ -250,9 +252,9 @@ Piece.prototype.update = function() {
     landed = true;
     this.y = Math.floor(this.y);
     if (this.lockDelay >= settings['Lock Delay']) {
-      stack.addPiece(this.tetro, true);
-      otherStack.addPiece(this.tetro, false);
-      this.new(preview.next());
+      stack.addPiece(this.tetro, true, this.spriteCanvas);
+      otherStack.addPiece(this.tetro, false, document.getElementById('spriteTwo'));
+      this.new(preview.next(), this.spriteCanvas);
     } else {
       var a = 1 / setting['Lock Delay'][settings['Lock Delay']];
       activeCtx.globalCompositeOperation = 'source-atop';
@@ -265,17 +267,17 @@ Piece.prototype.update = function() {
 };
 
 Piece.prototype.draw = function() {
-  draw(this.tetro, this.x, this.y, activeCtx);
+  draw(this.tetro, this.x, this.y, activeCtx, void(0), this.spriteCanvas);
 };
 
 Piece.prototype.drawGhost = function() {
   if (!settings.Ghost && !landed) {
     draw(this.tetro, this.x,
-         this.y + this.getDrop(22), activeCtx, 0);
+         this.y + this.getDrop(22), activeCtx, 0, this.spriteCanvas);
   } else if (settings.Ghost === 1 && !landed) {
     activeCtx.globalAlpha = 0.3;
     draw(this.tetro, this.x,
-         this.y + this.getDrop(22), activeCtx);
+         this.y + this.getDrop(22), activeCtx, void(0), this.spriteCanvas);
     activeCtx.globalAlpha = 1;
   }
 };

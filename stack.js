@@ -15,7 +15,7 @@ Stack.prototype.new = function(x, y) {
 /**
  * Adds tetro to the stack, and clears lines if they fill up.
  */
-Stack.prototype.addPiece = function(tetro, modifyStats) {
+Stack.prototype.addPiece = function(tetro, modifyStats, spriteCanvas) {
   var once = false;
 
   // Add the piece to the stack.
@@ -94,15 +94,15 @@ Stack.prototype.addPiece = function(tetro, modifyStats) {
     }
 }
 
-  this.draw();
+  this.draw(spriteCanvas);
 };
 
 /**
  * Draws the stack.
  */
-Stack.prototype.draw = function() {
+Stack.prototype.draw = function(spriteCanvas) {
   clear(this.ctx);
-  draw(this.grid, 0, 0, this.ctx);
+  draw(this.grid, 0, 0, this.ctx, void(0), spriteCanvas);
 
   this.ctx.globalCompositeOperation = 'source-atop';
   this.ctx.fillStyle = 'rgba(0,0,0,0.3)';

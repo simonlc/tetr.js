@@ -30,14 +30,12 @@ var bgStackCanvas = document.getElementById('bgStack');
 var stackCanvas = document.getElementById('stack');
 var activeCanvas = document.getElementById('active');
 var previewCanvas = document.getElementById('preview');
-var spriteCanvas = document.getElementById('sprite');
 
 var holdCtx = holdCanvas.getContext('2d');
 var bgStackCtx = bgStackCanvas.getContext('2d');
 var stackCtx = stackCanvas.getContext('2d');
 var activeCtx = activeCanvas.getContext('2d');
 var previewCtx = previewCanvas.getContext('2d');
-var spriteCtx = spriteCanvas.getContext('2d');
 
 var otherStackCanvas = document.getElementById('otherStack');
 var otherStackCtx = otherStackCanvas.getContext('2d');
@@ -45,7 +43,8 @@ var otherStackCtx = otherStackCanvas.getContext('2d');
 var stack = new Stack(stackCtx);
 var otherStack = new Stack(otherStackCtx);
 
-var preview = new Preview();
+//need to check all variables then can go back up top but no need
+var preview = new Preview(document.getElementById('sprite'));
 var piece = new Piece();
 
 var frame;
@@ -113,6 +112,12 @@ var flags = {
 };
 
 function resize() {
+  var spriteCanvas = document.getElementById('sprite');
+  var spriteCtx = spriteCanvas.getContext('2d');
+
+  var spriteCanvasTwo = document.getElementById('spriteTwo');
+  var spriteCtxTwo = spriteCanvasTwo.getContext('2d');
+
   var a = document.getElementById('a');
   var b = document.getElementById('b');
   var c = document.getElementById('c');
@@ -126,8 +131,9 @@ function resize() {
   var screenWidth = ~~(screenHeight * 1.024);
   var cellSize;
   
-  if (screenWidth > window.innerWidth)
+  if (screenWidth > window.innerWidth) {
     screenHeight = ~~(window.innerWidth / 1.024);
+  }
 
   if (settings.Size === 1 && screenHeight > 602) {
     cellSize = 15;
@@ -181,27 +187,31 @@ function resize() {
     h3[i].style.fontSize = stats.style.fontSize;
   }
 
-  // Redraw graphics
-  makeSprite(cellSize);
   stackCanvas.cellSize = holdCanvas.cellSize = bgStackCanvas.cellSize = 
     activeCanvas.cellSize = previewCanvas.cellSize = spriteCanvas.cellSize = cellSize;
 
   otherStackCanvas.cellSize = cellSize - 5;
 
-  if (settings.Grid === 1)
+  // Redraw graphics
+  makeSprite(cellSize, spriteCanvas, spriteCtx);
+  makeSprite(cellSize - 5, spriteCanvasTwo, spriteCtxTwo);
+
+  if (settings.Grid === 1) {
     bg(bgStackCtx);
+  }
 
   if (gameState === 0) {
-    piece.drawGhost();
-    piece.draw();
-    stack.draw();
-    otherStack.draw();
+    piece.drawGhost(spriteCanvas);
+    piece.draw(spriteCanvas);
+    stack.draw(spriteCanvas);
+    otherStack.draw(spriteCanvasTwo);
     preview.draw();
     if (hold.piece) {
-      hold.draw();
+      hold.draw(spriteCanvas);
     }
   }
 }
+
 addEventListener('resize', resize, false);
 resize();
 /**
@@ -291,7 +301,6 @@ function init(gt) {
   }
 
   menu();
-
   // Only start a loop if one is not running already.
   if (gameState === 3) {
     gameState = 2;
@@ -414,6 +423,8 @@ function update() {
 }
 
 function gameLoop() {
+
+  var spriteCanvas = document.getElementById('sprite');
   requestAnimFrame(gameLoop);
 
   //TODO check to see how pause works in replays.
@@ -449,7 +460,7 @@ function gameLoop() {
       msg.innerHTML = '';
       gameState = 0;
       startTime = Date.now();
-      piece.new(preview.next());
+      piece.new(preview.next(), spriteCanvas);
     }
     // DAS Preload
     if (lastKeys !== keysDown && !watchingReplay) {
@@ -480,7 +491,7 @@ function gameLoop() {
           stack.grid[x][toGreyRow] = gameState - 1;
         }
       }
-      stack.draw();
+      stack.draw(spriteCanvas);
       toGreyRow--;
     }
   }
