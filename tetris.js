@@ -190,11 +190,11 @@ function resize() {
   stackCanvas.cellSize = holdCanvas.cellSize = bgStackCanvas.cellSize = 
     activeCanvas.cellSize = previewCanvas.cellSize = spriteCanvas.cellSize = cellSize;
 
-  otherStackCanvas.cellSize = cellSize - 5;
+  otherStackCanvas.cellSize = cellSize - 10;
 
   // Redraw graphics
   makeSprite(cellSize, spriteCanvas, spriteCtx);
-  makeSprite(cellSize - 5, spriteCanvasTwo, spriteCtxTwo);
+  makeSprite(cellSize - 10, spriteCanvasTwo, spriteCtxTwo);
 
   if (settings.Grid === 1) {
     bg(bgStackCtx);

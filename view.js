@@ -20,7 +20,6 @@ function bg(ctx) {
  */
 function drawCell(x, y, color, ctx, spriteCanvas) {
   var cellSize = ctx.canvas.cellSize;
-  console.log(spriteCanvas.id, ctx.canvas.id);
 
   x = x * cellSize;
   x = ~~x;
@@ -110,55 +109,55 @@ function makeSprite(cellSize, spriteCanvas, spriteCtx) {
       spriteCtx.fillStyle = shaded[i][0];
       spriteCtx.fillRect(x, 0, cellSize, cellSize);
     } else if (settings.Block === 2) {
-      // // Glossy
-      // k = Math.max(~~(cellSize * 0.083), 1);
+      // Glossy
+      k = Math.max(~~(cellSize * 0.083), 1);
 
-      // grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
-      // grad.addColorStop(0.5, glossy[i][3]);
-      // grad.addColorStop(1, glossy[i][4]);
-      // spriteCtx.fillStyle = grad;
-      // spriteCtx.fillRect(x, 0, cellSize, cellSize);
+      grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
+      grad.addColorStop(0.5, glossy[i][3]);
+      grad.addColorStop(1, glossy[i][4]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-      // grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
-      // grad.addColorStop(0, glossy[i][2]);
-      // grad.addColorStop(0.5, glossy[i][1]);
-      // spriteCtx.fillStyle = grad;
-      // spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
+      grad = spriteCtx.createLinearGradient(x, 0, x + cellSize, cellSize);
+      grad.addColorStop(0, glossy[i][2]);
+      grad.addColorStop(0.5, glossy[i][1]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
 
-      // grad = spriteCtx.createLinearGradient(x + k, k, x + cellSize - k, cellSize - k);
-      // grad.addColorStop(0, shaded[i][0]);
-      // grad.addColorStop(0.5, glossy[i][0]);
-      // grad.addColorStop(0.5, shaded[i][0]);
-      // grad.addColorStop(1, glossy[i][0]);
-      // spriteCtx.fillStyle = grad;
-      // spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
+      grad = spriteCtx.createLinearGradient(x + k, k, x + cellSize - k, cellSize - k);
+      grad.addColorStop(0, shaded[i][0]);
+      grad.addColorStop(0.5, glossy[i][0]);
+      grad.addColorStop(0.5, shaded[i][0]);
+      grad.addColorStop(1, glossy[i][0]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
     } else if (settings.Block === 3 || settings.Block === 4) {
       // Arika
-      // if (settings.Block === 4) tgm = world;
-      // k = Math.max(~~(cellSize * 0.125), 1);
+      if (settings.Block === 4) tgm = world;
+      k = Math.max(~~(cellSize * 0.125), 1);
 
-      // spriteCtx.fillStyle = tgm[i][1];
-      // spriteCtx.fillRect(x, 0, cellSize, cellSize);
-      // spriteCtx.fillStyle = tgm[i][0];
-      // spriteCtx.fillRect(x, 0, cellSize, ~~(cellSize / 2));
+      spriteCtx.fillStyle = tgm[i][1];
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
+      spriteCtx.fillStyle = tgm[i][0];
+      spriteCtx.fillRect(x, 0, cellSize, ~~(cellSize / 2));
 
-      // grad = spriteCtx.createLinearGradient(x, k, x, cellSize - k);
-      // grad.addColorStop(0, tgm[i][2]);
-      // grad.addColorStop(1, tgm[i][3]);
-      // spriteCtx.fillStyle = grad;
-      // spriteCtx.fillRect(x + k, k, cellSize - k*2, cellSize - k*2);
+      grad = spriteCtx.createLinearGradient(x, k, x, cellSize - k);
+      grad.addColorStop(0, tgm[i][2]);
+      grad.addColorStop(1, tgm[i][3]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x + k, k, cellSize - k*2, cellSize - k*2);
 
-      // grad = spriteCtx.createLinearGradient(x, k, x, cellSize);
-      // grad.addColorStop(0, tgm[i][0]);
-      // grad.addColorStop(1, tgm[i][3]);
-      // spriteCtx.fillStyle = grad;
-      // spriteCtx.fillRect(x, k, k, cellSize - k);
+      grad = spriteCtx.createLinearGradient(x, k, x, cellSize);
+      grad.addColorStop(0, tgm[i][0]);
+      grad.addColorStop(1, tgm[i][3]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x, k, k, cellSize - k);
 
-      // grad = spriteCtx.createLinearGradient(x, 0, x, cellSize - k);
-      // grad.addColorStop(0, tgm[i][2]);
-      // grad.addColorStop(1, tgm[i][1]);
-      // spriteCtx.fillStyle = grad;
-      // spriteCtx.fillRect(x + cellSize - k, 0, k, cellSize - k);
+      grad = spriteCtx.createLinearGradient(x, 0, x, cellSize - k);
+      grad.addColorStop(0, tgm[i][2]);
+      grad.addColorStop(1, tgm[i][1]);
+      spriteCtx.fillStyle = grad;
+      spriteCtx.fillRect(x + cellSize - k, 0, k, cellSize - k);
     }
   }
 }
