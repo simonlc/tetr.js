@@ -38,13 +38,21 @@ var activeCtx = activeCanvas.getContext('2d');
 var previewCtx = previewCanvas.getContext('2d');
 
 var otherStackCanvas = document.getElementById('otherStack');
+var os2Canvas = document.getElementById('os2');
 var otherStackCtx = otherStackCanvas.getContext('2d');
+var os2Ctx = os2Canvas.getContext('2d');
 
 var stack = new Stack(stackCtx);
 var otherStack = new Stack(otherStackCtx);
+var os2 = new Stack(os2Ctx);
 
-//need to check all variables then can go back up top but no need
-var preview = new Preview(document.getElementById('sprite'));
+var spriteCanvas = document.getElementById('sprite');
+var spriteCtx = spriteCanvas.getContext('2d');
+
+var spriteCanvasTwo = document.getElementById('spriteTwo');
+var spriteCtxTwo = spriteCanvasTwo.getContext('2d');
+
+var preview = new Preview(spriteCanvas);
 var piece = new Piece();
 
 var frame;
@@ -112,17 +120,10 @@ var flags = {
 };
 
 function resize() {
-  var spriteCanvas = document.getElementById('sprite');
-  var spriteCtx = spriteCanvas.getContext('2d');
-
-  var spriteCanvasTwo = document.getElementById('spriteTwo');
-  var spriteCtxTwo = spriteCanvasTwo.getContext('2d');
-
   var a = document.getElementById('a');
   var b = document.getElementById('b');
   var c = document.getElementById('c');
 
-  var other = document.getElementById('other');
   var content = document.getElementById('content');
 
   // TODO Finalize this.
@@ -171,9 +172,6 @@ function resize() {
   c.style.width = previewCanvas.width + 'px';
   c.style.height = b.style.height;
 
-  otherStackCanvas.width = stackCanvas.width;
-  otherStackCanvas.height = stackCanvas.height;
-
   // Scale the text so it fits in the thing.
   // TODO get rid of extra font sizes here.
   msg.style.lineHeight = b.style.height;
@@ -190,11 +188,14 @@ function resize() {
   stackCanvas.cellSize = holdCanvas.cellSize = bgStackCanvas.cellSize = 
     activeCanvas.cellSize = previewCanvas.cellSize = spriteCanvas.cellSize = cellSize;
 
-  otherStackCanvas.cellSize = cellSize - 10;
+  os2Canvas.cellSize = otherStackCanvas.cellSize = cellSize - 5;
+  os2Canvas.width = otherStackCanvas.width = otherStackCanvas.cellSize * 10;
+  os2Canvas.height = otherStackCanvas.height = otherStackCanvas.cellSize * 20;
 
   // Redraw graphics
-  makeSprite(cellSize, spriteCanvas, spriteCtx);
-  makeSprite(cellSize - 10, spriteCanvasTwo, spriteCtxTwo);
+  makeSprite(stackCanvas.cellSize, spriteCanvas, spriteCtx);
+  makeSprite(otherStackCanvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
+  makeSprite(os2Canvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
 
   if (settings.Grid === 1) {
     bg(bgStackCtx);
@@ -205,6 +206,7 @@ function resize() {
     piece.draw(spriteCanvas);
     stack.draw(spriteCanvas);
     otherStack.draw(spriteCanvasTwo);
+    os2.draw(spriteCanvasTwo);
     preview.draw();
     if (hold.piece) {
       hold.draw(spriteCanvas);
@@ -253,6 +255,7 @@ function init(gt) {
   lastPos = 'reset';
   stack.new(10, 22);
   otherStack.new(10, 22);
+  os2.new(10, 22);
   hold.piece = void 0;
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = Date.now();
@@ -269,6 +272,7 @@ function init(gt) {
   statistics();
   clear(stackCtx);
   clear(otherStackCtx);
+  clear(os2Ctx);
   clear(activeCtx);
   clear(holdCtx);
 
@@ -397,7 +401,12 @@ function update() {
     piece.hardDrop();
   }
 
-  piece.update();
+  if (piece.update()) {
+      stack.addPiece(piece.tetro, true, piece.spriteCanvas);
+      otherStack.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
+      os2.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
+      piece.new(preview.next(), piece.spriteCanvas);
+  }
 
   // Win
   // TODO

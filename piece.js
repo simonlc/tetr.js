@@ -236,6 +236,7 @@ Piece.prototype.moveValid = function(cx, cy, tetro) {
   return true;
 };
 
+//Called when piece hits bottom of stack
 Piece.prototype.update = function() {
   if (this.moveValid(0, 1, this.tetro)) {
     landed = false;
@@ -252,9 +253,7 @@ Piece.prototype.update = function() {
     landed = true;
     this.y = Math.floor(this.y);
     if (this.lockDelay >= settings['Lock Delay']) {
-      stack.addPiece(this.tetro, true, this.spriteCanvas);
-      otherStack.addPiece(this.tetro, false, document.getElementById('spriteTwo'));
-      this.new(preview.next(), this.spriteCanvas);
+      return true;
     } else {
       var a = 1 / setting['Lock Delay'][settings['Lock Delay']];
       activeCtx.globalCompositeOperation = 'source-atop';
