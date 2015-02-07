@@ -188,7 +188,7 @@ function resize() {
   stackCanvas.cellSize = holdCanvas.cellSize = bgStackCanvas.cellSize = 
     activeCanvas.cellSize = previewCanvas.cellSize = spriteCanvas.cellSize = cellSize;
 
-  os2Canvas.cellSize = otherStackCanvas.cellSize = cellSize - 5;
+  os2Canvas.cellSize = otherStackCanvas.cellSize = cellSize - 8;
   os2Canvas.width = otherStackCanvas.width = otherStackCanvas.cellSize * 10;
   os2Canvas.height = otherStackCanvas.height = otherStackCanvas.cellSize * 20;
 

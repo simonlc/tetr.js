@@ -85,25 +85,25 @@ function makeSprite(cellSize, spriteCanvas, spriteCtx) {
     var grad, k;
     if (settings.Block === 0) {
       // Shaded
-        // spriteCtx.fillStyle = shaded[i][1];
-        // spriteCtx.fillRect(x, 0, cellSize, cellSize);
+      spriteCtx.fillStyle = shaded[i][1];
+      spriteCtx.fillRect(x, 0, cellSize, cellSize);
 
-        // spriteCtx.fillStyle = shaded[i][3];
-        // spriteCtx.fillRect(x, cellSize / 2, cellSize, cellSize / 2);
+      spriteCtx.fillStyle = shaded[i][3];
+      spriteCtx.fillRect(x, cellSize / 2, cellSize, cellSize / 2);
 
-        // spriteCtx.fillStyle = shaded[i][0];
-        // spriteCtx.beginPath();
-        // spriteCtx.moveTo(x, 0);
-        // spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
-        // spriteCtx.lineTo(x, cellSize);
-        // spriteCtx.fill();
+      spriteCtx.fillStyle = shaded[i][0];
+      spriteCtx.beginPath();
+      spriteCtx.moveTo(x, 0);
+      spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
+      spriteCtx.lineTo(x, cellSize);
+      spriteCtx.fill();
 
-        // spriteCtx.fillStyle = shaded[i][2];
-        // spriteCtx.beginPath();
-        // spriteCtx.moveTo(x + cellSize, 0);
-        // spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
-        // spriteCtx.lineTo(x + cellSize, cellSize);
-        // spriteCtx.fill();
+      spriteCtx.fillStyle = shaded[i][2];
+      spriteCtx.beginPath();
+      spriteCtx.moveTo(x + cellSize, 0);
+      spriteCtx.lineTo(x + cellSize / 2, cellSize / 2);
+      spriteCtx.lineTo(x + cellSize, cellSize);
+      spriteCtx.fill();
     } else if (settings.Block === 1) {
       // Flat
       spriteCtx.fillStyle = shaded[i][0];
