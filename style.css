@@ -110,6 +110,9 @@ nav a {
 #sprite {
   display: none;
 }
+#spriteTwo {
+  display: none;
+}
 /*#bg {
   position: fixed;
   top:0;

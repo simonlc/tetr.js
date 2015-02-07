@@ -37,20 +37,10 @@ var stackCtx = stackCanvas.getContext('2d');
 var activeCtx = activeCanvas.getContext('2d');
 var previewCtx = previewCanvas.getContext('2d');
 
-var otherStackCanvas = document.getElementById('otherStack');
-var os2Canvas = document.getElementById('os2');
-var otherStackCtx = otherStackCanvas.getContext('2d');
-var os2Ctx = os2Canvas.getContext('2d');
-
 var stack = new Stack(stackCtx);
-var otherStack = new Stack(otherStackCtx);
-var os2 = new Stack(os2Ctx);
 
 var spriteCanvas = document.getElementById('sprite');
 var spriteCtx = spriteCanvas.getContext('2d');
-
-var spriteCanvasTwo = document.getElementById('spriteTwo');
-var spriteCtxTwo = spriteCanvasTwo.getContext('2d');
 
 var preview = new Preview(spriteCanvas);
 var piece = new Piece();
@@ -77,7 +67,8 @@ var paused = false;
 var lineLimit;
 
 var replayKeys;
-var watchingReplay = false;
+var watchingReplay;
+var multiplayer;
 var toGreyRow;
 var gametype;
 //TODO Make dirty flags for each canvas, draw them all at once during frame call.
@@ -188,14 +179,15 @@ function resize() {
   stackCanvas.cellSize = holdCanvas.cellSize = bgStackCanvas.cellSize = 
     activeCanvas.cellSize = previewCanvas.cellSize = spriteCanvas.cellSize = cellSize;
 
-  os2Canvas.cellSize = otherStackCanvas.cellSize = cellSize - 8;
-  os2Canvas.width = otherStackCanvas.width = otherStackCanvas.cellSize * 10;
-  os2Canvas.height = otherStackCanvas.height = otherStackCanvas.cellSize * 20;
-
-  // Redraw graphics
   makeSprite(stackCanvas.cellSize, spriteCanvas, spriteCtx);
-  makeSprite(otherStackCanvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
-  makeSprite(os2Canvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
+
+  if (multiplayer) {
+    os2Canvas.cellSize = otherStackCanvas.cellSize = cellSize - 8;
+    os2Canvas.width = otherStackCanvas.width = otherStackCanvas.cellSize * 10;
+    os2Canvas.height = otherStackCanvas.height = otherStackCanvas.cellSize * 20;
+    makeSprite(otherStackCanvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
+    makeSprite(os2Canvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
+  }
 
   if (settings.Grid === 1) {
     bg(bgStackCtx);
@@ -205,11 +197,13 @@ function resize() {
     piece.drawGhost(spriteCanvas);
     piece.draw(spriteCanvas);
     stack.draw(spriteCanvas);
-    otherStack.draw(spriteCanvasTwo);
-    os2.draw(spriteCanvasTwo);
     preview.draw();
     if (hold.piece) {
       hold.draw(spriteCanvas);
+    }
+    if (multiplayer) {
+      otherStack.draw(spriteCanvasTwo);
+      os2.draw(spriteCanvasTwo);
     }
   }
 }
@@ -228,6 +222,7 @@ function init(gt) {
     watchingReplay = true;
   } else {
     watchingReplay = false;
+    multiplayer = false;
     replayKeys = {};
     // TODO Make new seed and rng method.
     replayKeys.seed = ~~(Math.random() * 2147483645) + 1;
@@ -254,13 +249,11 @@ function init(gt) {
   frame = 0;
   lastPos = 'reset';
   stack.new(10, 22);
-  otherStack.new(10, 22);
-  os2.new(10, 22);
   hold.piece = void 0;
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = Date.now();
 
-  preview.init()
+  preview.init();
   //preview.draw();
 
   statsFinesse = 0;
@@ -271,13 +264,11 @@ function init(gt) {
   statsLines.innerHTML = lineLimit - lines;
   statistics();
   clear(stackCtx);
-  clear(otherStackCtx);
-  clear(os2Ctx);
   clear(activeCtx);
   clear(holdCtx);
 
-  if (gametype === 3) {
-    // Dig Race
+  // Dig Race
+  if (gametype === 1) {
     // make ten random numbers, make sure next isn't the same as last?
     //TODO make into function or own file.
 
@@ -301,10 +292,40 @@ function init(gt) {
           }
       }
     }
-    stack.draw();
+    stack.draw(spriteCanvas);
   }
 
+  // Multiplayer
+  if (gametype === 2) {
+    multiplayer = true;
+
+    //show waiting screen 
+    //do waiting logic 
+    //on all players
+
+    var otherStackCanvas = document.getElementById('otherStack');
+    var os2Canvas = document.getElementById('os2');
+    var otherStackCtx = otherStackCanvas.getContext('2d');
+    var os2Ctx = os2Canvas.getContext('2d');
+    var otherStack = new Stack(otherStackCtx);
+    var os2 = new Stack(os2Ctx);
+    var spriteCanvasTwo = document.getElementById('spriteTwo');
+    var spriteCtxTwo = spriteCanvasTwo.getContext('2d');
+
+    otherStack.new(10, 22);
+    os2.new(10, 22);
+
+    clear(otherStackCtx);
+    clear(os2Ctx);
+  }
+
+  startGame();
+}
+
+function startGame() {
+  //Hide menu
   menu();
+  
   // Only start a loop if one is not running already.
   if (gameState === 3) {
     gameState = 2;
@@ -403,8 +424,10 @@ function update() {
 
   if (piece.update()) {
       stack.addPiece(piece.tetro, true, piece.spriteCanvas);
-      otherStack.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
-      os2.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
+      if (multiplayer) {
+        otherStack.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
+        os2.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
+      }
       piece.new(preview.next(), piece.spriteCanvas);
   }
 
