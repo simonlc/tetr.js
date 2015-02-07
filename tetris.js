@@ -91,14 +91,15 @@ var binds = {
   pause: 27,
   holdPiece: 16,
   rotRight: 38,
-  rotLeft: 88,
-  rot180: 19,
+  rotLeft: 90,
+  rot180: 67,
   moveLeft: 37,
   moveRight: 39,
   moveDown: 40,
   hardDrop: 32,
   retry: 82
 };
+
 var flags = {
   hardDrop: 1,
   moveRight: 2,
