@@ -218,7 +218,7 @@ resize();
 /**
  * Resets all the settings and starts the game.
  */
-function init(gt) {
+function init(gt, multiplayerMode) {
   if (gt === 'replay') {
     watchingReplay = true;
   } else {
@@ -299,6 +299,19 @@ function init(gt) {
   // Multiplayer
   if (gametype === 2) {
     multiplayer = true;
+    console.log(multiplayerMode);
+
+    //defaults to joining a random game
+    switch (multiplayerMode) {
+      case "host":
+        
+        break;
+      case "gameID":
+        break;
+      case "random":
+      default:
+        break;
+    }
 
     //show waiting screen 
     //do waiting logic 

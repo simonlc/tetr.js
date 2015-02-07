@@ -40,7 +40,7 @@
       <ul>
         <li><a onclick="init(0)">Play Sprint</a>
         <li><a onclick="init(1)">Play Dig Race</a>
-        <li><a onclick="init(2)">Multiplayer</a>
+        <li><a onclick="menu(3)">Multiplayer</a>
         <li><a onclick="menu(2)"><i class=></i>Controls</a>
         <li><a onclick="menu(1)"><i class="icon-cog"></i>Settings</a>
       </ul>
@@ -71,6 +71,16 @@
       <div style="clear:both"><a class="button" onclick="menu(0)">Done</a></div>
     </div>
 
+    <nav id="multiplayerOptions" class="menu">
+      <h2>Multiplayer Options</h2>
+      <p>What would you like to do?</p>
+      <ul>
+        <li><a onclick="menu(6)">Host a game</a>
+        <li><a onclick="init(2, 'random')">Join a random game</a>
+        <li><a onclick="init(2, 'gameID')">Join using a game ID</a>
+      </ul>
+    </nav>
+
     <nav id="go" class="menu">
       <ul>
         <li><a onclick="init(gametype)">Retry</a>
@@ -86,6 +96,20 @@
         <li><a onclick=menu(0)>Main Menu</a>
       </ul>
     </nav>
+
+    <div id="setPlayers" class="menu">
+      <h2>Multiplayer Options</h2>
+      <p>How many players would you like in your room?</p>
+      <div id="Players">
+        <b>No players:&nbsp;&nbsp;</b>
+        <i class="left" onclick="decreasePlayers()"></i>
+        <span id="numPlayers">2</span>
+        <i class="right" onclick="increasePlayers()"></i>
+      </div>
+      <!-- <li><a onclick="init(2, 'host')">Host a game</a> -->
+    </div>
+
+    
   </div>
 
   <div id="c">
@@ -108,4 +132,5 @@
 <script src="menu.js"></script>
 <script src="controller.js"></script>
 <script src="view.js"></script>
+<script src="multiplayer.js"></script>
 <script src="tetris.js"></script>
