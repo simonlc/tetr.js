@@ -41,6 +41,8 @@ var stack = new Stack(stackCtx);
 
 var spriteCanvas = document.getElementById('sprite');
 var spriteCtx = spriteCanvas.getContext('2d');
+var spriteCanvasTwo;
+var spriteCtxTwo;
 
 var preview = new Preview(spriteCanvas);
 var piece = new Piece();
@@ -183,11 +185,7 @@ function resize() {
   makeSprite(stackCanvas.cellSize, spriteCanvas, spriteCtx);
 
   if (multiplayer) {
-    os2Canvas.cellSize = otherStackCanvas.cellSize = cellSize - 8;
-    os2Canvas.width = otherStackCanvas.width = otherStackCanvas.cellSize * 10;
-    os2Canvas.height = otherStackCanvas.height = otherStackCanvas.cellSize * 20;
-    makeSprite(otherStackCanvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
-    makeSprite(os2Canvas.cellSize, spriteCanvasTwo, spriteCtxTwo);
+    resizeStackCanvases(cellSize, spriteCanvasTwo, spriteCtxTwo);
   }
 
   if (settings.Grid === 1) {
@@ -203,8 +201,7 @@ function resize() {
       hold.draw(spriteCanvas);
     }
     if (multiplayer) {
-      otherStack.draw(spriteCanvasTwo);
-      os2.draw(spriteCanvasTwo);
+      drawStacks(spriteCanvasTwo);
     }
   }
 }
@@ -299,12 +296,17 @@ function init(gt, multiplayerMode) {
   // Multiplayer
   if (gametype === 2) {
     multiplayer = true;
-    console.log(multiplayerMode);
+
+    spriteCanvasTwo = document.getElementById('spriteTwo');
+    spriteCtxTwo = spriteCanvasTwo.getContext('2d');
 
     //defaults to joining a random game
     switch (multiplayerMode) {
       case "host":
-        
+        createRoom();
+        createStacks();
+        // displayRoomID();
+        // waitForPlayers();
         break;
       case "gameID":
         break;
@@ -316,21 +318,6 @@ function init(gt, multiplayerMode) {
     //show waiting screen 
     //do waiting logic 
     //on all players
-
-    var otherStackCanvas = document.getElementById('otherStack');
-    var os2Canvas = document.getElementById('os2');
-    var otherStackCtx = otherStackCanvas.getContext('2d');
-    var os2Ctx = os2Canvas.getContext('2d');
-    var otherStack = new Stack(otherStackCtx);
-    var os2 = new Stack(os2Ctx);
-    var spriteCanvasTwo = document.getElementById('spriteTwo');
-    var spriteCtxTwo = spriteCanvasTwo.getContext('2d');
-
-    otherStack.new(10, 22);
-    os2.new(10, 22);
-
-    clear(otherStackCtx);
-    clear(os2Ctx);
   }
 
   startGame();
@@ -439,8 +426,8 @@ function update() {
   if (piece.update()) {
       stack.addPiece(piece.tetro, true, piece.spriteCanvas);
       if (multiplayer) {
-        otherStack.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
-        os2.addPiece(piece.tetro, false, document.getElementById('spriteTwo'));
+        //move this to on lines cleared 
+        sendLines(piece.tetro, spriteCanvasTwo);
       }
       piece.new(preview.next(), piece.spriteCanvas);
   }
