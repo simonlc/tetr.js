@@ -97,8 +97,13 @@ nav a {
   margin: 0 0.4em 0 0;
   -webkit-font-smoothing: antialiased;
 }
-.icon-cog:before{content:'\f021'}
+.icon-cog:before {
+  content:'\f021'
+}
 
+.canvas {
+  border: 1px solid #fff;
+}
 /* Content */
 #content {
   display: table;

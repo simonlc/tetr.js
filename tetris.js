@@ -208,6 +208,7 @@ function resize() {
 
 addEventListener('resize', resize, false);
 resize();
+
 /**
  * ========================== Model ===========================================
  */
@@ -273,7 +274,6 @@ function init(gt, multiplayerMode) {
     digLines = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
 
     statsLines.innerHTML = 10;
-    statsLines.innerHTML = 10;
     var randomNums = [];
     for (var i = 0; i < 10; i++) {
       var random = ~~(rng.next() * 10);
@@ -293,6 +293,8 @@ function init(gt, multiplayerMode) {
     stack.draw(spriteCanvas);
   }
 
+  removeCanvases();
+
   // Multiplayer
   if (gametype === 2) {
     multiplayer = true;
@@ -305,6 +307,10 @@ function init(gt, multiplayerMode) {
       case "host":
         createRoom();
         createStacks();
+        setTimeout(function(){
+          addLines(3, [1,4,6]);
+        },6000);
+        addLines(3, [1,4,6]);
         // displayRoomID();
         // waitForPlayers();
         break;
@@ -320,6 +326,7 @@ function init(gt, multiplayerMode) {
     //on all players
   }
 
+  resize();
   startGame();
 }
 

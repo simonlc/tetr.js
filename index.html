@@ -36,7 +36,7 @@
       <ul>
         <li><a onclick="init(0)">Play Sprint</a>
         <li><a onclick="init(1)">Play Dig Race</a>
-        <li><a onclick="menu(3)">Multiplayer</a>
+        <li><a onclick="menu(5)">Multiplayer</a>
         <li><a onclick="menu(2)"><i class=></i>Controls</a>
         <li><a onclick="menu(1)"><i class="icon-cog"></i>Settings</a>
       </ul>
@@ -67,16 +67,6 @@
       <div style="clear:both"><a class="button" onclick="menu(0)">Done</a></div>
     </div>
 
-    <nav id="multiplayerOptions" class="menu">
-      <h2>Multiplayer Options</h2>
-      <p>What would you like to do?</p>
-      <ul>
-        <li><a onclick="menu(6)">Host a game</a>
-        <li><a onclick="init(2, 'random')">Join a random game</a>
-        <li><a onclick="init(2, 'gameID')">Join using a game ID</a>
-      </ul>
-    </nav>
-
     <nav id="go" class="menu">
       <ul>
         <li><a onclick="init(gametype)">Retry</a>
@@ -92,6 +82,18 @@
         <li><a onclick=menu(0)>Main Menu</a>
       </ul>
     </nav>
+
+    <nav id="multiplayerOptions" class="menu">
+      <h2>Multiplayer Options</h2>
+      <p>What would you like to do?</p>
+      <ul>
+        <li><a onclick="menu(6)">Host a game</a>
+        <li><a onclick="init(2, 'random')">Join a random game</a>
+        <li><a onclick="init(2, 'gameID')">Join using a game ID</a>
+        <li><a onclick="menu(0)">Go back</a>
+      </ul>
+    </nav>
+
 
     <div id="setPlayers" class="menu">
       <h2>Multiplayer Options</h2>
