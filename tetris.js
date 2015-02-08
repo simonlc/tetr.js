@@ -310,7 +310,6 @@ function init(gt, multiplayerMode) {
         setTimeout(function(){
           addLines(3, [1,4,6]);
         },6000);
-        addLines(3, [1,4,6]);
         // displayRoomID();
         // waitForPlayers();
         break;

@@ -86,26 +86,29 @@ function sendLines(tetro, spriteCanvas) {
 
 //adds lines to players stacks
 function addLines(lines, gaps) {
-    // for (var i = 0; i < BOARD_WIDTH; i++) {
-    //     for (var j = 0; j < BOARD_HEIGHT; j++) {
-    //         stack.grid[i][lines + j] = stack.grid[j];
-    //     }
-    // }
+    for (var y = 0; y <= BOARD_HEIGHT - lines; y++) {
+      for (var x = 0; x < BOARD_WIDTH; x++) {
+        if (stack.grid[x][y + lines] !== undefined) {
+            stack.grid[x][y] = stack.grid[x][y + lines];
+        }
+      }
+    }
 
     for (var y = BOARD_HEIGHT; y > BOARD_HEIGHT - lines; y--) {
       for (var x = 0; x < BOARD_WIDTH; x++) {
         if (x != gaps[BOARD_HEIGHT - y]) {
             stack.grid[x][y] = 8;
+        } else {
+            stack.grid[x][y] = undefined;
         }
       }
     }
     stack.draw(spriteCanvas);
-    console.log(stack.grid);
 }
 
 function removeCanvases() {
     for (var i = 0; i < stackCanvases.length; i++) {
-        var canvas = stackCanvases[i]
+        var canvas = stackCanvases[i];
         canvas.parentNode.removeChild(canvas);
     }
 
