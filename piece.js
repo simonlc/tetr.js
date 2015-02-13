@@ -47,8 +47,10 @@ Piece.prototype.new = function(index, spriteCanvas) {
   // Check for blockout.
   if (!this.moveValid(0, 0, this.tetro)) {
     gameState = 9;
-    msg.innerHTML = 'BLOCK OUT!';
-    menu(3);
+    if (!multiplayer) {
+      msg.innerHTML = 'BLOCK OUT!';
+      menu(3);
+    }
   }
 };
 

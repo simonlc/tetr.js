@@ -45,8 +45,10 @@ Stack.prototype.addPiece = function(tetro, modifyStats, spriteCanvas) {
   // Lock out
   if (!valid) {
     gameState = 9;
-    msg.innerHTML = 'LOCK OUT!';
-    menu(3);
+    if (!multiplayer) {
+      msg.innerHTML = 'LOCK OUT!';
+      menu(3);
+    }
     return;
   }
 
@@ -185,3 +187,20 @@ Stack.prototype.draw = function(spriteCanvas) {
     this.ctx.drawImage(lineCanvas, 0, 0);
   }
 };
+
+function greyOutStack(stack, canvas) {
+  console.log(stack.ctx.canvas, canvas);
+  for (var x = 0; x <= 21; x++) {
+    greyOutStackLevel(stack, canvas, x);
+  }
+}
+
+//level by level grey out
+function greyOutStackLevel(stack, canvas, level) {
+  for (var x = 0; x < 10; x++) {
+    if (stack.grid[x][level]) {
+      stack.grid[x][level] = 8;
+    }
+  }
+  stack.draw(canvas);
+}

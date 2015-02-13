@@ -302,6 +302,8 @@ function init(gt, multiplayerMode) {
     spriteCanvasTwo = document.getElementById('spriteTwo');
     spriteCtxTwo = spriteCanvasTwo.getContext('2d');
 
+    document.getElementById("b").setAttribute("data-spritecanvas", "sprite");
+
     //defaults to joining a random game
     switch (multiplayerMode) {
       case "host":
@@ -433,7 +435,7 @@ function update() {
       stack.addPiece(piece.tetro, true, piece.spriteCanvas);
       if (multiplayer) {
         //move this to on lines cleared 
-        sendLines(piece.tetro, spriteCanvasTwo);
+        sendLines(piece.tetro);
       }
       piece.new(preview.next(), piece.spriteCanvas);
   }
@@ -525,13 +527,12 @@ function gameLoop() {
     if (toGreyRow === 21)
       clear(activeCtx);
     if (frame % 2) {
-      for (var x = 0; x < 10; x++) {
-        if (stack.grid[x][toGreyRow]) {
-          stack.grid[x][toGreyRow] = gameState - 1;
-        }
-      }
-      stack.draw(spriteCanvas);
+      greyOutStackLevel(stack, spriteCanvas, toGreyRow);
       toGreyRow--;
     }
   }
+}
+
+function getCurrentPlayerStack() {
+  return stack;
 }

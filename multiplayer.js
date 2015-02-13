@@ -3,12 +3,17 @@ var MIN_PLAYERS = 2;
 var BOARD_HEIGHT = 21;
 var BOARD_WIDTH = 10;
 
+var LOSER = "LOSER!";
+var WINNER = "WINNER!";
+
 var numPlayersSpan = document.getElementById('numPlayers');
 var numPlayers = parseInt(numPlayersSpan.innerHTML, 10);
 var stacks = {};
-var stackCtxs = [];
-var stackCanvases = [];
+var divs = [];
+
 var roomID;
+
+var TEMP_LOSE = {};
 
 function increasePlayers() {
     if (numPlayers < MAX_PLAYERS) {
@@ -27,60 +32,77 @@ function decreasePlayers() {
 // ask server for room for x people
 // get room id from the server
 function createRoom() {
-    //Remove yourself from players
-    numPlayers--;
-
+    numPlayers = parseInt(numPlayersSpan.innerHTML, 10) - 1;
     roomID = 'UXSF3SJ';
 }
 
 function createStacks() {
     for (var i = 0; i < numPlayers; i++) {
+        var div = document.createElement("div");
+        div.setAttribute("class", "b");
+        div.setAttribute("data-spritecanvas", "spriteTwo");
+
         var stackCanvas = document.createElement('canvas');
-        stackCanvas.id = i;
-        stackCanvas.setAttribute('class', 'canvas');
-        stackCanvases.push(stackCanvas);
+        stackCanvas.id = "canvas";
+        div.appendChild(stackCanvas);
 
-        document.getElementById('content').appendChild(stackCanvas);
-        
-        var stackCtx = stackCanvas.getContext('2d');
-        stackCtxs.push(stackCtx);
+        var msg = document.createElement("p");
+        msg.id = "otherMsg";
+        msg.setAttribute("class", "otherMsg");
+        div.appendChild(msg);
 
-        var stack = new Stack(stackCtx);
+        document.getElementById("content").appendChild(div);
+        divs.push(div);
+
+        var stack = new Stack(stackCanvas.getContext("2d"));
         stack.new(10, 22);
         stacks[i] = stack;
     }
 
+    divs.push(document.getElementById("b"));
+    stacks[numPlayers] = getCurrentPlayerStack();
     clearStackCtxs();
 }
 
 function clearStackCtxs() {
     for (var i = 0; i < numPlayers; i++) {
-        clear(stackCtxs[i]);
+        var stackCtx = divs[i].getElementsByTagName("canvas")[0].getContext("2d");
+        clear(stackCtx);
     }
 }
 
-function drawStacks(spriteCanvas) {
+function drawStacks() {
     for (var i = 0; i < numPlayers; i++) {
-        stacks[i].draw(spriteCanvas);
+        stacks[i].draw(getSpriteCanvas(i));
     }
 }
 
 function resizeStackCanvases(originalCellSize, a, b) {
     var cellSize = originalCellSize - (numPlayers * 5);
     for (var i = 0; i < numPlayers ; i++) {
-        var stackCanvas = stackCanvases[i];
+        var canvas = divs[i].getElementsByTagName("canvas")[0];
+        var msg = divs[i].getElementsByTagName("p")[0];
            
-        stackCanvas.cellSize = cellSize;
-        stackCanvas.width = cellSize * 10;
-        stackCanvas.height = cellSize * 20;
-        makeSprite(stackCanvas.cellSize, a, b);
+        canvas.cellSize = cellSize;
+        
+        canvas.width = cellSize * 10;
+        canvas.height = cellSize * 20;
+        divs[i].style.width = canvas.width + "px";
+        divs[i].style.height = canvas.height + "px";
+
+        makeSprite(canvas.cellSize, a, b);
+
+        msg.style.fontSize = ~~(canvas.width / 6) + 'px';
     }
 }
 
 //sends players lines to the server
-function sendLines(tetro, spriteCanvas) {
+function sendLines(tetro) {
     for (var i = 0; i < numPlayers; i++) {
-        stacks[i].addPiece(tetro, false, spriteCanvas);
+        if (TEMP_LOSE[i]) {
+            break;
+        }
+        stacks[i].addPiece(tetro, false, getSpriteCanvas(i));
     }
 }
 
@@ -107,12 +129,38 @@ function addLines(lines, gaps) {
 }
 
 function removeCanvases() {
-    for (var i = 0; i < stackCanvases.length; i++) {
-        var canvas = stackCanvases[i];
-        canvas.parentNode.removeChild(canvas);
+    for (var i = 0; i < divs.length - 1; i++) {
+        divs[i].parentNode.removeChild(divs[i]);
     }
 
     stacks = {};
-    stackCtxs = [];
-    stackCanvases = [];
+    divs = [];
+}
+
+function endPlayer(id, status) {
+    id += "";
+    var msg = divs[id].getElementsByTagName("p")[0];
+
+    greyOutStack(stacks[id], getSpriteCanvas(i));
+    msg.innerHTML = status;
+
+    TEMP_LOSE[id+""] = true;
+
+    if (id == numPlayers) {
+        gameState = 9;
+    }
+}
+
+function end() {
+    for (var i = 0; i < numPlayers; i++) {
+        console.log(i, "end");
+        endPlayer(i, LOSER);
+    }
+    endPlayer(numPlayers, WINNER);
+}
+
+function getSpriteCanvas(i) {
+    console.log(i);
+    var spriteSource = divs[i].dataset.spritecanvas;
+    return document.getElementById(spriteSource);
 }
