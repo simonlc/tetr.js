@@ -1,5 +1,5 @@
-function Stack() {
-  //this.grid;
+function Stack(ctx) {
+  this.ctx = ctx;
 }
 /**
  * Creates a matrix for the playfield.
@@ -10,18 +10,20 @@ Stack.prototype.new = function(x, y) {
     cells[i] = new Array(y);
   }
   this.grid = cells;
-}
+};
+
 /**
  * Adds tetro to the stack, and clears lines if they fill up.
  */
-Stack.prototype.addPiece = function(tetro) {
+Stack.prototype.addPiece = function(tetro, modifyStats, spriteCanvas) {
   var once = false;
 
   // Add the piece to the stack.
   var range = [];
   var valid = false;
-  for (var x = 0; x < tetro.length; x++) {
-    for (var y = 0; y < tetro[x].length; y++) {
+  var x, y;
+  for (x = 0; x < tetro.length; x++) {
+    for (y = 0; y < tetro[x].length; y++) {
       if (tetro[x][y]) {
         this.grid[x + piece.x][y + piece.y] = tetro[x][y];
         // Get column for finesse
@@ -43,66 +45,75 @@ Stack.prototype.addPiece = function(tetro) {
   // Lock out
   if (!valid) {
     gameState = 9;
-    msg.innerHTML = 'LOCK OUT!';
-    menu(3);
+    if (!multiplayer) {
+      msg.innerHTML = 'LOCK OUT!';
+      menu(3);
+    }
     return;
   }
 
   // Check modified lines for full lines.
-  range = range.sort(function(a,b){return a-b});
+  range = range.sort(function(a,b) {
+    return a-b;
+  });
+
   for (var row = range[0], len = row + range.length; row < len; row++) {
     var count = 0;
-    for (var x = 0; x < 10; x++) {
-      if (this.grid[x][row]) count++;
+    for (x = 0; x < 10; x++) {
+      if (this.grid[x][row]) {
+        count++;
+      }
     }
     // Clear the line. This basically just moves down the stack.
     // TODO Ponder during the day and see if there is a more elegant solution.
     if (count === 10) {
-      lines++; // NOTE stats
+      if (modifyStats) {
+        lines++;
+      }
       if (gametype === 3) {
         if (digLines.indexOf(row) !== -1) {
           digLines.splice(digLines.indexOf(row), 1);
         }
       }
-      for (var y = row; y >= -1; y--) {
-        for (var x = 0; x < 10; x++) {
+      for (y = row; y >= -1; y--) {
+        for (x = 0; x < 10; x++) {
           this.grid[x][y] = this.grid[x][y - 1];
         }
       }
     }
   }
 
-  statsFinesse += piece.finesse - finesse[piece.index][piece.pos][column];
-  piecesSet++; // NOTE Stats
-  // TODO Might not need this (same for in init)
-  column = 0;
-
-  statsPiece.innerHTML = piecesSet;
-
-  if (gametype !== 3)
+  if (modifyStats) {
+    statsFinesse += piece.finesse - finesse[piece.index][piece.pos][column];
+    piecesSet++;
+    statsPiece.innerHTML = piecesSet;
+  
+    if (gametype !== 3) {
     statsLines.innerHTML = lineLimit - lines;
-  else
-    statsLines.innerHTML = digLines.length;
-
-  this.draw();
+    }
+    else {
+      statsLines.innerHTML = digLines.length;
+    }
 }
+
+  this.draw(spriteCanvas);
+};
+
 /**
  * Draws the stack.
  */
-Stack.prototype.draw = function() {
-  clear(stackCtx);
-  draw(this.grid, 0, 0, stackCtx);
+Stack.prototype.draw = function(spriteCanvas) {
+  clear(this.ctx);
+  draw(this.grid, 0, 0, this.ctx, void(0), spriteCanvas);
 
-  // Darken Stack
-  // TODO wrap this with an option.
-  stackCtx.globalCompositeOperation = 'source-atop';
-  stackCtx.fillStyle = 'rgba(0,0,0,0.3)';
-  stackCtx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
-  stackCtx.globalCompositeOperation = 'source-over';
+  this.ctx.globalCompositeOperation = 'source-atop';
+  this.ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  this.ctx.fillRect(0, 0, stackCanvas.width, stackCanvas.height);
+  this.ctx.globalCompositeOperation = 'source-over';
 
   if (settings.Outline) {
-    var b = ~~(cellSize / 8);
-    var c = cellSize;
+    var b = ~~(this.ctx.canvas.cellSize / 8);
+    var c = this.ctx.canvas.cellSize;
     var lineCanvas = document.createElement('canvas');
     lineCanvas.width = stackCanvas.width;
     lineCanvas.height = stackCanvas.height;
@@ -173,7 +184,23 @@ Stack.prototype.draw = function() {
       }
     }
     lineCtx.fill();
-    stackCtx.drawImage(lineCanvas, 0, 0);
+    this.ctx.drawImage(lineCanvas, 0, 0);
+  }
+};
+
+function greyOutStack(stack, canvas) {
+  console.log(stack.ctx.canvas, canvas);
+  for (var x = 0; x <= 21; x++) {
+    greyOutStackLevel(stack, canvas, x);
   }
 }
-var stack = new Stack();
+
+//level by level grey out
+function greyOutStackLevel(stack, canvas, level) {
+  for (var x = 0; x < 10; x++) {
+    if (stack.grid[x][level]) {
+      stack.grid[x][level] = 8;
+    }
+  }
+  stack.draw(canvas);
+}

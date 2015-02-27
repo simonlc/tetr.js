@@ -1,14 +1,14 @@
 function Piece() {
-  this.x;
-  this.y;
+  this.x = 0;
+  this.y = 0;
   this.pos = 0;
-  this.tetro;
-  this.index;
-  this.kickData;
+  this.tetro = null;
+  this.index = 0;
+  this.kickData = null;
   this.lockDelay = 0;
   this.shiftDelay = 0;
-  this.shiftDir;
-  this.shiftReleased;
+  this.shiftDir = 0;
+  this.shiftReleased = false;
   this.arrDelay = 0;
   this.held = false;
   this.finesse = 0;
@@ -17,7 +17,7 @@ function Piece() {
 /**
  * Removes last active piece, and gets the next active piece from the grab bag.
  */
-Piece.prototype.new = function(index) {
+Piece.prototype.new = function(index, spriteCanvas) {
   // TODO if no arguments, get next grabbag piece
   this.pos = 0;
   this.tetro = [];
@@ -35,6 +35,8 @@ Piece.prototype.new = function(index) {
   this.y = pieces[index].y;
   this.index = index;
 
+  this.spriteCanvas = spriteCanvas;
+
   // TODO ---------------- snip
 
   //TODO Do this better. (make grabbag object)
@@ -45,25 +47,29 @@ Piece.prototype.new = function(index) {
   // Check for blockout.
   if (!this.moveValid(0, 0, this.tetro)) {
     gameState = 9;
-    msg.innerHTML = 'BLOCK OUT!';
-    menu(3);
+    if (!multiplayer) {
+      msg.innerHTML = 'BLOCK OUT!';
+      menu(3);
+    }
   }
-}
+};
+
 Piece.prototype.rotate = function(direction) {
 
   // Rotates tetromino.
   var rotated = [];
+  var i, row;
   if (direction === -1) {
-    for (var i = this.tetro.length - 1; i >= 0; i--) {
+    for (i = this.tetro.length - 1; i >= 0; i--) {
       rotated[i] = [];
-      for (var row = 0; row < this.tetro.length; row++) {
+      for (row = 0; row < this.tetro.length; row++) {
         rotated[i][this.tetro.length - 1 - row] = this.tetro[row][i];
       }
     }
   } else {
-    for (var i = 0; i < this.tetro.length; i++) {
+    for (i = 0; i < this.tetro.length; i++) {
       rotated[i] = [];
-      for (var row = this.tetro.length - 1; row >= 0; row--) {
+      for (row = this.tetro.length - 1; row >= 0; row--) {
         rotated[i][row] = this.tetro[row][this.tetro.length - 1 - i];
       }
     }
@@ -90,7 +96,8 @@ Piece.prototype.rotate = function(direction) {
       break;
     }
   }
-}
+};
+
 Piece.prototype.checkShift = function() {
   // Shift key pressed event.
   if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
@@ -155,7 +162,8 @@ Piece.prototype.checkShift = function() {
       this.shift(this.shiftDir);
     }
   }
-}
+};
+
 Piece.prototype.shift = function(direction) {
   this.arrDelay = 0;
   if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
@@ -168,7 +176,8 @@ Piece.prototype.shift = function(direction) {
   } else if (this.moveValid(direction, 0, this.tetro)) {
     this.x += direction;
   }
-}
+};
+
 Piece.prototype.shiftDown = function() {
   if (this.moveValid(0, 1, this.tetro)) {
     var grav = gravityArr[settings['Soft Drop'] + 1];
@@ -177,32 +186,36 @@ Piece.prototype.shiftDown = function() {
     else
       this.y += grav;
   }
-}
+};
+
 Piece.prototype.hardDrop = function() {
   this.y += this.getDrop(20);
   this.lockDelay = settings['Lock Delay'];
-}
+};
+
 Piece.prototype.getDrop = function(distance) {
   for (var i = 1; i <= distance; i++) {
     if (!this.moveValid(0, i, this.tetro))
       return i - 1;
   }
   return i - 1;
-}
+};
+
 Piece.prototype.hold = function() {
   var temp = hold.piece;
   if (!this.held) {
     if (hold.piece !== void 0) {
       hold.piece = this.index;
-      this.new(temp);
+      this.new(temp, this.spriteCanvas);
     } else {
       hold.piece = this.index;
-      this.new(preview.next());
+      this.new(preview.next(), this.spriteCanvas);
     }
     this.held = true;
-    hold.draw();
+    hold.draw(this.spriteCanvas);
   }
-}
+};
+
 /**
  * Checks if position and orientation passed is valid.
  *  We call it for every action instead of only once a frame in case one
@@ -223,7 +236,9 @@ Piece.prototype.moveValid = function(cx, cy, tetro) {
   }
   this.lockDelay = 0;
   return true;
-}
+};
+
+//Called when piece hits bottom of stack
 Piece.prototype.update = function() {
   if (this.moveValid(0, 1, this.tetro)) {
     landed = false;
@@ -240,8 +255,7 @@ Piece.prototype.update = function() {
     landed = true;
     this.y = Math.floor(this.y);
     if (this.lockDelay >= settings['Lock Delay']) {
-      stack.addPiece(this.tetro);
-      this.new(preview.next());
+      return true;
     } else {
       var a = 1 / setting['Lock Delay'][settings['Lock Delay']];
       activeCtx.globalCompositeOperation = 'source-atop';
@@ -251,20 +265,20 @@ Piece.prototype.update = function() {
       this.lockDelay++;
     }
   }
-}
+};
+
 Piece.prototype.draw = function() {
-  draw(this.tetro, this.x, this.y, activeCtx);
-}
+  draw(this.tetro, this.x, this.y, activeCtx, void(0), this.spriteCanvas);
+};
+
 Piece.prototype.drawGhost = function() {
   if (!settings.Ghost && !landed) {
     draw(this.tetro, this.x,
-         this.y + this.getDrop(22), activeCtx, 0);
+         this.y + this.getDrop(22), activeCtx, 0, this.spriteCanvas);
   } else if (settings.Ghost === 1 && !landed) {
     activeCtx.globalAlpha = 0.3;
     draw(this.tetro, this.x,
-         this.y + this.getDrop(22), activeCtx);
+         this.y + this.getDrop(22), activeCtx, void(0), this.spriteCanvas);
     activeCtx.globalAlpha = 1;
   }
-}
-
-var piece = new Piece();
+};
