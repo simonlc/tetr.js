@@ -380,6 +380,38 @@ function unpause() {
   menu();
 }
 
+function pause() {
+  if (gameState == 0) {
+  paused = !paused;
+  startPauseTime = Date.now();
+  msg.innerHTML = "Paused";
+  menu(4);    
+  }
+}
+
+/**
+ * Creates a "grab bag" of the 7 tetrominos. The first
+ *  drop of the first generation can not be an S, O, or Z piece.
+ */
+function randomGenerator() {
+  var pieceList = [0, 1, 2, 3, 4, 5, 6];
+  return pieceList.sort(function() {return 0.5 - rng.next()});
+}
+
+/**
+ * Park Miller "Minimal Standard" PRNG.
+ */
+//TODO put random seed method in here.
+var rng = new (function() {
+  this.seed = 1;
+  this.next = function() {
+    return (this.gen() / 2147483647);
+  }
+  this.gen = function() {
+    return this.seed = (this.seed * 16807) % 2147483647;
+  }
+})();
+
 /**
  * Draws the stats next to the tetrion.
  */
