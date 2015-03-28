@@ -1,121 +1,152 @@
 <!doctype html>
-  <meta charset=utf-8>
-  <title>Tetr.js</title>
-  <link rel=stylesheet href=style.css>
+<meta charset=utf-8>
+<title>Tetr.js</title>
+<link rel=stylesheet href=style.css>
 <!--<canvas id=bg></canvas>-->
 <video id="bg" src="bg.webm loop autoplay"></video>
 <div id="content">
-  <div id="d">
-    <h3>Hold</h3>
+    <div id="d">
+        <h3>Hold</h3>
 
-    <div id="a">
-      <canvas id="hold"></canvas>
-    </div>
-    <ul id="replay" style="display:none">
-      <li><a onclick="replay(-1)">prev</a>
-      <li><a onclick="replay()">Play/Pause</a>
-      <li><a onclick="replay(1)">next</a>
-    </ul>
+        <div id="a">
+            <canvas id="hold"></canvas>
+        </div>
+        <ul id="replay" style="display:none">
+            <li><a onclick="replay(-1)">prev</a>
+            <li><a onclick="replay()">Play/Pause</a>
+            <li><a onclick="replay(1)">next</a>
+        </ul>
 
-    <table id="stats">
-      <tr><td id="line">0<th>Line
-      <tr><td id="piece">0<th>Piece
-      <tr><th id="time">00:00.00
-    </table>
-  </div>
-
-  <div id="b">
-    <canvas id="bgStack"></canvas>
-    <canvas id="stack"></canvas>
-    <canvas id="active"></canvas>
-
-    <p id="msg">
-
-    <nav class="menu on">
-      <h1>Tetr.js</h1>
-      <ul>
-        <li><a onclick="init(0)">Play Sprint</a>
-        <li><a onclick="init(1)">Play Dig Race</a>
-        <li><a onclick="menu(5)">Multiplayer</a>
-        <li><a onclick="menu(2)"><i class=></i>Controls</a>
-        <li><a onclick="menu(1)"><i class="icon-cog"></i>Settings</a>
-      </ul>
-    </nav>
-
-    <div class="menu">
-      <h2>Settings</h2>
-      <div id="settings">
-      </div>
-      <div style="clear:both"><a class="button" onclick="menu(0)">Done</a></div>
+        <table id="stats">
+            <tr>
+                <td id="line">0
+                    <th>Line
+            <tr>
+                <td id="piece">0
+                    <th>Piece
+            <tr>
+                <th id="time">00:00.00
+        </table>
     </div>
 
-    <div class="menu">
-      <h2>Controls</h2>
-      <p>Click on the control you want to change, then press any key.
-      <table id="controls">
-        <tr> <th>Move Left:    <td id="moveLeft">←
-        <tr> <th>Move Right:   <td id="moveRight">→
-        <tr> <th>Move Down:    <td id="moveDown">↓
-        <tr> <th>Hard Drop:    <td id="hardDrop">Space
-        <tr> <th>Hold:         <td id="holdPiece">Shift
-        <tr> <th>Spin Right:   <td id="rotRight">↑
-        <tr> <th>Spin Left:    <td id="rotLeft">Z
-        <tr> <th>Spin 180:     <td id="rot180">C
-        <tr> <th>Retry:        <td id="retry">R
-        <tr> <th>Pause:        <td id="pause">Esc
-      </table>
-      <div style="clear:both"><a class="button" onclick="menu(0)">Done</a></div>
+    <div id="b">
+        <canvas id="bgStack"></canvas>
+        <canvas id="stack"></canvas>
+        <canvas id="active"></canvas>
+
+        <p id="msg">
+
+            <nav class="menu on">
+                <h1>Tetr.js</h1>
+                <ul>
+                    <li><a onclick="init(0)">Play Sprint</a>
+                    <li><a onclick="init(1)">Play Dig Race</a>
+                    <li><a onclick="menu(5)">Multiplayer</a>
+                    <li><a onclick="menu(2)"><i class=></i>Controls</a>
+                    <li><a onclick="menu(1)"><i class="icon-cog"></i>Settings</a>
+                </ul>
+            </nav>
+
+        <div class="menu">
+            <h2>Settings</h2>
+
+            <div id="settings">
+            </div>
+            <div style="clear:both"><a class="button" onclick="menu(0)">Done</a></div>
+        </div>
+
+        <div class="menu">
+            <h2>Controls</h2>
+
+            <p>Click on the control you want to change, then press any key.
+            <table id="controls">
+                <tr>
+                    <th>Move Left:
+                        <td id="moveLeft">←
+                <tr>
+                    <th>Move Right:
+                        <td id="moveRight">→
+                <tr>
+                    <th>Move Down:
+                        <td id="moveDown">↓
+                <tr>
+                    <th>Hard Drop:
+                        <td id="hardDrop">Space
+                <tr>
+                    <th>Hold:
+                        <td id="holdPiece">Shift
+                <tr>
+                    <th>Spin Right:
+                        <td id="rotRight">↑
+                <tr>
+                    <th>Spin Left:
+                        <td id="rotLeft">Z
+                <tr>
+                    <th>Spin 180:
+                        <td id="rot180">C
+                <tr>
+                    <th>Retry:
+                        <td id="retry">R
+                <tr>
+                    <th>Pause:
+                    <td id="pause">Esc
+            </table>
+            <div style="clear:both"><a class="button" onclick="menu(0)">Done</a></div>
+        </div>
+
+        <nav id="go" class="menu">
+            <ul>
+                <li><a onclick="init(gametype)">Retry</a>
+                <li><a onclick="init('replay')">Watch Replay</a>
+                <li><a onclick="menu(0)">Main Menu</a>
+            </ul>
+        </nav>
+
+        <nav id="pause" class="menu">
+            <ul>
+                <li><a onclick=unpause()>Return</a>
+                <li><a onclick=init(gametype)>Retry</a>
+                <li><a onclick=menu(0)>Main Menu</a>
+            </ul>
+        </nav>
+
+        <nav id="multiplayerOptions" class="menu">
+            <h2>Multiplayer Options</h2>
+
+            <p>What would you like to do?</p>
+            <ul>
+                <li><a onclick="menu(6)">Host a game</a>
+                <li><a onclick="init(2, 'random')">Join a random game</a>
+                <li><a onclick="init(2, 'gameID')">Join using a game ID</a>
+                <li><a onclick="menu(0)">Go back</a>
+            </ul>
+        </nav>
+
+        <div id="setPlayers" class="menu">
+            <h2>Multiplayer Options</h2>
+
+            <p>How many players would you like in your room?</p>
+
+            <div id="Players">
+                <b>No players:&nbsp;&nbsp;</b>
+                <i class="left" onclick="decreasePlayers()"></i>
+                <span id="numPlayers">2</span>
+                <i class="right" onclick="increasePlayers()"></i>
+            </div>
+            <br>
+            <br>
+            <br>
+
+            <div style="clear:both">
+                <a class="button" onclick="init(2, 'host')">Create room</a>
+            </div>
+        </div>
     </div>
 
-    <nav id="go" class="menu">
-      <ul>
-        <li><a onclick="init(gametype)">Retry</a>
-        <li><a onclick="init('replay')">Watch Replay</a>
-        <li><a onclick="menu(0)">Main Menu</a>
-      </ul>
-    </nav>
-
-    <nav id="pause" class="menu">
-      <ul>
-        <li><a onclick=unpause()>Return</a>
-        <li><a onclick=init(gametype)>Retry</a>
-        <li><a onclick=menu(0)>Main Menu</a>
-      </ul>
-    </nav>
-
-    <nav id="multiplayerOptions" class="menu">
-      <h2>Multiplayer Options</h2>
-      <p>What would you like to do?</p>
-      <ul>
-        <li><a onclick="menu(6)">Host a game</a>
-        <li><a onclick="init(2, 'random')">Join a random game</a>
-        <li><a onclick="init(2, 'gameID')">Join using a game ID</a>
-        <li><a onclick="menu(0)">Go back</a>
-      </ul>
-    </nav>
-
-    <div id="setPlayers" class="menu">
-      <h2>Multiplayer Options</h2>
-      <p>How many players would you like in your room?</p>
-      <div id="Players">
-        <b>No players:&nbsp;&nbsp;</b>
-        <i class="left" onclick="decreasePlayers()"></i>
-        <span id="numPlayers">2</span>
-        <i class="right" onclick="increasePlayers()"></i>
-      </div>
-      <br>
-      <br>
-      <br>
-      <div style="clear:both">
-        <a class="button" onclick="init(2, 'host')">Create room</a>
-      </div>
+    <div id="c">
+        <h3>Next</h3>
+        <canvas id="preview"></canvas>
     </div>
-</div>
-
-  <div id="c">
-    <h3>Next</h3>
-    <canvas id="preview"></canvas>
-  </div>
 
 </div>
 
