@@ -380,15 +380,6 @@ function unpause() {
     menu();
 }
 
-function pause() {
-    if (gameState == 0) {
-        paused = !paused;
-        startPauseTime = Date.now();
-        msg.innerHTML = "Paused";
-        menu(4);
-    }
-}
-
 /**
  * Creates a "grab bag" of the 7 tetrominos. The first
  *  drop of the first generation can not be an S, O, or Z piece.
