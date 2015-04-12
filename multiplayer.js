@@ -79,12 +79,12 @@ function drawStacks() {
 
 function resizeStackCanvases(originalCellSize, a, b) {
     var cellSize = originalCellSize - (numPlayers * 5);
-    for (var i = 0; i < numPlayers ; i++) {
+    for (var i = 0; i < numPlayers; i++) {
         var canvas = divs[i].getElementsByTagName("canvas")[0];
         var msg = divs[i].getElementsByTagName("p")[0];
-           
+
         canvas.cellSize = cellSize;
-        
+
         canvas.width = cellSize * 10;
         canvas.height = cellSize * 20;
         divs[i].style.width = canvas.width + "px";
@@ -109,21 +109,21 @@ function sendLines(tetro) {
 //adds lines to players stacks
 function addLines(lines, gaps) {
     for (var y = 0; y <= BOARD_HEIGHT - lines; y++) {
-      for (var x = 0; x < BOARD_WIDTH; x++) {
-        if (stack.grid[x][y + lines] !== undefined) {
-            stack.grid[x][y] = stack.grid[x][y + lines];
+        for (var x = 0; x < BOARD_WIDTH; x++) {
+            if (stack.grid[x][y + lines] !== undefined) {
+                stack.grid[x][y] = stack.grid[x][y + lines];
+            }
         }
-      }
     }
 
     for (var y = BOARD_HEIGHT; y > BOARD_HEIGHT - lines; y--) {
-      for (var x = 0; x < BOARD_WIDTH; x++) {
-        if (x != gaps[BOARD_HEIGHT - y]) {
-            stack.grid[x][y] = 8;
-        } else {
-            stack.grid[x][y] = undefined;
+        for (var x = 0; x < BOARD_WIDTH; x++) {
+            if (x != gaps[BOARD_HEIGHT - y]) {
+                stack.grid[x][y] = 8;
+            } else {
+                stack.grid[x][y] = undefined;
+            }
         }
-      }
     }
     stack.draw(spriteCanvas);
 }
@@ -144,7 +144,7 @@ function endPlayer(id, status) {
     greyOutStack(stacks[id], getSpriteCanvas(i));
     msg.innerHTML = status;
 
-    TEMP_LOSE[id+""] = true;
+    TEMP_LOSE[id + ""] = true;
 
     if (id == numPlayers) {
         gameState = 9;
