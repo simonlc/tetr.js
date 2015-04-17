@@ -6,11 +6,14 @@ var BOARD_WIDTH = 10;
 var LOSER = "LOSER!";
 var WINNER = "WINNER!";
 
+var GAMESERVER_URL;
+
 var numPlayersSpan = document.getElementById('numPlayers');
 var numPlayers = parseInt(numPlayersSpan.innerHTML, 10);
 var stacks = {};
 var divs = [];
 
+var gameClient = new GameClient(GAMESERVER_URL, ['ws']);
 var roomID;
 
 var TEMP_LOSE = {};
@@ -32,6 +35,7 @@ function decreasePlayers() {
 // ask server for room for x people
 // get room id from the server
 function createRoom() {
+
     numPlayers = parseInt(numPlayersSpan.innerHTML, 10) - 1;
     roomID = 'UXSF3SJ';
 }
