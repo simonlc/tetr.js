@@ -304,27 +304,10 @@ function init(gt, multiplayerMode) {
 
         document.getElementById("b").setAttribute("data-spritecanvas", "sprite");
 
-        //defaults to joining a random game
-        switch (multiplayerMode) {
-            case "host":
-                createRoom();
-                createStacks();
-                setTimeout(function () {
-                    addLines(3, [1, 4, 6]);
-                }, 6000);
-                // displayRoomID();
-                // waitForPlayers();
-                break;
-            case "gameID":
-                break;
-            case "random":
-            default:
-                break;
-        }
-
-        //show waiting screen
-        //do waiting logic
-        //on all players
+        createStacks();
+        setTimeout(function () {
+            addLines([1, 2, 4, 6]);
+        }, 6000);
     }
 
     resize();
@@ -459,7 +442,9 @@ function update() {
     if (piece.update()) {
         stack.addPiece(piece.tetro, true, piece.spriteCanvas);
         if (multiplayer) {
-            //move this to on lines cleared
+            var rotation = piece.pos
+            var position = [piece.x, piece.y]
+            // gameClient.dropPiece(rotation, position);
             sendLines(piece.tetro);
         }
         piece.new(preview.next(), piece.spriteCanvas);

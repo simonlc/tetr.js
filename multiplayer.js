@@ -6,11 +6,14 @@ var BOARD_WIDTH = 10;
 var LOSER = "LOSER!";
 var WINNER = "WINNER!";
 
+var GAMESERVER_URL = "http://todo.get";
+
 var numPlayersSpan = document.getElementById('numPlayers');
 var numPlayers = parseInt(numPlayersSpan.innerHTML, 10);
 var stacks = {};
 var divs = [];
 
+var gameClient = new GameClient(GAMESERVER_URL, ['ws']);
 var roomID;
 
 var TEMP_LOSE = {};
@@ -29,11 +32,52 @@ function decreasePlayers() {
     }
 }
 
-// ask server for room for x people
-// get room id from the server
+//TALKS TO GAMESERVER
 function createRoom() {
     numPlayers = parseInt(numPlayersSpan.innerHTML, 10) - 1;
-    roomID = 'UXSF3SJ';
+    // gameClient.createRoom(numPlayers);
+    // show loading screen
+    // function should have a callback
+    // on room id 
+    // setRoomID() and joinRoom()
+}
+
+//FROM GAMESERVER
+function setRoomID(roomID) {
+    roomID = roomID;
+}
+
+//TALKS TO GAMESERVER
+function joinRoom() {
+    gameClient.joinRoom(roomID)
+    // function should have a callback
+    // on join should go to game screen
+}
+
+function createStack(i) {
+    var div = document.createElement("div");
+    div.setAttribute("class", "b");
+    div.setAttribute("data-spritecanvas", "spriteTwo");
+
+    var stackCanvas = document.createElement('canvas');
+    stackCanvas.id = "canvas";
+    div.appendChild(stackCanvas);
+
+    var msg = document.createElement("p");
+    msg.id = "otherMsg";
+    msg.setAttribute("class", "otherMsg");
+    div.appendChild(msg);
+
+    document.getElementById("content").appendChild(div);
+    divs.push(div);
+
+    var stack = new Stack(stackCanvas.getContext("2d"));
+    stack.new(10, 22);
+    stacks[i] = stack;
+
+    divs.push(document.getElementById("b"));
+    stacks[numPlayers] = getCurrentPlayerStack();
+    clearStackCtxs();
 }
 
 function createStacks() {
@@ -79,7 +123,10 @@ function drawStacks() {
 
 function resizeStackCanvases(originalCellSize, a, b) {
     var cellSize = originalCellSize - (numPlayers * 5);
-    for (var i = 0; i < numPlayers; i++) {
+    for (var i = 0; i < 3; i++) {
+        if (divs[i] == null) {
+            break;
+        }
         var canvas = divs[i].getElementsByTagName("canvas")[0];
         var msg = divs[i].getElementsByTagName("p")[0];
 
@@ -98,8 +145,11 @@ function resizeStackCanvases(originalCellSize, a, b) {
 
 //sends players lines to the server
 function sendLines(tetro) {
-    for (var i = 0; i < numPlayers; i++) {
-        if (TEMP_LOSE[i]) {
+    for (var i = 0; i < 3; i++) {
+if (divs[i] == null) {
+            break;
+        }
+                if (TEMP_LOSE[i]) {
             break;
         }
         stacks[i].addPiece(tetro, false, getSpriteCanvas(i));
@@ -107,7 +157,8 @@ function sendLines(tetro) {
 }
 
 //adds lines to players stacks
-function addLines(lines, gaps) {
+function addLines(gap_positions) {
+    lines = gap_positions.length
     for (var y = 0; y <= BOARD_HEIGHT - lines; y++) {
         for (var x = 0; x < BOARD_WIDTH; x++) {
             if (stack.grid[x][y + lines] !== undefined) {
@@ -118,7 +169,7 @@ function addLines(lines, gaps) {
 
     for (var y = BOARD_HEIGHT; y > BOARD_HEIGHT - lines; y--) {
         for (var x = 0; x < BOARD_WIDTH; x++) {
-            if (x != gaps[BOARD_HEIGHT - y]) {
+            if (x != gap_positions[BOARD_HEIGHT - y]) {
                 stack.grid[x][y] = 8;
             } else {
                 stack.grid[x][y] = undefined;
@@ -160,7 +211,6 @@ function end() {
 }
 
 function getSpriteCanvas(i) {
-    console.log(i);
     var spriteSource = divs[i].dataset.spritecanvas;
     return document.getElementById(spriteSource);
 }
