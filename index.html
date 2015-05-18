@@ -174,32 +174,25 @@
 
                 <p>What would you like to do?</p>
                 <ul>
+                    <!-- TODO: Connect to server here -->
                     <li><a onclick="menu(6)">Host a game</a>
-                    <li><a onclick="init(2, 'random')">Join a random game</a>
-                    <li><a onclick="init(2, 'gameID')">Join using a game ID</a>
+                    <// TODO: FIX THIS SECTION -->
+                    <li><a onclick="init(2)">Join a random game</a>
+                    <li><a onclick="init(2)">Join using a game ID</a>
                     <li><a onclick="menu(0)">Go back</a>
                 </ul>
             </nav>
 
-            <div id="setPlayers" class="menu">
-                <h2>Multiplayer Options</h2>
-
-                <p>How many players would you like in your room?</p>
-
-                <div id="Players">
-                    <b>No players:&nbsp;&nbsp;</b>
-                    <i class="left" onclick="decreasePlayers()"></i>
-                    <span id="numPlayers">2</span>
-                    <i class="right" onclick="increasePlayers()"></i>
-                </div>
+            <nav id="waiting-menu" class="menu">
+                <h2> Waiting for more players</h2>
+                <h4> They can join using this URL</h4>
+                <p> http://url.com</p>
                 <br>
                 <br>
-                <br>
-
-                <div style="clear:both">
-                    <a class="button" onclick="createRoom()">Create room</a>
-                </div>
-            </div>
+                <ul>
+                    <li><a onclick="menu(0)">Leave</a>
+                </ul>
+            </nav>
         </div>
 
         <div id="c">

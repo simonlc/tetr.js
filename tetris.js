@@ -119,29 +119,7 @@ function resize() {
     var c = document.getElementById('c');
 
     var content = document.getElementById('content');
-
-    // TODO Finalize this.
-    // Aspect ratio: 1.024
-    var screenHeight = window.innerHeight - 34;
-    var screenWidth = ~~(screenHeight * 1.024);
-    var cellSize;
-
-    if (screenWidth > window.innerWidth) {
-        screenHeight = ~~(window.innerWidth / 1.024);
-    }
-
-    if (settings.Size === 1 && screenHeight > 602) {
-        cellSize = 15;
-    }
-    else if (settings.Size === 2 && screenHeight > 602) {
-        cellSize = 30;
-    }
-    else if (settings.Size === 3 && screenHeight > 902) {
-        cellSize = 45;
-    }
-    else {
-        cellSize = Math.max(~~(screenHeight / 20), 10);
-    }
+    var cellSize = getCellSize();
 
     var pad = (window.innerHeight - (cellSize * 20 + 2)) / 2 + 'px';
     content.style.padding = pad + ' 0';
@@ -184,10 +162,6 @@ function resize() {
 
     makeSprite(stackCanvas.cellSize, spriteCanvas, spriteCtx);
 
-    if (multiplayer) {
-        resizeStackCanvases(cellSize, spriteCanvasTwo, spriteCtxTwo);
-    }
-
     if (settings.Grid === 1) {
         bg(bgStackCtx);
     }
@@ -201,8 +175,32 @@ function resize() {
             hold.draw(spriteCanvas);
         }
         if (multiplayer) {
-            drawStacks(spriteCanvasTwo);
+            drawStacks();
         }
+    }
+}
+
+function getCellSize() {
+    // TODO Finalize this.
+    // Aspect ratio: 1.024
+    var screenHeight = window.innerHeight - 34;
+    var screenWidth = ~~(screenHeight * 1.024);
+
+    if (screenWidth > window.innerWidth) {
+        screenHeight = ~~(window.innerWidth / 1.024);
+    }
+
+    if (settings.Size === 1 && screenHeight > 602) {
+        return 15;
+    }
+    else if (settings.Size === 2 && screenHeight > 602) {
+        return 0;
+    }
+    else if (settings.Size === 3 && screenHeight > 902) {
+        return 45;
+    }
+    else {
+        return Math.max(~~(screenHeight / 20), 10);
     }
 }
 
@@ -216,16 +214,19 @@ resize();
 /**
  * Resets all the settings and starts the game.
  */
-function init(gt, multiplayerMode) {
+function init(gt) {
     if (gt === 'replay') {
         watchingReplay = true;
     } else {
         watchingReplay = false;
-        multiplayer = false;
         replayKeys = {};
         // TODO Make new seed and rng method.
         replayKeys.seed = ~~(Math.random() * 2147483645) + 1;
         gametype = gt;
+
+        if (multiplayer === undefined) {
+            multiplayer = false;
+        }
     }
 
     lineLimit = 40;
@@ -290,26 +291,16 @@ function init(gt, multiplayerMode) {
                 }
             }
         }
-        stack.draw(spriteCanvas);
     }
-
-    removeCanvases();
 
     // Multiplayer
     if (gametype === 2) {
-        multiplayer = true;
-
-        spriteCanvasTwo = document.getElementById('spriteTwo');
-        spriteCtxTwo = spriteCanvasTwo.getContext('2d');
-
         document.getElementById("b").setAttribute("data-spritecanvas", "sprite");
 
-        createStacks();
         setTimeout(function () {
             addLines([1, 2, 4, 6]);
         }, 6000);
     }
-
     resize();
     startGame();
 }
@@ -474,8 +465,6 @@ function update() {
 }
 
 function gameLoop() {
-
-    var spriteCanvas = document.getElementById('sprite');
     requestAnimFrame(gameLoop);
 
     //TODO check to see how pause works in replays.

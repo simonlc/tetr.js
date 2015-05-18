@@ -28,7 +28,7 @@ GameClient.prototype.send = function(message) {
 
 GameClient.prototype.onmessage = function(event) {
     var data = event.data;
-    
+
     switch(data.type) {
         case "gameStart":
             seed = data.seed;
@@ -49,6 +49,7 @@ GameClient.prototype.onmessage = function(event) {
             break;
         case "playerJoin":
             this.addPlayerToMapping(data.player)
+            // add player to numPlayers
             // add players stack
             break;
         case "playerLeave":
@@ -59,10 +60,9 @@ GameClient.prototype.onmessage = function(event) {
     }
 };
 
-GameClient.prototype.createRoom = function(numPlayers) {
+GameClient.prototype.createRoom = function() {
     data = {
         type: MESSAGE_TYPES.createRoom,
-        numPlayers: numPlayers
     };
     this.send(JSON.stringify(data));
 };
@@ -108,7 +108,7 @@ GameClient.prototype.removePlayerToMapping = function(playerID) {
 
 
     //need to send over player tokens at he beginnging of a game os i can map it to a board id
-//convert pieces for internal representation of board 
+//convert pieces for internal representation of board
 //make rotation and indexes map up
     //add room id to URL --> best way of handling this? use a eventlistener and then connect or what 
     // https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Manipulating_the_browser_history
@@ -116,4 +116,4 @@ GameClient.prototype.removePlayerToMapping = function(playerID) {
 //different way of dropping pieces, if you give me a board theyre all grey, think it'll be cooler to go for straight real time 
 // and ill figure out a way to represent it internally 
 //only host can start game
-
+// add removeCanvases to clear up at the end of a game
