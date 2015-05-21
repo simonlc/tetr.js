@@ -15,30 +15,56 @@ var divs = [];
 var gameClient = new GameClient(GAMESERVER_URL, ['ws']);
 var roomID;
 
+var host = false;
+
 var TEMP_LOSE = {};
 
 //TALKS TO GAMESERVER
 function createRoom() {
-    // gameClient.createRoom();
-    // show loading screen
-    // function should have a callback
-    // on room id
-    // setRoomID() and joinRoom()
-    multiplayer = true;
-    spriteCanvasTwo = document.getElementById('spriteTwo');
-    spriteCtxTwo = spriteCanvasTwo.getContext('2d');
+    //gameClient.createRoom();
+    menu(CONNECTING_MENU);
 }
 
 //FROM GAMESERVER
-function setRoomID(roomID) {
+function handleRoomCreated(roomID) {
+    host = true;
+    multiplayer = true;
+
+    spriteCanvasTwo = document.getElementById('spriteTwo');
+    spriteCtxTwo = spriteCanvasTwo.getContext('2d');
+
     roomID = roomID;
+    history.replaceState({} , roomID, '/' + roomID);
+
+    //joinRoom();
 }
 
 //TALKS TO GAMESERVER
 function joinRoom() {
     gameClient.joinRoom(roomID)
-    // function should have a callback
-    // on join should go to game screen
+}
+
+//FROM GAMESERVER
+function handlePlayerJoin() {
+    if (currentMenu == CONNECTING_MENU) {
+        menu(WAITING_ON_PLAYERS_MENU);
+    } else {
+        createStack();
+        numPlayers ++
+
+        //Show start game option to host when 2+ players
+        if (numPlayers == 1) {
+            menuDiv = window.document.getElementById('waiting-menu');
+            optionsUl = menuDiv.getElementsByTagName('ul').item(0);
+
+            startGameLi = window.document.createElement('li');
+            startGameAnchor = window.document.createElement('a');
+            startGameAnchor.innerHTML = 'Start Game';
+            startGameAnchor.onclick = serverStartGame;
+            startGameLi.appendChild(startGameAnchor);
+            optionsUl.appendChild(startGameLi);
+        }
+    }
 }
 
 //Draws a player's stack when they enter a room
@@ -64,13 +90,6 @@ function createStack() {
     stacks[numPlayers] = stack;
 
     clearStackCtxs();
-    numPlayers ++
-
-    //Show start game option to host
-    if (numPlayers == 1) {
-        //create a <li> saying start, onclick gameclient start game
-        //attach to waiting-menu
-    }
 }
 
 //TALKS TO SERVER

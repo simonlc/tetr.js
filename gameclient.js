@@ -35,7 +35,7 @@ GameClient.prototype.onmessage = function(event) {
             // init(2)
             break;
         case "roomCreated":
-            roomID = data.room
+            handleRoomCreated(data.room)
             break;
         case "addLines":
             addLines(data.lines)
@@ -49,8 +49,7 @@ GameClient.prototype.onmessage = function(event) {
             break;
         case "playerJoin":
             this.addPlayerToMapping(data.player)
-            // add player to numPlayers
-            // add players stack
+            handlePlayerJoin();
             break;
         case "playerLeave":
             var player = data.player;

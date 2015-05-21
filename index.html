@@ -175,7 +175,7 @@
                 <p>What would you like to do?</p>
                 <ul>
                     <!-- TODO: Connect to server here -->
-                    <li><a onclick="menu(6)">Host a game</a>
+                    <li><a onclick="createRoom()">Host a game</a>
                     <// TODO: FIX THIS SECTION -->
                     <li><a onclick="init(2)">Join a random game</a>
                     <li><a onclick="init(2)">Join using a game ID</a>
@@ -192,6 +192,10 @@
                 <ul>
                     <li><a onclick="menu(0)">Leave</a>
                 </ul>
+            </nav>
+
+            <nav id="connecting-menu" class="menu">
+                <h2> Connecting... </h2>
             </nav>
         </div>
 

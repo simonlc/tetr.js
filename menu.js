@@ -30,6 +30,9 @@ var key = {
     220: '\\', 221: ']', 222: "'"
 };
 
+var WAITING_ON_PLAYERS_MENU = 6;
+var CONNECTING_MENU = 7;
+var currentMenu;
 /**
  * Show and hide menus.
  */
@@ -38,8 +41,11 @@ function menu(menuIndex) {
     for (var i = 0, len = menus.length; i < len; i++) {
         menus[i].classList.remove('on');
     }
-    if (menuIndex !== void 0)
+    if (menuIndex !== void 0) {
         menus[menuIndex].classList.add('on');
+    }
+
+    currentMenu = menuIndex;
 }
 
 /**
