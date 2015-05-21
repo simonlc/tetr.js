@@ -431,12 +431,13 @@ function update() {
     }
 
     if (piece.update()) {
-        stack.addPiece(piece.tetro, true, piece.spriteCanvas);
         if (multiplayer) {
             var rotation = piece.pos
             var position = [piece.x, piece.y]
             // gameClient.dropPiece(rotation, position);
             sendLines(piece.tetro);
+        } else {
+            stack.addPiece(piece.tetro, true, piece.spriteCanvas);
         }
         piece.new(preview.next(), piece.spriteCanvas);
     }

@@ -118,12 +118,13 @@ function resizeStackCanvases() {
 
 //sends players lines to the server
 function sendLines(tetro) {
-    for (var i = 0; i <= numPlayers; i++) {
+    for (var i = 0; i < numPlayers; i++) {
         if (TEMP_LOSE[i]) {
             break;
         }
         stacks[i].addPiece(tetro, false, getSpriteCanvas(i));
     }
+    stacks[numPlayers].addPiece(tetro, true, getSpriteCanvas(numPlayers));
 }
 
 //adds lines to players stacks
