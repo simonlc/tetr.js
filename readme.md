@@ -3,9 +3,9 @@
 ### Default Controls:
 
 - **Rotate Left:** Z
-- **Rotate 180:** X
-- **Rotate Right:** C and Up
-- **Hold:** Shift
+- **Rotate Right:** X
+- **Rotate 180:** Shift
+- **Hold:** C
 - **Hard Drop:** Space
 - **Shift Left:** Left Arrow
 - **Shift Right:** Right Arrow
@@ -21,6 +21,8 @@
     - Hold
     - Piece preview
 - Game statistics like PPM, Time, etc.
+- Multiple mino skins
+- Stack outline
 - Configurable gravity
 - 60 FPS
 - Fast code and drawing
@@ -28,10 +30,13 @@
 - Configurable controls
 - Adjustable game size
 - Ghost piece color and transparency
+- Responsive design
+- Preload das preservation during countdown
+- Finesse faults counter.
 
 ## Planned future mechanics and features
 
-- Responsive and mobile design
+- Mobile design
 - More game modes (ultra, etc)
 - Training mode, 2step trainer, patterns, etc
 - Replays
@@ -43,8 +48,6 @@
 
 ## TODO misc
 
-- Preload das preservation during countdown
 - Help page
 - Feedback button
 - Include license
-- Pause, and pause game while in menu
