@@ -15,7 +15,7 @@ var cellSize;
 var column;
 
 /**
- * Get html elements. 
+ * Get html elements.
  */
 var msg = document.getElementById('msg');
 var stats = document.getElementById('stats');
@@ -49,21 +49,16 @@ var kickData = [
   [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
   [[0, 0], [1, 0], [1, 1], [0, -2], [1, -2]],
   [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
-  [[0, 0], [-1, 0], [-1, 1], [0, -2], [-1, -2]]
+  [[0, 0], [-1, 0], [-1, 1], [0, -2], [-1, -2]],
 ];
 var kickDataI = [
   [[0, 0], [-1, 0], [2, 0], [-1, 0], [2, 0]],
   [[-1, 0], [0, 0], [0, 0], [0, -1], [0, 2]],
   [[-1, -1], [1, -1], [-2, -1], [1, 0], [-2, 0]],
-  [[0, -1], [0, -1], [0, -1], [0, 1], [0, -2]]
+  [[0, -1], [0, -1], [0, -1], [0, 1], [0, -2]],
 ];
 // TODO get rid of this lol.
-var kickDataO = [
-  [[0, 0]],
-  [[0, 0]],
-  [[0, 0]],
-  [[0, 0]]
-];
+var kickDataO = [[[0, 0]], [[0, 0]], [[0, 0]], [[0, 0]]];
 
 // Define shapes and spawns.
 var PieceI = {
@@ -76,66 +71,50 @@ var PieceI = {
     [0, 0, 1, 0, 0],
     [0, 0, 1, 0, 0],
     [0, 0, 1, 0, 0],
-    [0, 0, 1, 0, 0]]
+    [0, 0, 1, 0, 0],
+  ],
 };
 var PieceJ = {
   index: 1,
   x: 3,
   y: 0,
   kickData: kickData,
-  tetro: [
-    [2, 2, 0],
-    [0, 2, 0],
-    [0, 2, 0]]
+  tetro: [[2, 2, 0], [0, 2, 0], [0, 2, 0]],
 };
 var PieceL = {
   index: 2,
   x: 3,
   y: 0,
   kickData: kickData,
-  tetro: [
-    [0, 3, 0],
-    [0, 3, 0],
-    [3, 3, 0]]
+  tetro: [[0, 3, 0], [0, 3, 0], [3, 3, 0]],
 };
 var PieceO = {
   index: 3,
   x: 4,
   y: 0,
   kickData: kickDataO,
-  tetro: [
-    [4, 4],
-    [4, 4]]
+  tetro: [[4, 4], [4, 4]],
 };
 var PieceS = {
   index: 4,
   x: 3,
   y: 0,
   kickData: kickData,
-  tetro: [
-    [0, 5, 0],
-    [5, 5, 0],
-    [5, 0, 0]]
+  tetro: [[0, 5, 0], [5, 5, 0], [5, 0, 0]],
 };
 var PieceT = {
   index: 5,
   x: 3,
   y: 0,
   kickData: kickData,
-  tetro: [
-    [0, 6, 0],
-    [6, 6, 0],
-    [0, 6, 0]]
+  tetro: [[0, 6, 0], [6, 6, 0], [0, 6, 0]],
 };
 var PieceZ = {
   index: 6,
   x: 3,
   y: 0,
   kickData: kickData,
-  tetro: [
-    [7, 0, 0],
-    [7, 7, 0],
-    [0, 7, 0]]
+  tetro: [[7, 0, 0], [7, 7, 0], [0, 7, 0]],
 };
 var pieces = [PieceI, PieceJ, PieceL, PieceO, PieceS, PieceT, PieceZ];
 
@@ -148,44 +127,44 @@ var finesse = [
     [1, 2, 1, 0, 1, 2, 1],
     [2, 2, 2, 2, 1, 1, 2, 2, 2, 2],
     [1, 2, 1, 0, 1, 2, 1],
-    [2, 2, 2, 2, 1, 1, 2, 2, 2, 2]
+    [2, 2, 2, 2, 1, 1, 2, 2, 2, 2],
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
     [2, 2, 3, 2, 1, 2, 3, 3, 2],
     [2, 3, 2, 1, 2, 3, 3, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2, 2]
+    [2, 3, 2, 1, 2, 3, 3, 2, 2],
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
     [2, 2, 3, 2, 1, 2, 3, 3, 2],
     [2, 3, 2, 1, 2, 3, 3, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2, 2]
+    [2, 3, 2, 1, 2, 3, 3, 2, 2],
   ],
   [
     [1, 2, 2, 1, 0, 1, 2, 2, 1],
     [1, 2, 2, 1, 0, 1, 2, 2, 1],
     [1, 2, 2, 1, 0, 1, 2, 2, 1],
-    [1, 2, 2, 1, 0, 1, 2, 2, 1]
+    [1, 2, 2, 1, 0, 1, 2, 2, 1],
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
     [2, 2, 2, 1, 1, 2, 3, 2, 2],
     [1, 2, 1, 0, 1, 2, 2, 1],
-    [2, 2, 2, 1, 1, 2, 3, 2, 2]
+    [2, 2, 2, 1, 1, 2, 3, 2, 2],
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
     [2, 2, 3, 2, 1, 2, 3, 3, 2],
     [2, 3, 2, 1, 2, 3, 3, 2],
-    [2, 3, 2, 1, 2, 3, 3, 2, 2]
+    [2, 3, 2, 1, 2, 3, 3, 2, 2],
   ],
   [
     [1, 2, 1, 0, 1, 2, 2, 1],
     [2, 2, 2, 1, 1, 2, 3, 2, 2],
     [1, 2, 1, 0, 1, 2, 2, 1],
-    [2, 2, 2, 1, 1, 2, 3, 2, 2]
-  ]
+    [2, 2, 2, 1, 1, 2, 3, 2, 2],
+  ],
 ];
 
 /**
@@ -196,10 +175,8 @@ var gravity;
 var gravityArr = (function() {
   var array = [];
   array.push(0);
-  for (var i = 1; i < 64; i++)
-    array.push(i / 64);
-  for (var i = 1; i <= 20; i++)
-    array.push(i);
+  for (var i = 1; i < 64; i++) array.push(i / 64);
+  for (var i = 1; i <= 20; i++) array.push(i);
   return array;
 })();
 
@@ -215,45 +192,41 @@ var settings = {
   Block: 0,
   Ghost: 0,
   Grid: 0,
-  Outline: 0
+  Outline: 0,
 };
 
 var setting = {
-  DAS: range(0,31),
-  ARR: range(0,11),
+  DAS: range(0, 31),
+  ARR: range(0, 11),
   Gravity: (function() {
     var array = [];
     array.push('Auto');
     array.push('0G');
-    for (var i = 1; i < 64; i++)
-      array.push(i + '/64G');
-    for (var i = 1; i <= 20; i++)
-      array.push(i + 'G');
+    for (var i = 1; i < 64; i++) array.push(i + '/64G');
+    for (var i = 1; i <= 20; i++) array.push(i + 'G');
     return array;
   })(),
   'Soft Drop': (function() {
     var array = [];
-    for (var i = 1; i < 64; i++)
-      array.push(i + '/64G');
-    for (var i = 1; i <= 20; i++)
-      array.push(i + 'G');
+    for (var i = 1; i < 64; i++) array.push(i + '/64G');
+    for (var i = 1; i <= 20; i++) array.push(i + 'G');
     return array;
   })(),
-  'Lock Delay': range(0,101),
+  'Lock Delay': range(0, 101),
   Size: ['Auto', 'Small', 'Medium', 'Large'],
   Sound: ['Off', 'On'],
   Volume: range(0, 101),
   Block: ['Shaded', 'Solid', 'Glossy', 'Arika', 'World'],
   Ghost: ['Normal', 'Colored', 'Off'],
   Grid: ['Off', 'On'],
-  Outline: ['Off', 'On']
+  Outline: ['Off', 'On'],
 };
 
 var frame;
 
 /**
-*Pausing variables
-*/
+ *Pausing variables
+ */
 
 var startPauseTime;
 var pauseTime;
@@ -300,7 +273,7 @@ var binds = {
   rotRight: 88,
   rotLeft: 90,
   rot180: 16,
-  retry: 82
+  retry: 82,
 };
 var flags = {
   hardDrop: 1,
@@ -339,7 +312,8 @@ function resize() {
   a.style.padding = '0 0.5rem ' + ~~(cellSize / 2) + 'px';
 
   stackCanvas.width = activeCanvas.width = bgStackCanvas.width = cellSize * 10;
-  stackCanvas.height = activeCanvas.height = bgStackCanvas.height = cellSize * 20;
+  stackCanvas.height = activeCanvas.height = bgStackCanvas.height =
+    cellSize * 20;
   b.style.width = stackCanvas.width + 'px';
   b.style.height = stackCanvas.height + 'px';
 
@@ -369,8 +343,7 @@ function resize() {
   // Redraw graphics
   makeSprite();
 
-  if (settings.Grid === 1)
-    bg(bgStackCtx);
+  if (settings.Grid === 1) bg(bgStackCtx);
 
   if (gameState === 0) {
     piece.drawGhost();
@@ -426,7 +399,7 @@ function init(gt) {
   if (settings.Gravity === 0) gravity = gravityUnit * 4;
   startTime = Date.now();
 
-  preview.init()
+  preview.init();
   //preview.draw();
 
   statsFinesse = 0;
@@ -452,15 +425,12 @@ function init(gt) {
     var randomNums = [];
     for (var i = 0; i < 10; i++) {
       var random = ~~(rng.next() * 10);
-      if (random !== randomNums[i - 1])
-        randomNums.push(random);
-      else
-        i--
+      if (random !== randomNums[i - 1]) randomNums.push(random);
+      else i--;
     }
     for (var y = 21; y > 11; y--) {
       for (var x = 0; x < 10; x++) {
-        if (randomNums[y - 12] !== x)
-          stack.grid[x][y] = 8;
+        if (randomNums[y - 12] !== x) stack.grid[x][y] = 8;
       }
     }
     stack.draw();
@@ -497,27 +467,29 @@ Number.prototype.mod = function(n) {
 /**
  * Shim.
  */
-window.requestAnimFrame = (function () {
-  return window.requestAnimationFrame       ||
-         window.mozRequestAnimationFrame    ||
-         window.webkitRequestAnimationFrame ||
-         function (callback) {
-           window.setTimeout(callback, 1000 / 60);
-         };
+window.requestAnimFrame = (function() {
+  return (
+    window.requestAnimationFrame ||
+    window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    function(callback) {
+      window.setTimeout(callback, 1000 / 60);
+    }
+  );
 })();
 
 function pause() {
   if (gameState === 0) {
     paused = true;
     startPauseTime = Date.now();
-    msg.innerHTML = "Paused";
-    menu(4);    
+    msg.innerHTML = 'Paused';
+    menu(4);
   }
 }
 
 function unpause() {
   paused = false;
-  pauseTime += (Date.now() - startPauseTime);
+  pauseTime += Date.now() - startPauseTime;
   msg.innerHTML = '';
   menu();
 }
@@ -526,26 +498,26 @@ function unpause() {
  * Park Miller "Minimal Standard" PRNG.
  */
 //TODO put random seed method in here.
-var rng = new (function() {
+var rng = new function() {
   this.seed = 1;
   this.next = function() {
     // Returns a float between 0.0, and 1.0
-    return (this.gen() / 2147483647);
-  }
+    return this.gen() / 2147483647;
+  };
   this.gen = function() {
-    return this.seed = (this.seed * 16807) % 2147483647;
-  }
-})();
+    return (this.seed = (this.seed * 16807) % 2147483647);
+  };
+}();
 
 /**
  * Draws the stats next to the tetrion.
  */
 function statistics() {
   var time = Date.now() - startTime - pauseTime;
-  var seconds = (time / 1000 % 60).toFixed(2);
+  var seconds = ((time / 1000) % 60).toFixed(2);
   var minutes = ~~(time / 60000);
-  statsTime.innerHTML = (minutes < 10 ? '0' : '') + minutes +
-                        (seconds < 10 ? ':0' : ':') + seconds;
+  statsTime.innerHTML =
+    (minutes < 10 ? '0' : '') + minutes + (seconds < 10 ? ':0' : ':') + seconds;
 }
 
 // ========================== View ============================================
@@ -571,7 +543,17 @@ function drawCell(x, y, color, ctx) {
   x = x * cellSize;
   x = ~~x;
   y = ~~y * cellSize - 2 * cellSize;
-  ctx.drawImage(spriteCanvas, color * cellSize, 0, cellSize, cellSize, x, y, cellSize, cellSize);
+  ctx.drawImage(
+    spriteCanvas,
+    color * cellSize,
+    0,
+    cellSize,
+    cellSize,
+    x,
+    y,
+    cellSize,
+    cellSize,
+  );
 }
 
 /**
@@ -588,7 +570,7 @@ function makeSprite() {
     ['#9ccd38', '#b9e955', '#81b214', '#659700'],
     ['#9c5ab8', '#b873d4', '#81409d', '#672782'],
     ['#e64b3c', '#ff6853', '#c62c25', '#a70010'],
-    ['#898989', '#a3a3a3', '#6f6f6f', '#575757']
+    ['#898989', '#a3a3a3', '#6f6f6f', '#575757'],
   ];
   var glossy = [
     //25         37         52         -21        -45
@@ -600,7 +582,7 @@ function makeSprite() {
     ['#efff81', '#ffffa2', '#ffffcd', '#6b9200', '#2c5600'],
     ['#dc9dfe', '#ffbeff', '#ffe9ff', '#5d287e', '#210043'],
     ['#ff9277', '#ffb497', '#ffe0bf', '#a7000a', '#600000'],
-    ['#cbcbcb', '#ededed', '#ffffff', '#545454', '#1f1f1f']
+    ['#cbcbcb', '#ededed', '#ffffff', '#545454', '#1f1f1f'],
   ];
   var tgm = [
     ['#7b7b7b', '#303030', '#6b6b6b', '#363636'],
@@ -669,14 +651,18 @@ function makeSprite() {
       spriteCtx.fillStyle = grad;
       spriteCtx.fillRect(x, 0, cellSize - k, cellSize - k);
 
-      var grad = spriteCtx.createLinearGradient(x + k, k, x + cellSize - k, cellSize - k);
+      var grad = spriteCtx.createLinearGradient(
+        x + k,
+        k,
+        x + cellSize - k,
+        cellSize - k,
+      );
       grad.addColorStop(0, shaded[i][0]);
       grad.addColorStop(0.5, glossy[i][0]);
       grad.addColorStop(0.5, shaded[i][0]);
       grad.addColorStop(1, glossy[i][0]);
       spriteCtx.fillStyle = grad;
       spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
-
     } else if (settings.Block === 3 || settings.Block === 4) {
       // Arika
       if (settings.Block === 4) tgm = world;
@@ -691,7 +677,7 @@ function makeSprite() {
       grad.addColorStop(0, tgm[i][2]);
       grad.addColorStop(1, tgm[i][3]);
       spriteCtx.fillStyle = grad;
-      spriteCtx.fillRect(x + k, k, cellSize - k*2, cellSize - k*2);
+      spriteCtx.fillRect(x + k, k, cellSize - k * 2, cellSize - k * 2);
 
       var grad = spriteCtx.createLinearGradient(x, k, x, cellSize);
       grad.addColorStop(0, tgm[i][0]);
@@ -721,73 +707,80 @@ function clear(ctx) {
 function draw(tetro, cx, cy, ctx, color) {
   for (var x = 0, len = tetro.length; x < len; x++) {
     for (var y = 0, wid = tetro[x].length; y < wid; y++) {
-      if (tetro[x][y]) drawCell(x + cx, y + cy, color !== void 0 ? color : tetro[x][y], ctx);
+      if (tetro[x][y])
+        drawCell(x + cx, y + cy, color !== void 0 ? color : tetro[x][y], ctx);
     }
   }
 }
 
 // ========================== Controller ======================================
 
-addEventListener('keydown', function(e) {
-  // TODO send to menu or game depending on context.
-  if ([32,37,38,39,40].indexOf(e.keyCode) !== -1)
-    e.preventDefault();
-  //TODO if active, prevent default for binded keys
-  //if (bindsArr.indexOf(e.keyCode) !== -1)
-  //  e.preventDefault();
-  if (e.keyCode === binds.pause) {
-    if (paused) {
-      unpause();
-    } else {
-      pause();
+addEventListener(
+  'keydown',
+  function(e) {
+    // TODO send to menu or game depending on context.
+    if ([32, 37, 38, 39, 40].indexOf(e.keyCode) !== -1) e.preventDefault();
+    //TODO if active, prevent default for binded keys
+    //if (bindsArr.indexOf(e.keyCode) !== -1)
+    //  e.preventDefault();
+    if (e.keyCode === binds.pause) {
+      if (paused) {
+        unpause();
+      } else {
+        pause();
+      }
     }
-  }
-  if (e.keyCode === binds.retry) {
-    init(gametype);
-  }
-  if (!watchingReplay) {
-    if (e.keyCode === binds.moveLeft) {
-      keysDown |= flags.moveLeft;
-      //piece.finesse++
-    } else if (e.keyCode === binds.moveRight) {
-      keysDown |= flags.moveRight;
-    } else if (e.keyCode === binds.moveDown) {
-      keysDown |= flags.moveDown;
-    } else if (e.keyCode === binds.hardDrop) {
-      keysDown |= flags.hardDrop;
-    } else if (e.keyCode === binds.rotRight) {
-      keysDown |= flags.rotRight;
-    } else if (e.keyCode === binds.rotLeft) {
-      keysDown |= flags.rotLeft;
-    } else if (e.keyCode === binds.rot180) {
-      keysDown |= flags.rot180;
-    } else if (e.keyCode === binds.holdPiece) {
-      keysDown |= flags.holdPiece;
+    if (e.keyCode === binds.retry) {
+      init(gametype);
     }
-  }
-}, false);
-addEventListener('keyup', function(e) {
-  if (!watchingReplay) {
-    if (e.keyCode === binds.moveLeft && keysDown & flags.moveLeft) {
-      keysDown ^= flags.moveLeft;
-    } else if (e.keyCode === binds.moveRight && keysDown & flags.moveRight) {
-      keysDown ^= flags.moveRight;
-    } else if (e.keyCode === binds.moveDown && keysDown & flags.moveDown) {
-      keysDown ^= flags.moveDown;
-    } else if (e.keyCode === binds.hardDrop && keysDown & flags.hardDrop) {
-      keysDown ^= flags.hardDrop;
-    } else if (e.keyCode === binds.rotRight && keysDown & flags.rotRight) {
-      keysDown ^= flags.rotRight;
-    } else if (e.keyCode === binds.rotLeft && keysDown & flags.rotLeft) {
-      keysDown ^= flags.rotLeft;
-    } else if (e.keyCode === binds.rot180 && keysDown & flags.rot180) {
-      keysDown ^= flags.rot180;
-    } else if (e.keyCode === binds.holdPiece && keysDown & flags.holdPiece) {
-      keysDown ^= flags.holdPiece;
+    if (!watchingReplay) {
+      if (e.keyCode === binds.moveLeft) {
+        keysDown |= flags.moveLeft;
+        //piece.finesse++
+      } else if (e.keyCode === binds.moveRight) {
+        keysDown |= flags.moveRight;
+      } else if (e.keyCode === binds.moveDown) {
+        keysDown |= flags.moveDown;
+      } else if (e.keyCode === binds.hardDrop) {
+        keysDown |= flags.hardDrop;
+      } else if (e.keyCode === binds.rotRight) {
+        keysDown |= flags.rotRight;
+      } else if (e.keyCode === binds.rotLeft) {
+        keysDown |= flags.rotLeft;
+      } else if (e.keyCode === binds.rot180) {
+        keysDown |= flags.rot180;
+      } else if (e.keyCode === binds.holdPiece) {
+        keysDown |= flags.holdPiece;
+      }
     }
-  }
-}, false);
-
+  },
+  false,
+);
+addEventListener(
+  'keyup',
+  function(e) {
+    if (!watchingReplay) {
+      if (e.keyCode === binds.moveLeft && keysDown & flags.moveLeft) {
+        keysDown ^= flags.moveLeft;
+      } else if (e.keyCode === binds.moveRight && keysDown & flags.moveRight) {
+        keysDown ^= flags.moveRight;
+      } else if (e.keyCode === binds.moveDown && keysDown & flags.moveDown) {
+        keysDown ^= flags.moveDown;
+      } else if (e.keyCode === binds.hardDrop && keysDown & flags.hardDrop) {
+        keysDown ^= flags.hardDrop;
+      } else if (e.keyCode === binds.rotRight && keysDown & flags.rotRight) {
+        keysDown ^= flags.rotRight;
+      } else if (e.keyCode === binds.rotLeft && keysDown & flags.rotLeft) {
+        keysDown ^= flags.rotLeft;
+      } else if (e.keyCode === binds.rot180 && keysDown & flags.rot180) {
+        keysDown ^= flags.rot180;
+      } else if (e.keyCode === binds.holdPiece && keysDown & flags.holdPiece) {
+        keysDown ^= flags.holdPiece;
+      }
+    }
+  },
+  false,
+);
 
 // ========================== Loop ============================================
 
@@ -862,16 +855,18 @@ function gameLoop() {
 
   if (gameState === 0) {
     // Playing
-    
+
     if (!paused) {
       update();
     }
 
     // TODO improve this with 'dirty' flags.
-    if (piece.x !== lastX ||
-    Math.floor(piece.y) !== lastY ||
-    piece.pos !== lastPos ||
-    piece.dirty) {
+    if (
+      piece.x !== lastX ||
+      Math.floor(piece.y) !== lastY ||
+      piece.pos !== lastPos ||
+      piece.dirty
+    ) {
       clear(activeCtx);
       piece.drawGhost();
       piece.draw();
@@ -909,12 +904,11 @@ function gameLoop() {
       piece.shiftReleased = false;
       piece.shiftDir = 1;
     }
-  } else if (toGreyRow >= 2){
+  } else if (toGreyRow >= 2) {
     /**
      * Fade to grey animation played when player loses.
      */
-    if (toGreyRow === 21)
-      clear(activeCtx);
+    if (toGreyRow === 21) clear(activeCtx);
     if (frame % 2) {
       for (var x = 0; x < 10; x++) {
         if (stack.grid[x][toGreyRow]) stack.grid[x][toGreyRow] = gameState - 1;

@@ -48,9 +48,8 @@ Piece.prototype.new = function(index) {
     msg.innerHTML = 'BLOCK OUT!';
     menu(3);
   }
-}
+};
 Piece.prototype.rotate = function(direction) {
-
   // Rotates tetromino.
   var rotated = [];
   if (direction === -1) {
@@ -74,15 +73,15 @@ Piece.prototype.rotate = function(direction) {
   var newPos = (this.pos + direction).mod(4);
 
   for (var x = 0, len = this.kickData[0].length; x < len; x++) {
-    if (this.moveValid(
-    this.kickData[curPos][x][0] - this.kickData[newPos][x][0],
-    this.kickData[curPos][x][1] - this.kickData[newPos][x][1],
-    rotated
-    )) {
-      this.x += this.kickData[curPos][x][0] -
-                this.kickData[newPos][x][0];
-      this.y += this.kickData[curPos][x][1] -
-                this.kickData[newPos][x][1];
+    if (
+      this.moveValid(
+        this.kickData[curPos][x][0] - this.kickData[newPos][x][0],
+        this.kickData[curPos][x][1] - this.kickData[newPos][x][1],
+        rotated,
+      )
+    ) {
+      this.x += this.kickData[curPos][x][0] - this.kickData[newPos][x][0];
+      this.y += this.kickData[curPos][x][1] - this.kickData[newPos][x][1];
       this.tetro = rotated;
       this.pos = newPos;
       // TODO make 180 rotate count as one or just update finess 180s
@@ -90,7 +89,7 @@ Piece.prototype.rotate = function(direction) {
       break;
     }
   }
-}
+};
 Piece.prototype.checkShift = function() {
   // Shift key pressed event.
   if (keysDown & flags.moveLeft && !(lastKeys & flags.moveLeft)) {
@@ -107,26 +106,42 @@ Piece.prototype.checkShift = function() {
     this.finesse++;
   }
   // Shift key released event.
-  if (this.shiftDir === 1 &&
-  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+  if (
+    this.shiftDir === 1 &&
+    !(keysDown & flags.moveRight) &&
+    lastKeys & flags.moveRight &&
+    keysDown & flags.moveLeft
+  ) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
     this.shiftReleased = true;
     this.shiftDir = -1;
-  } else if (this.shiftDir === -1 &&
-  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+  } else if (
+    this.shiftDir === -1 &&
+    !(keysDown & flags.moveLeft) &&
+    lastKeys & flags.moveLeft &&
+    keysDown & flags.moveRight
+  ) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
     this.shiftReleased = true;
     this.shiftDir = 1;
   } else if (
-  !(keysDown & flags.moveRight) && lastKeys & flags.moveRight && keysDown & flags.moveLeft) {
+    !(keysDown & flags.moveRight) &&
+    lastKeys & flags.moveRight &&
+    keysDown & flags.moveLeft
+  ) {
     this.shiftDir = -1;
   } else if (
-  !(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft && keysDown & flags.moveRight) {
+    !(keysDown & flags.moveLeft) &&
+    lastKeys & flags.moveLeft &&
+    keysDown & flags.moveRight
+  ) {
     this.shiftDir = 1;
-  } else if ((!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
-             (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)) {
+  } else if (
+    (!(keysDown & flags.moveLeft) && lastKeys & flags.moveLeft) ||
+    (!(keysDown & flags.moveRight) && lastKeys & flags.moveRight)
+  ) {
     this.shiftDelay = 0;
     this.arrDelay = 0;
     this.shiftReleased = true;
@@ -139,23 +154,23 @@ Piece.prototype.checkShift = function() {
       this.shift(this.shiftDir);
       this.shiftDelay++;
       this.shiftReleased = false;
-    // 2. Apply DAS delay
+      // 2. Apply DAS delay
     } else if (this.shiftDelay < settings.DAS) {
       this.shiftDelay++;
-    // 3. Once the delay is complete, move over once.
-    //     Increment delay so this doesn't run again.
+      // 3. Once the delay is complete, move over once.
+      //     Increment delay so this doesn't run again.
     } else if (this.shiftDelay === settings.DAS && settings.DAS !== 0) {
       this.shift(this.shiftDir);
       if (settings.ARR !== 0) this.shiftDelay++;
-    // 4. Apply ARR delay
+      // 4. Apply ARR delay
     } else if (this.arrDelay < settings.ARR) {
       this.arrDelay++;
-    // 5. If ARR Delay is full, move piece, and reset delay and repeat.
+      // 5. If ARR Delay is full, move piece, and reset delay and repeat.
     } else if (this.arrDelay === settings.ARR && settings.ARR !== 0) {
       this.shift(this.shiftDir);
     }
   }
-}
+};
 Piece.prototype.shift = function(direction) {
   this.arrDelay = 0;
   if (settings.ARR === 0 && this.shiftDelay === settings.DAS) {
@@ -168,27 +183,24 @@ Piece.prototype.shift = function(direction) {
   } else if (this.moveValid(direction, 0, this.tetro)) {
     this.x += direction;
   }
-}
+};
 Piece.prototype.shiftDown = function() {
   if (this.moveValid(0, 1, this.tetro)) {
     var grav = gravityArr[settings['Soft Drop'] + 1];
-    if (grav > 1)
-      this.y += this.getDrop(grav);
-    else
-      this.y += grav;
+    if (grav > 1) this.y += this.getDrop(grav);
+    else this.y += grav;
   }
-}
+};
 Piece.prototype.hardDrop = function() {
   this.y += this.getDrop(20);
   this.lockDelay = settings['Lock Delay'];
-}
+};
 Piece.prototype.getDrop = function(distance) {
   for (var i = 1; i <= distance; i++) {
-    if (!this.moveValid(0, i, this.tetro))
-      return i - 1;
+    if (!this.moveValid(0, i, this.tetro)) return i - 1;
   }
   return i - 1;
-}
+};
 Piece.prototype.hold = function() {
   var temp = hold.piece;
   if (!this.held) {
@@ -202,7 +214,7 @@ Piece.prototype.hold = function() {
     this.held = true;
     hold.draw();
   }
-}
+};
 /**
  * Checks if position and orientation passed is valid.
  *  We call it for every action instead of only once a frame in case one
@@ -214,25 +226,27 @@ Piece.prototype.moveValid = function(cx, cy, tetro) {
 
   for (var x = 0; x < tetro.length; x++) {
     for (var y = 0; y < tetro[x].length; y++) {
-      if (tetro[x][y] &&
-      ((cx + x < 0 || cx + x >= 10 || cy + y >= 22) ||
-      stack.grid[cx + x][cy + y])) {
+      if (
+        tetro[x][y] &&
+        (cx + x < 0 ||
+          cx + x >= 10 ||
+          cy + y >= 22 ||
+          stack.grid[cx + x][cy + y])
+      ) {
         return false;
       }
     }
   }
   this.lockDelay = 0;
   return true;
-}
+};
 Piece.prototype.update = function() {
   if (this.moveValid(0, 1, this.tetro)) {
     landed = false;
     if (settings.Gravity) {
       var grav = gravityArr[settings.Gravity - 1];
-      if (grav > 1)
-        this.y += this.getDrop(grav);
-      else
-        this.y += grav;
+      if (grav > 1) this.y += this.getDrop(grav);
+      else this.y += grav;
     } else {
       this.y += gravity;
     }
@@ -251,20 +265,18 @@ Piece.prototype.update = function() {
       this.lockDelay++;
     }
   }
-}
+};
 Piece.prototype.draw = function() {
   draw(this.tetro, this.x, this.y, activeCtx);
-}
+};
 Piece.prototype.drawGhost = function() {
   if (!settings.Ghost && !landed) {
-    draw(this.tetro, this.x,
-         this.y + this.getDrop(22), activeCtx, 0);
+    draw(this.tetro, this.x, this.y + this.getDrop(22), activeCtx, 0);
   } else if (settings.Ghost === 1 && !landed) {
     activeCtx.globalAlpha = 0.3;
-    draw(this.tetro, this.x,
-         this.y + this.getDrop(22), activeCtx);
+    draw(this.tetro, this.x, this.y + this.getDrop(22), activeCtx);
     activeCtx.globalAlpha = 1;
   }
-}
+};
 
 var piece = new Piece();

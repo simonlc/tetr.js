@@ -32,7 +32,7 @@ function bgResize() {
     if (shift < 0) shift = 0;
     bgCanvas.style.top = -shift + 'px';
     bgCanvas.style.left = 0;
-  } else { 
+  } else {
     bgCanvas.style.width = 'auto';
     bgCanvas.style.height = window.innerHeight + 'px';
     var width = bgCanvas.offsetWidth;
